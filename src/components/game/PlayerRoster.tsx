@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import { ROLES } from '@/lib/roles'
+import { IconByKey } from '@/components/icons'
 import type { RoleId, PlayerPublic } from '@/types/game'
 
 interface PlayerRosterProps {
@@ -23,7 +24,7 @@ export function PlayerRoster({ players, className }: PlayerRosterProps) {
         return (
           <div key={rid} className={cn('rounded-xl border p-3', role.bgClass, role.borderClass)}>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">{role.emoji}</span>
+              <IconByKey name={role.icon} size={20} className={role.colorClass} />
               <span className={cn('text-sm font-semibold', role.colorClass)}>{role.name}</span>
               <span className="ml-auto text-xs text-muted-foreground">{rolePlayers.length}</span>
             </div>

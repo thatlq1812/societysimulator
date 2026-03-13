@@ -38,7 +38,7 @@ export default function MacroChartsClient({ history, current }: MacroChartsClien
         <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
         <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} width={30} />
         <Tooltip
-          contentStyle={{ backgroundColor: '#0d1525', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+          contentStyle={{ backgroundColor: '#141414', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
           labelStyle={{ color: '#94a3b8' }}
         />
         <Legend wrapperStyle={{ fontSize: 13, color: '#94a3b8' }} />

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
-import { getRoom } from '@/lib/game-store'
+import { getRoom, getCurrentScenario } from '@/lib/game-store'
 import { broadcast } from '@/lib/sse'
 import type { ChoiceId } from '@/types/game'
-import { SCENARIOS } from '@/lib/scenarios'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,7 +25,7 @@ export async function POST(
   const player = room.players.get(playerId)
   if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
 
-  const scenario = SCENARIOS[room.currentScenarioIndex]
+  const scenario = getCurrentScenario(room)
   if (!scenario) return NextResponse.json({ error: 'No active scenario' }, { status: 400 })
 
   // Record choice (allow re-selection while window is open)

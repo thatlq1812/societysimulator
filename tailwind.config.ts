@@ -21,6 +21,10 @@ const config: Config = {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
@@ -56,12 +60,43 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        'scale-in': {
+          '0%': { opacity: '0', transform: 'scale(0.9)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 20px hsl(0 85% 50% / 0)' },
+          '50%': { boxShadow: '0 0 20px hsl(0 85% 50% / 0.3)' },
+        },
+        'phase-enter': {
+          '0%': { opacity: '0', transform: 'translateY(20px) scale(0.95)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        'bar-grow': {
+          '0%': { width: '0%' },
+          '100%': { width: 'var(--bar-width)' },
+        },
+        'count-up': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'celebrate': {
+          '0%': { transform: 'scale(0) rotate(-10deg)', opacity: '0' },
+          '50%': { transform: 'scale(1.1) rotate(3deg)', opacity: '1' },
+          '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
+        },
       },
       animation: {
         'pulse-ring': 'pulse-ring 2s ease-in-out infinite',
         ticker: 'ticker 25s linear infinite',
         'fade-in': 'fade-in 0.4s ease-out',
         'slide-up': 'slide-up 0.5s ease-out',
+        'scale-in': 'scale-in 0.3s ease-out',
+        'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+        'phase-enter': 'phase-enter 0.5s ease-out',
+        'bar-grow': 'bar-grow 1s ease-out forwards',
+        'count-up': 'count-up 0.4s ease-out',
+        'celebrate': 'celebrate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
       },
     },
   },

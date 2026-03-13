@@ -31,25 +31,26 @@ export function CountdownTimer({ startedAt, duration = 30, onExpire, className }
   const pct = remaining / duration
   const urgent = remaining <= 5
   const warning = remaining <= 10
+  const circumference = 2 * Math.PI * 54 // r=54
 
   return (
     <div className={cn('flex flex-col items-center gap-2', className)}>
-      <div
-        className={cn(
-          'text-5xl font-bold tabular-nums transition-colors duration-300',
-          urgent ? 'text-red-400 animate-pulse' : warning ? 'text-amber-400' : 'text-primary',
-        )}
-      >
-        {remaining}
-      </div>
-      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-        <div
-          className={cn(
-            'h-full rounded-full transition-all duration-500',
-            urgent ? 'bg-red-500' : warning ? 'bg-amber-500' : 'bg-primary',
-          )}
-          style={{ width: `${pct * 100}%` }}
-        />
+      <div className="relative">
+        <svg viewBox="0 0 120 120" className="w-24 h-24">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+          <circle cx="60" cy="60" r="54" fill="none"
+            stroke={urgent ? '#f87171' : warning ? '#fbbf24' : 'hsl(var(--primary))'}
+            strokeWidth="6" strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference * (1 - pct)}
+            transform="rotate(-90 60 60)"
+            className="transition-all duration-500" />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className={cn('text-3xl font-bold tabular-nums', urgent ? 'text-red-400 animate-pulse' : warning ? 'text-amber-400' : 'text-primary')}>
+            {remaining}
+          </span>
+        </div>
       </div>
       <p className="text-xs text-muted-foreground">giây còn lại</p>
     </div>

@@ -69,13 +69,14 @@ jobs:
             --region=${{ env.REGION }} \
             --format='value(status.url)')
           echo "Cloud Run URL: $URL"
-          status=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-          if [ "$status" != "200" ]; then
+          echo "Custom domain: https://societysimulator.elixverse.com"
+          # -L follows redirects (Next.js may 307 on root path)
+          status=$(curl -L -s -o /dev/null -w "%{http_code}" "$URL")
+          if [[ "$status" != 2* ]]; then
             echo "FAIL: HTTP $status"
             exit 1
           fi
           echo "OK: HTTP $status"
-          echo "Custom domain: https://societysimulator.elixverse.com"
 
       - name: Notify on failure
         if: failure()

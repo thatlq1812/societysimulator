@@ -13,7 +13,7 @@ export async function POST(): Promise<NextResponse> {
   const qrDataUrl = await QRCode.toDataURL(joinUrl, {
     width: 400,
     margin: 2,
-    color: { dark: '#ffffff', light: '#0a0f1e' },
+    color: { dark: '#ffffff', light: '#0d0d0d' },
   })
 
   const response: CreateRoomResponse = {

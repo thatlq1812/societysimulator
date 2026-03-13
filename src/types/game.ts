@@ -41,7 +41,7 @@ export interface Role {
   id: RoleId
   name: string
   nameEn: string
-  emoji: string
+  icon: string
   description: string
   historicalMission: string
   colorClass: string
@@ -79,11 +79,14 @@ export interface GameRoom {
   hostSecret: string
   phase: GamePhase
   currentScenarioIndex: number  // -1 = not started, 0-5 = active scenario
+  scenarioIds: string[]         // IDs of randomly-selected scenarios for this session
   scenarioStartedAt?: number    // Date.now() when scenario became 'playing'
   players: Map<string, Player>
   macro: MacroState
   outcome?: OutcomeId
   socialNews?: string
+  aiCommentary?: string         // Tier 1: per-round AI commentary
+  aiTrend?: string              // Tier 2: host-visible trend analysis
   awards?: Award[]
   lastBreakdown?: ChoiceBreakdown
   createdAt: number
@@ -111,11 +114,15 @@ export interface RoomStatePublic {
   pin: string
   phase: GamePhase
   currentScenarioIndex: number
+  totalScenarios: number
+  currentScenario?: Scenario                // resolved scenario for current index
   scenarioStartedAt?: number
   players: PlayerPublic[]
   macro: MacroState
   outcome?: OutcomeId
   socialNews?: string
+  aiCommentary?: string                     // Tier 1: per-round commentary
+  aiTrend?: string                          // Tier 2: host trend analysis
   awards?: Award[]
   playerCount: number
   voteCount: number                     // votes cast in current scenario
@@ -144,6 +151,8 @@ export type SSEEventType =
   | 'scenario-result'
   | 'game-ended'
   | 'ai-generating'
+  | 'ai-commentary'
+  | 'ai-trend'
 
 export interface SSEPlayerJoined {
   playerCount: number

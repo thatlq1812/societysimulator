@@ -1,6 +1,6 @@
 import type { GameRoom, Player, MacroState, RoleId } from '@/types/game'
 import { ROLES } from '@/lib/roles'
-import { SCENARIOS } from '@/lib/scenarios'
+import { getScenarioById } from '@/lib/scenarios'
 import { generateSecret } from '@/lib/pin'
 import { randomUUID } from 'crypto'
 
@@ -39,6 +39,7 @@ export function createRoom(): GameRoom {
     hostSecret,
     phase: 'lobby',
     currentScenarioIndex: -1,
+    scenarioIds: [],
     players: new Map(),
     macro: { ...INITIAL_MACRO, history: [] },
     createdAt: Date.now(),
@@ -67,11 +68,19 @@ export function addPlayer(room: GameRoom, id: string, name: string, roleId: Role
   return player
 }
 
+/** Resolve the current scenario from room.scenarioIds[index] */
+export function getCurrentScenario(room: GameRoom) {
+  if (room.currentScenarioIndex < 0 || room.currentScenarioIndex >= room.scenarioIds.length) return undefined
+  return getScenarioById(room.scenarioIds[room.currentScenarioIndex])
+}
+
 export function serializeRoom(room: GameRoom) {
   return {
     pin: room.pin,
     phase: room.phase,
     currentScenarioIndex: room.currentScenarioIndex,
+    totalScenarios: room.scenarioIds.length,
+    currentScenario: getCurrentScenario(room),
     scenarioStartedAt: room.scenarioStartedAt,
     players: [...room.players.values()].map((p) => ({
       id: p.id,
@@ -84,6 +93,8 @@ export function serializeRoom(room: GameRoom) {
     macro: room.macro,
     outcome: room.outcome,
     socialNews: room.socialNews,
+    aiCommentary: room.aiCommentary,
+    aiTrend: room.aiTrend,
     awards: room.awards,
     playerCount: room.players.size,
     voteCount: computeVoteCount(room),
@@ -92,7 +103,7 @@ export function serializeRoom(room: GameRoom) {
 }
 
 function computeVoteCount(room: GameRoom): number {
-  const scenario = SCENARIOS[room.currentScenarioIndex]
+  const scenario = getCurrentScenario(room)
   if (!scenario) return 0
   let count = 0
   for (const player of room.players.values()) {

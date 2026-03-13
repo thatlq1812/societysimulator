@@ -2,6 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { GlobeIcon, ArrowLeftIcon } from '@/components/icons'
 import { usePlayerStore } from '@/stores/player-store'
 import type { JoinResponse } from '@/types/game'
 
@@ -40,11 +42,14 @@ function JoinForm() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative">
+      <Link href="/" className="absolute top-6 left-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeftIcon size={16} /> Trang chủ
+      </Link>
       <div className="w-full max-w-sm space-y-8 animate-slide-up">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="text-4xl mb-4">🌐</div>
+          <GlobeIcon size={40} className="text-accent mx-auto mb-3" />
           <h1 className="text-2xl font-bold">Digital Society Simulator</h1>
           <p className="text-sm text-muted-foreground">MLN131 — FPT University</p>
         </div>

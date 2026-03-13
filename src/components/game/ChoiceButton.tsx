@@ -48,7 +48,10 @@ export function ChoiceButton({ choice, selected, disabled, submitted, onClick }:
         <span className="text-sm text-foreground/90 leading-relaxed">{choice.text}</span>
       </div>
       {submitted && selected && (
-        <p className="mt-2 ml-10 text-xs text-muted-foreground">✓ Đã chọn</p>
+        <div className="mt-2 ml-10 flex items-center gap-1 text-xs text-muted-foreground">
+          <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 fill-current"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+          Đã chọn
+        </div>
       )}
     </button>
   )

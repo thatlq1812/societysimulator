@@ -8,7 +8,7 @@ import { ScenarioCard } from '@/components/game/ScenarioCard'
 import { ChoiceButton } from '@/components/game/ChoiceButton'
 import { CountdownTimer } from '@/components/game/CountdownTimer'
 import { MicroStats } from '@/components/game/MicroStats'
-import { SCENARIOS } from '@/lib/scenarios'
+import { BrainIcon, PlantIcon, BoltIcon, ChartIcon } from '@/components/icons'
 import type { RoomStatePublic, ChoiceId } from '@/types/game'
 
 const POLL_INTERVAL = 1500
@@ -82,7 +82,7 @@ export default function PlayPage() {
     )
   }
 
-  const scenario = state.currentScenarioIndex >= 0 ? SCENARIOS[state.currentScenarioIndex] : null
+  const scenario = state.currentScenario ?? null
 
   // ─── Lobby ────────────────────────────────────────────────────────────────
   if (state.phase === 'lobby') {
@@ -117,6 +117,7 @@ export default function PlayPage() {
         <ScenarioCard
           scenario={scenario}
           scenarioNumber={state.currentScenarioIndex + 1}
+          totalScenarios={state.totalScenarios}
         />
 
         <div className="space-y-3">
@@ -147,7 +148,7 @@ export default function PlayPage() {
     return (
       <div className="min-h-screen p-4 space-y-4 max-w-sm mx-auto py-8">
         <div className="rounded-2xl border border-border bg-card p-5 text-center space-y-3 animate-fade-in">
-          <div className="text-3xl">📊</div>
+          <ChartIcon size={30} className="text-primary mx-auto" />
           <h2 className="font-bold">Kết quả vừa cập nhật</h2>
           <p className="text-sm text-muted-foreground">
             Liên minh: <span className="text-primary font-bold">{Math.round(state.macro.alliance)}</span> ·
@@ -166,7 +167,7 @@ export default function PlayPage() {
   if (state.phase === 'ai-generating') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
-        <div className="text-4xl animate-pulse">🤖</div>
+        <BrainIcon size={40} className="text-primary animate-pulse" />
         <h2 className="font-bold text-center">AI đang phân tích dữ liệu...</h2>
         <p className="text-sm text-muted-foreground text-center">
           Tổng hợp hành vi của {state.playerCount} người chơi
@@ -192,9 +193,9 @@ export default function PlayPage() {
         <div className="text-center">
           <h2 className="text-xl font-bold">Kết quả hoàn thành</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {state.outcome === 'ben-vung' && '🌱 Chuyển đổi số Bền vững'}
-            {state.outcome === 'dut-gay' && '⚠️ Đứt gãy Cơ cấu'}
-            {state.outcome === 'trung-tinh' && '⚡ Trạng thái Bất ổn'}
+            {state.outcome === 'ben-vung' && <><PlantIcon size={18} className="text-emerald-400 inline-block mr-1" /> Chuyển đổi số Bền vững</>}
+            {state.outcome === 'dut-gay' && <><BoltIcon size={18} className="text-red-400 inline-block mr-1" /> Đứt gãy Cơ cấu</>}
+            {state.outcome === 'trung-tinh' && <><BoltIcon size={18} className="text-amber-400 inline-block mr-1" /> Trạng thái Bất ổn</>}
           </p>
         </div>
 

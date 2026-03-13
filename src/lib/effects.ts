@@ -1,12 +1,11 @@
 import type { GameRoom, MacroState, OutcomeId, ChoiceId } from '@/types/game'
-import { SCENARIOS } from '@/lib/scenarios'
+import { getCurrentScenario } from '@/lib/game-store'
 import { clamp } from '@/lib/utils'
 
 export function computeScenarioEffects(
   room: GameRoom,
-  scenarioIndex: number,
 ): { newMacro: MacroState } {
-  const scenario = SCENARIOS[scenarioIndex]
+  const scenario = getCurrentScenario(room)
   if (!scenario) return { newMacro: room.macro }
 
   let totalAllianceDelta = 0

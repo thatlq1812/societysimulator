@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import { ROLES } from '@/lib/roles'
+import { IconByKey } from '@/components/icons'
 import type { Award } from '@/types/game'
 
 interface AwardCardProps {
@@ -20,7 +21,7 @@ export function AwardCard({ award, className }: AwardCardProps) {
   return (
     <div className={cn('rounded-2xl border p-4 space-y-3 animate-fade-in', style.border, style.bg, className)}>
       <div className="flex items-center gap-3">
-        <span className="text-3xl">{award.icon}</span>
+        <IconByKey name={award.icon} size={28} className={style.text} />
         <div>
           <h3 className={cn('font-bold', style.text)}>{award.name}</h3>
           <p className="text-xs text-muted-foreground">{award.description}</p>
@@ -28,7 +29,7 @@ export function AwardCard({ award, className }: AwardCardProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-lg">{role.emoji}</span>
+        <IconByKey name={role.icon} size={18} className={role.colorClass} />
         <div>
           <p className="font-semibold text-sm">{award.playerName}</p>
           <p className={cn('text-xs', role.colorClass)}>{role.name}</p>

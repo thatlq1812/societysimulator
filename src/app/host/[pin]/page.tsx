@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { QRDisplay } from '@/components/game/QRDisplay'
 import { PlayerRoster } from '@/components/game/PlayerRoster'
-import { SCENARIOS } from '@/lib/scenarios'
+import { BrainIcon } from '@/components/icons'
 import type { RoomStatePublic, CreateRoomResponse } from '@/types/game'
 
 export default function HostControlPage() {
@@ -36,7 +36,7 @@ export default function HostControlPage() {
         const dataUrl = await QRCode.toDataURL(url, {
           width: 300,
           margin: 2,
-          color: { dark: '#ffffff', light: '#0a0f1e' },
+          color: { dark: '#ffffff', light: '#0d0d0d' },
         })
         setQrDataUrl(dataUrl)
       } catch {
@@ -109,8 +109,8 @@ export default function HostControlPage() {
     )
   }
 
-  const scenario = state.currentScenarioIndex >= 0 ? SCENARIOS[state.currentScenarioIndex] : null
-  const isLastScenario = state.currentScenarioIndex >= SCENARIOS.length - 1
+  const scenario = state.currentScenario ?? null
+  const isLastScenario = state.currentScenarioIndex >= (state.totalScenarios ?? 6) - 1
 
   return (
     <div className="min-h-screen p-4 space-y-5 max-w-2xl mx-auto py-6">
@@ -145,7 +145,7 @@ export default function HostControlPage() {
       {/* Scenario info */}
       {scenario && (
         <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
-          <p className="text-xs text-muted-foreground">Tình huống {state.currentScenarioIndex + 1}/{SCENARIOS.length}</p>
+          <p className="text-xs text-muted-foreground">Tình huống {state.currentScenarioIndex + 1}/{state.totalScenarios}</p>
           <p className="font-bold">{scenario.title}</p>
           {state.phase === 'playing' && (
             <div className="pt-2 border-t border-border">
@@ -214,7 +214,7 @@ export default function HostControlPage() {
             disabled={actionLoading}
             className="w-full rounded-xl bg-violet-600 py-4 font-bold text-white transition-all hover:bg-violet-500 disabled:opacity-50"
           >
-            {actionLoading ? '🤖 AI đang tổng hợp...' : '🤖 Tạo Bản tin AI'}
+            {actionLoading ? <><BrainIcon size={16} className="text-white inline-block mr-1" /> AI đang tổng hợp...</> : <><BrainIcon size={16} className="text-white inline-block mr-1" /> Tạo Bản tin AI</>}
           </button>
         )}
 
@@ -227,6 +227,17 @@ export default function HostControlPage() {
 
       {message && (
         <p className="text-center text-sm text-muted-foreground">{message}</p>
+      )}
+
+      {/* AI Trend — Tier 2 (host only) */}
+      {state.phase === 'between' && state.aiTrend && (
+        <div className="rounded-2xl border border-violet-500/30 bg-violet-950/20 p-4 space-y-2 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <BrainIcon size={16} className="text-violet-400" />
+            <p className="text-xs text-violet-400 uppercase tracking-widest font-medium">Phân tích xu hướng AI</p>
+          </div>
+          <p className="text-sm leading-relaxed text-foreground/80">{state.aiTrend}</p>
+        </div>
       )}
 
       {/* Macro readout */}

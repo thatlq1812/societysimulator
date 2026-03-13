@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { MacroState, OutcomeId, GameRoom, ChoiceId } from '@/types/game'
-import { SCENARIOS } from '@/lib/scenarios'
+import { getScenarioById } from '@/lib/scenarios'
 import { ROLES } from '@/lib/roles'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
@@ -29,7 +29,9 @@ interface SummaryInput {
 function buildChoiceStats(room: GameRoom): string {
   const stats: string[] = []
 
-  for (const scenario of SCENARIOS) {
+  for (const scenarioId of room.scenarioIds) {
+    const scenario = getScenarioById(scenarioId)
+    if (!scenario) continue
     const choices = { A: 0, B: 0, C: 0 }
     for (const player of room.players.values()) {
       const choice = player.choices[scenario.id] as ChoiceId | undefined

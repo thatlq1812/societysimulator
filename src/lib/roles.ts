@@ -5,7 +5,7 @@ export const ROLES: Record<RoleId, Role> = {
     id: 'cong-nhan',
     name: 'Công nhân Nền tảng',
     nameEn: 'Platform Worker',
-    emoji: '🚗',
+    icon: 'worker',
     description:
       'Gig worker: tài xế công nghệ, shipper, lao động hợp đồng ngắn hạn trên các nền tảng số.',
     historicalMission:
@@ -20,7 +20,7 @@ export const ROLES: Record<RoleId, Role> = {
     id: 'nong-dan',
     name: 'Nông dân 4.0',
     nameEn: 'Smart Farmer',
-    emoji: '🌾',
+    icon: 'farmer',
     description:
       'Smart farmer: ứng dụng IoT, dữ liệu nông nghiệp, kết nối chuỗi cung ứng số.',
     historicalMission:
@@ -35,7 +35,7 @@ export const ROLES: Record<RoleId, Role> = {
     id: 'tri-thuc',
     name: 'Trí thức Công nghệ',
     nameEn: 'Tech Intellectual',
-    emoji: '💻',
+    icon: 'intellectual',
     description:
       'Kỹ sư phần mềm, nhà nghiên cứu AI, developer — nắm giữ tư liệu sản xuất tri thức số.',
     historicalMission:
@@ -50,7 +50,7 @@ export const ROLES: Record<RoleId, Role> = {
     id: 'startup',
     name: 'Chủ Startup / Nền tảng',
     nameEn: 'Startup Founder',
-    emoji: '🚀',
+    icon: 'startup',
     description:
       'Founder, doanh nhân số, chủ nền tảng gig — kiểm soát thuật toán và dữ liệu người dùng.',
     historicalMission:

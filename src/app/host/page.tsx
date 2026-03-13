@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { GamepadIcon, ArrowLeftIcon } from '@/components/icons'
 import type { CreateRoomResponse } from '@/types/game'
 
 export default function HostPage() {
@@ -27,10 +29,13 @@ export default function HostPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
+      <Link href="/" className="absolute top-6 left-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeftIcon size={16} /> Trang chủ
+      </Link>
       <div className="w-full max-w-md space-y-8 text-center animate-slide-up">
         <div>
-          <div className="text-5xl mb-4">🎮</div>
+          <GamepadIcon size={48} className="text-primary mx-auto mb-4" />
           <h1 className="text-3xl font-bold">Digital Society Simulator</h1>
           <p className="text-muted-foreground mt-2">Bảng điều khiển Giảng viên / Host</p>
         </div>

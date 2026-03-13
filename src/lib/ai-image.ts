@@ -1,0 +1,173 @@
+/**
+ * AI Image Generation using Google Genai (unified SDK).
+ *
+ * Pattern reference: elix platform gemini_adapter.py → generate_image()
+ * Uses @google/genai with response_modalities=["IMAGE"] + ImageConfig.
+ */
+import { GoogleGenAI, type GenerateContentConfig } from '@google/genai'
+import { writeFileSync, existsSync, mkdirSync } from 'fs'
+import { join } from 'path'
+
+function getClient() {
+  const key = process.env.GEMINI_API_KEY
+  if (!key) throw new Error('GEMINI_API_KEY not set')
+  return new GoogleGenAI({ apiKey: key })
+}
+
+// ─── Theme rules (shared across all generation prompts) ──────────────────────
+
+const STYLE_RULES = `
+STYLE RULES — Digital Society Simulator (Vietnamese socialist-themed edu-game):
+- Dark background: pure near-black (#0d0d0d to #141414)
+- Primary accent: revolutionary red (#dc2626, hsl 0 85% 50%)
+- Secondary accent: golden yellow (#eab308, hsl 45 100% 55%)
+- Role colors: Worker=blue(#60a5fa), Farmer=emerald(#34d399), Intellectual=violet(#a78bfa), Startup=amber(#fbbf24)
+- Art style: Flat vector / geometric minimalism, clean edges, no gradients
+- Mood: Futuristic, serious, slightly cyberpunk — like a 2030 policy infographic
+- NO text/words/letters in the image
+- NO photorealistic rendering — keep it illustrative
+- Aspect ratio: square (1:1) unless specified
+- Color palette is limited: dark bg + 1-2 accent colors per image
+`.trim()
+
+// ─── Image generation ────────────────────────────────────────────────────────
+
+interface ImageGenResult {
+  filename: string
+  prompt: string
+  sizeBytes: number
+}
+
+export async function generateAndSaveImage(
+  prompt: string,
+  filename: string,
+): Promise<ImageGenResult> {
+  const client = getClient()
+  const outDir = join(process.cwd(), 'public', 'images')
+  if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true })
+
+  const fullPrompt = `${STYLE_RULES}\n\nGENERATE THIS IMAGE:\n${prompt}`
+
+  const config: GenerateContentConfig = {
+    responseModalities: ['IMAGE'],
+  }
+
+  const response = await client.models.generateContent({
+    model: 'gemini-2.5-flash-image',
+    contents: [fullPrompt],
+    config,
+  })
+
+  // Extract image data from response (same logic as platform adapter)
+  if (!response.candidates || response.candidates.length === 0) {
+    throw new Error('Empty response from Gemini image generation')
+  }
+
+  const parts = response.candidates[0].content?.parts ?? []
+
+  for (const part of parts) {
+    if (part.inlineData) {
+      let imageData: Buffer
+
+      const raw = part.inlineData.data
+      if (!raw) throw new Error('inlineData.data is empty')
+
+      // The SDK typically returns base64-encoded string
+      imageData = Buffer.from(raw as string, 'base64')
+
+      // Check if it's base64-encoded bytes (platform double-decode pattern)
+      const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47])
+      const JPEG_MAGIC = Buffer.from([0xff, 0xd8, 0xff])
+      const isRaw = imageData.subarray(0, 4).equals(PNG_MAGIC)
+        || imageData.subarray(0, 3).equals(JPEG_MAGIC)
+
+      if (!isRaw) {
+        try {
+          const decoded = Buffer.from(imageData.toString('ascii'), 'base64')
+          if (decoded.subarray(0, 4).equals(PNG_MAGIC) || decoded.subarray(0, 3).equals(JPEG_MAGIC)) {
+            imageData = decoded
+          }
+        } catch { /* keep original */ }
+      }
+
+      const outPath = join(outDir, filename)
+      writeFileSync(outPath, imageData)
+      return { filename, prompt, sizeBytes: imageData.length }
+    }
+  }
+
+  // If no image but text was returned, include in error
+  const textParts = parts.filter(p => p.text).map(p => p.text).join(' ')
+  throw new Error(`No image data in response.${textParts ? ` Model said: ${textParts.slice(0, 200)}` : ''}`)
+}
+
+// ─── Pre-defined image prompts ───────────────────────────────────────────────
+
+export const IMAGE_PROMPTS: Record<string, string> = {
+  // ── Role illustrations (square, single subject, role-specific color) ──
+  'role-worker.png':
+    'A geometric silhouette of a modern factory worker operating a robotic arm. Circuit board patterns trace along the arm. Dominant color: blue (#60a5fa) on dark background. Include subtle gear icons.',
+
+  'role-farmer.png':
+    'A geometric silhouette of a farmer holding a tablet, with a drone hovering above a rice field. Data streams flow from the crops. Dominant color: emerald green (#34d399) on dark background.',
+
+  'role-intellectual.png':
+    'A geometric silhouette of a programmer/researcher with floating neural network nodes around their head. Code fragments and brain synapse patterns. Dominant color: violet (#a78bfa) on dark background.',
+
+  'role-startup.png':
+    'A geometric silhouette of an entrepreneur with a rocket launching behind them and rising chart lines. Innovation and growth motifs. Dominant color: amber/yellow (#fbbf24) on dark background.',
+
+  // ── Scenario illustrations (square, abstract/symbolic) ──
+  'scenario-automation.png':
+    'Abstract composition: a human hand and a robotic hand reaching toward each other, with gears and binary code flowing between them. Red and blue tones on dark background. Symbolizes automation vs. human labor.',
+
+  'scenario-data.png':
+    'Abstract composition: a glowing database vault being pulled apart by two forces — a corporate building on one side and a cooperative of farmers on the other. Gold/yellow and emerald tones on dark background.',
+
+  'scenario-opensource.png':
+    'Abstract composition: a padlock being opened to release streams of light/code that branch into multiple directions. Violet and gold tones on dark background. Symbolizes open-source vs. patent.',
+
+  'scenario-strike.png':
+    'Abstract composition: raised fists holding smartphones, forming a connected chain/ring. Red and blue tones on dark background. Symbolizes digital labor organizing.',
+
+  'scenario-acquisition.png':
+    'Abstract composition: a small rocket/startup being drawn into a massive corporate monolith. Red warning accent vs amber hope accent on dark background. Symbolizes corporate acquisition.',
+
+  'scenario-rural.png':
+    'Abstract composition: digital signal waves extending from a city skyline toward rural buildings and fields. Emerald and blue tones on dark background. Symbolizes digital divide.',
+
+  'scenario-platform.png':
+    'Abstract composition: a marketplace platform with farmer figures connected via glowing threads to a central hub that changes color from red to green. Symbolizes platform economy.',
+
+  'scenario-housing.png':
+    'Abstract composition: stacked geometric buildings with price arrows going up, and small human figures at the bottom. Red and amber tones on dark background. Symbolizes housing crisis.',
+
+  'scenario-education.png':
+    'Abstract composition: an open book transforming into a digital screen, with student silhouettes around it. Violet and blue tones on dark background. Symbolizes online education.',
+
+  'scenario-hiring.png':
+    'Abstract composition: a magnifying glass/AI eye scanning rows of human silhouettes, some highlighted, some dimmed. Blue and amber tones on dark background. Symbolizes AI hiring bias.',
+
+  'scenario-blockchain.png':
+    'Abstract composition: interconnected hexagonal nodes forming a decentralized network around a government building. Violet and emerald tones on dark background. Symbolizes DAO governance.',
+
+  'scenario-ubi.png':
+    'Abstract composition: coins/currency flowing evenly from a central source to diverse human silhouettes below. Gold/yellow and red tones on dark background. Symbolizes Universal Basic Income.',
+
+  // ── Hero/decorative images ──
+  'hero-network.png':
+    'Wide illustration (16:9 feel but in square): an abstract network of 4 large colored nodes (blue, green, violet, amber) connected by glowing red/yellow lines to a bright central alliance node. Grid pattern fades into dark background. Represents social class interconnection.',
+
+  // ── Outcome images ──
+  'outcome-sustainable.png':
+    'Abstract celebration: interconnected nodes forming a stable structure, with emerald and gold tones radiating outward. Plant/leaf motif emerging from the network. Symbolizes sustainable digital society.',
+
+  'outcome-collapse.png':
+    'Abstract fracture: network nodes breaking apart, connections shattering into fragments. Red warning tones dominating, dark smoke. Symbolizes social structure collapse.',
+
+  'outcome-unstable.png':
+    'Abstract tension: network nodes flickering between connected and disconnected states, amber/yellow caution tones. Symbolizes an unstable, uncertain society.',
+}
+
+// Re-export client-safe image maps
+export { SCENARIO_IMAGE_MAP, ROLE_IMAGE_MAP, OUTCOME_IMAGE_MAP } from './image-maps'

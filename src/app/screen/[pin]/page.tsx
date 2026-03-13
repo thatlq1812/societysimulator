@@ -2,13 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
+import Image from 'next/image'
 import { MacroGauges } from '@/components/game/MacroGauges'
 import { MacroCharts } from '@/components/game/MacroCharts'
 import { PlayerRoster } from '@/components/game/PlayerRoster'
 import { QRDisplay } from '@/components/game/QRDisplay'
 import { AwardCard } from '@/components/game/AwardCard'
 import { SocialNewsBanner } from '@/components/game/SocialNewsBanner'
-import { SCENARIOS } from '@/lib/scenarios'
+import { GlobeIcon, BrainIcon, PlantIcon, BoltIcon } from '@/components/icons'
+import { SCENARIO_IMAGE_MAP, OUTCOME_IMAGE_MAP } from '@/lib/image-maps'
 import type { RoomStatePublic } from '@/types/game'
 
 export default function ScreenPage() {
@@ -31,7 +33,7 @@ export default function ScreenPage() {
         const dataUrl = await QRCode.toDataURL(url, {
           width: 300,
           margin: 2,
-          color: { dark: '#ffffff', light: '#0a0f1e' },
+          color: { dark: '#ffffff', light: '#0d0d0d' },
         })
         setQrDataUrl(dataUrl)
       } catch { /* ignore */ }
@@ -56,7 +58,7 @@ export default function ScreenPage() {
     es.addEventListener('scenario-start', (e) => {
       const data = JSON.parse(e.data)
       setState((prev) =>
-        prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, scenarioStartedAt: data.scenarioStartedAt, voteCount: 0, lastBreakdown: undefined } : prev,
+        prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, voteCount: 0, lastBreakdown: undefined, aiCommentary: undefined } : prev,
       )
     })
 
@@ -82,6 +84,16 @@ export default function ScreenPage() {
       )
     })
 
+    es.addEventListener('ai-commentary', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, aiCommentary: data.commentary } : prev)
+    })
+
+    es.addEventListener('ai-trend', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, aiTrend: data.trend } : prev)
+    })
+
     es.onerror = () => {
       // Reconnect automatically (browser handles this for SSE)
     }
@@ -93,20 +105,25 @@ export default function ScreenPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-3">
-          <div className="text-3xl animate-pulse">🌐</div>
+          <GlobeIcon size={30} className="text-primary animate-pulse mx-auto" />
           <p className="text-muted-foreground">Đang kết nối...</p>
         </div>
       </div>
     )
   }
 
-  const scenario = state.currentScenarioIndex >= 0 ? SCENARIOS[state.currentScenarioIndex] : null
+  const scenario = state.currentScenario ?? null
 
   // ─── Lobby — show QR code prominently ─────────────────────────────────────
   if (state.phase === 'lobby') {
     return (
-      <div className="min-h-screen bg-background p-8 flex flex-col">
-        <div className="flex-1 grid grid-cols-2 gap-12 items-center">
+      <div className="min-h-screen bg-background p-8 flex flex-col relative overflow-hidden">
+        {/* Background hero image */}
+        <div className="absolute inset-0 opacity-10">
+          <Image src="/images/hero-network.png" alt="" fill className="object-cover" />
+        </div>
+
+        <div className="flex-1 grid grid-cols-2 gap-12 items-center relative z-10">
           <div className="space-y-6">
             <div>
               <p className="text-sm text-muted-foreground uppercase tracking-widest mb-2">
@@ -146,7 +163,7 @@ export default function ScreenPage() {
   // ─── Playing + Between — macro dashboard ──────────────────────────────────
   if (state.phase === 'playing' || state.phase === 'between') {
     return (
-      <div className="min-h-screen bg-background p-8 space-y-8">
+      <div key={`game-${state.currentScenarioIndex}-${state.phase}`} className="min-h-screen bg-background p-8 space-y-8 animate-phase-enter">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -155,7 +172,7 @@ export default function ScreenPage() {
             </p>
             {scenario && (
               <h2 className="text-2xl font-bold mt-1">
-                T{state.currentScenarioIndex + 1}/{SCENARIOS.length}: {scenario.title}
+                T{state.currentScenarioIndex + 1}/{state.totalScenarios}: {scenario.title}
               </h2>
             )}
           </div>
@@ -172,8 +189,21 @@ export default function ScreenPage() {
 
         {/* Scenario context */}
         {scenario && state.phase === 'playing' && (
-          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5">
-            <p className="text-base leading-relaxed text-foreground/90">{scenario.context}</p>
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 overflow-hidden animate-fade-in">
+            {SCENARIO_IMAGE_MAP[scenario.id] && (
+              <div className="relative w-full h-40 overflow-hidden">
+                <Image
+                  src={SCENARIO_IMAGE_MAP[scenario.id]}
+                  alt={scenario.title}
+                  fill
+                  className="object-cover opacity-50"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[hsl(var(--primary)/0.05)]" />
+              </div>
+            )}
+            <div className="p-5">
+              <p className="text-base leading-relaxed text-foreground/90">{scenario.context}</p>
+            </div>
           </div>
         )}
 
@@ -225,6 +255,17 @@ export default function ScreenPage() {
             Đang chuẩn bị tình huống tiếp theo...
           </div>
         )}
+
+        {/* AI Commentary — Tier 1 */}
+        {state.phase === 'between' && state.aiCommentary && (
+          <div className="rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-sm p-5 space-y-3 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <BrainIcon size={18} className="text-primary" />
+              <p className="text-xs text-muted-foreground uppercase tracking-widest">Bình luận AI</p>
+            </div>
+            <p className="text-sm leading-relaxed text-foreground/90">{state.aiCommentary}</p>
+          </div>
+        )}
       </div>
     )
   }
@@ -233,7 +274,7 @@ export default function ScreenPage() {
   if (state.phase === 'ai-generating') {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-8">
-        <div className="text-8xl animate-pulse">🤖</div>
+        <BrainIcon size={80} className="text-primary animate-pulse" />
         <div className="text-center space-y-3">
           <h2 className="projection-title">AI đang phân tích...</h2>
           <p className="text-xl text-muted-foreground">
@@ -260,13 +301,27 @@ export default function ScreenPage() {
 
   // ─── Results ───────────────────────────────────────────────────────────────
   if (state.phase === 'results') {
+    const outcomeImage = state.outcome ? OUTCOME_IMAGE_MAP[state.outcome] : undefined
+
     return (
-      <div className="min-h-screen bg-background p-8 space-y-8">
-        {/* Outcome header */}
+      <div className="min-h-screen bg-background p-8 space-y-8 animate-phase-enter">
+        {/* Outcome header with image */}
         <div className="text-center space-y-3">
-          <div className="text-6xl">
-            {state.outcome === 'ben-vung' ? '🌱' : state.outcome === 'dut-gay' ? '⚠️' : '⚡'}
-          </div>
+          {outcomeImage && (
+            <div className="relative w-48 h-48 mx-auto mb-4 animate-celebrate">
+              <Image
+                src={outcomeImage}
+                alt="Outcome"
+                fill
+                className="object-contain rounded-2xl"
+              />
+            </div>
+          )}
+          {!outcomeImage && (
+            <div className="flex justify-center animate-celebrate">
+              {state.outcome === 'ben-vung' ? <PlantIcon size={56} className="text-emerald-400" /> : state.outcome === 'dut-gay' ? <BoltIcon size={56} className="text-red-400" /> : <BoltIcon size={56} className="text-amber-400" />}
+            </div>
+          )}
           <h1 className="projection-title">
             {state.outcome === 'ben-vung' && 'Chuyển đổi số Bền vững'}
             {state.outcome === 'dut-gay' && 'Đứt gãy Cơ cấu'}

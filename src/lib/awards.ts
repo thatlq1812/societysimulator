@@ -14,7 +14,7 @@ export function computeAwards(room: GameRoom): Award[] {
     awards.push({
       id: 'ngon-co',
       name: 'Ngọn cờ Liên minh',
-      icon: '🏆',
+      icon: 'trophy',
       description:
         'Người đóng góp nhiều nhất cho khối liên minh công–nông–trí thức. Đặt lợi ích tập thể lên trên lợi ích cá nhân.',
       playerId: allianceWinner.id,
@@ -37,7 +37,7 @@ export function computeAwards(room: GameRoom): Award[] {
     awards.push({
       id: 'ke-sinh-ton',
       name: 'Kẻ sinh tồn Tối ưu',
-      icon: '⚔️',
+      icon: 'shield',
       description:
         'Tích lũy cao nhất mà không làm suy yếu liên minh — làm giàu hợp pháp trong KTTT định hướng XHCN.',
       playerId: survivalWinner.id,
@@ -61,7 +61,7 @@ export function computeAwards(room: GameRoom): Award[] {
     awards.push({
       id: 'mat-xich',
       name: 'Mắt xích Rủi ro',
-      icon: '⚠️',
+      icon: 'warning',
       description:
         'Tỷ lệ lợi ích cá nhân / đóng góp vĩ mô mất cân bằng nhất — case study về giới hạn của tối ưu cá nhân.',
       playerId: riskWinner.player.id,
