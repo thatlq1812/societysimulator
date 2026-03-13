@@ -1,0 +1,41 @@
+import { cn } from '@/lib/utils'
+import { ROLES } from '@/lib/roles'
+import type { Award } from '@/types/game'
+
+interface AwardCardProps {
+  award: Award
+  className?: string
+}
+
+const AWARD_STYLES: Record<string, { border: string; bg: string; text: string }> = {
+  'ngon-co': { border: 'border-yellow-500/50', bg: 'bg-yellow-950/30', text: 'text-yellow-400' },
+  'ke-sinh-ton': { border: 'border-emerald-500/50', bg: 'bg-emerald-950/30', text: 'text-emerald-400' },
+  'mat-xich': { border: 'border-orange-500/50', bg: 'bg-orange-950/30', text: 'text-orange-400' },
+}
+
+export function AwardCard({ award, className }: AwardCardProps) {
+  const style = AWARD_STYLES[award.id] ?? AWARD_STYLES['ngon-co']
+  const role = ROLES[award.playerRoleId]
+
+  return (
+    <div className={cn('rounded-2xl border p-4 space-y-3 animate-fade-in', style.border, style.bg, className)}>
+      <div className="flex items-center gap-3">
+        <span className="text-3xl">{award.icon}</span>
+        <div>
+          <h3 className={cn('font-bold', style.text)}>{award.name}</h3>
+          <p className="text-xs text-muted-foreground">{award.description}</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-lg">{role.emoji}</span>
+        <div>
+          <p className="font-semibold text-sm">{award.playerName}</p>
+          <p className={cn('text-xs', role.colorClass)}>{role.name}</p>
+        </div>
+      </div>
+
+      <p className="text-xs text-muted-foreground border-t border-border/50 pt-2">{award.reason}</p>
+    </div>
+  )
+}
