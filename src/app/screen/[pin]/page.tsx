@@ -162,6 +162,11 @@ export default function ScreenPage() {
           <div className="text-right">
             <p className="text-sm text-muted-foreground">Người chơi</p>
             <p className="text-3xl font-bold text-primary">{state.playerCount}</p>
+            {state.phase === 'playing' && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Đã vote: <span className="font-bold text-emerald-400">{state.voteCount ?? 0}</span>/{state.playerCount}
+              </p>
+            )}
           </div>
         </div>
 
@@ -192,7 +197,30 @@ export default function ScreenPage() {
           </div>
         )}
 
-        {state.phase === 'between' && (
+        {state.phase === 'between' && state.lastBreakdown && (
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-3 animate-fade-in">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest">Phân bố lựa chọn</p>
+            <div className="grid grid-cols-3 gap-4">
+              {(['A', 'B', 'C'] as const).map((opt) => {
+                const count = state.lastBreakdown![opt]
+                const pct = state.lastBreakdown!.total > 0 ? Math.round((count / state.lastBreakdown!.total) * 100) : 0
+                const colors = { A: 'bg-amber-500', B: 'bg-emerald-500', C: 'bg-blue-500' }
+                const labels = { A: 'text-amber-400', B: 'text-emerald-400', C: 'text-blue-400' }
+                return (
+                  <div key={opt} className="text-center space-y-2">
+                    <p className={`text-3xl font-bold tabular-nums ${labels[opt]}`}>{count}</p>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-1000 ${colors[opt]}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <p className="text-sm text-muted-foreground">Lựa chọn {opt} · {pct}%</p>
+                  </div>
+                )
+              })}
+            </div>
+            <p className="text-center text-xs text-muted-foreground">Đang chuẩn bị tình huống tiếp theo...</p>
+          </div>
+        )}
+        {state.phase === 'between' && !state.lastBreakdown && (
           <div className="rounded-2xl border border-border bg-card/80 p-4 text-center text-muted-foreground">
             Đang chuẩn bị tình huống tiếp theo...
           </div>

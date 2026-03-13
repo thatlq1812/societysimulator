@@ -1,11 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { MacroState, OutcomeId, GameRoom, ChoiceId } from '@/types/game'
 import { SCENARIOS } from '@/lib/scenarios'
 import { ROLES } from '@/lib/roles'
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
 const SYSTEM_PROMPT = `Bạn là một nhà phân tích xã hội học của Viện Nghiên cứu Xã hội Việt Nam năm 2030. Bạn được giao nhiệm vụ viết "Bản tin Xã hội 2030" — một bản tổng hợp học thuật về hình thái xã hội mà lớp học vừa tạo ra thông qua quyết định tập thể.
 
@@ -84,14 +82,19 @@ ${buildChoiceStats(room)}
 
 Hãy viết Bản tin Xã hội 2030 dựa trên dữ liệu trên. Phân tích hệ quả cơ cấu xã hội của những lựa chọn này theo lý luận Chương 5. Đây là dữ liệu từ hành vi thực tế của lớp học — hãy phản ánh trung thực kết quả đó.`
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 700,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: userMessage }],
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.5-flash',
+    systemInstruction: SYSTEM_PROMPT,
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 1024,
+      topP: 0.9,
+    },
   })
 
-  const text = message.content.find((b) => b.type === 'text')?.text ?? ''
+  const result = await model.generateContent(userMessage)
+  const text = result.response.text()
+
   return (
     text +
     '\n\n*Bản tin được tổng hợp bởi AI từ dữ liệu hành vi tập thể của lớp, phục vụ mục đích học thuật. Nội dung phản ánh hành động của người tham gia, không phải phán xét cá nhân.*'

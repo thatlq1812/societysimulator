@@ -147,11 +147,30 @@ export default function HostControlPage() {
         <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
           <p className="text-xs text-muted-foreground">Tình huống {state.currentScenarioIndex + 1}/{SCENARIOS.length}</p>
           <p className="font-bold">{scenario.title}</p>
+          {state.phase === 'playing' && (
+            <div className="pt-2 border-t border-border">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">Đã vote</p>
+                <p className="font-bold text-emerald-400">{state.voteCount ?? 0}/{state.playerCount}</p>
+              </div>
+              <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                  style={{ width: state.playerCount > 0 ? `${((state.voteCount ?? 0) / state.playerCount) * 100}%` : '0%' }}
+                />
+              </div>
+            </div>
+          )}
           {state.phase === 'between' && (
             <div className="text-sm space-y-1 pt-2 border-t border-border">
               <p>Liên minh: <span className="text-emerald-400 font-bold">{Math.round(state.macro.alliance)}</span></p>
               <p>Phân hóa: <span className="text-amber-400 font-bold">{Math.round(state.macro.stratification)}</span></p>
               <p>Lực lượng SX: <span className="text-blue-400 font-bold">{Math.round(state.macro.production)}</span></p>
+              {state.lastBreakdown && (
+                <p className="pt-1 text-muted-foreground">
+                  A: {state.lastBreakdown.A} · B: {state.lastBreakdown.B} · C: {state.lastBreakdown.C}
+                </p>
+              )}
             </div>
           )}
         </div>

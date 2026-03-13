@@ -12,9 +12,12 @@ export async function POST(
   { params }: { params: { pin: string } },
 ): Promise<NextResponse> {
   const room = getRoom(params.pin)
-  if (!room) return NextResponse.json({ error: 'Room not found' }, { status: 404 })
+  if (!room) return NextResponse.json({ error: 'Mã PIN không hợp lệ' }, { status: 404 })
   if (room.phase !== 'lobby') {
-    return NextResponse.json({ error: 'Game already started' }, { status: 400 })
+    const msg = room.phase === 'results'
+      ? 'Game đã kết thúc'
+      : 'Game đang diễn ra, không thể tham gia lúc này'
+    return NextResponse.json({ error: msg }, { status: 400 })
   }
 
   const body = await req.json().catch(() => ({}))
