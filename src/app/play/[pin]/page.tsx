@@ -154,15 +154,16 @@ export default function PlayPage() {
 
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground uppercase tracking-widest">Lựa chọn của bạn</p>
-            {scenario.choices.map((choice) => (
-              <ChoiceButton
-                key={choice.id}
-                choice={choice}
-                selected={selectedChoice === choice.id}
-                submitted={submitted}
-                disabled={submitted && selectedChoice !== choice.id}
-                onClick={submitChoice}
-              />
+            {scenario.choices.map((choice, idx) => (
+              <div key={choice.id} className="choice-btn-enter" style={{ animationDelay: `${idx * 0.1}s` }}>
+                <ChoiceButton
+                  choice={choice}
+                  selected={selectedChoice === choice.id}
+                  submitted={submitted}
+                  disabled={submitted && selectedChoice !== choice.id}
+                  onClick={submitChoice}
+                />
+              </div>
             ))}
           </div>
 
@@ -317,7 +318,7 @@ export default function PlayPage() {
 
           {state.socialNews && (
             <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
-              <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Bản tin Xã hội 2030</h3>
+              <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Bản tin Xã hội Số</h3>
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{state.socialNews}</p>
             </div>
           )}

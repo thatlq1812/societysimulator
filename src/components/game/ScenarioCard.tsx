@@ -10,11 +10,11 @@ interface ScenarioCardProps {
   className?: string
 }
 
-export function ScenarioCard({ scenario, scenarioNumber, totalScenarios = 6, className }: ScenarioCardProps) {
+export function ScenarioCard({ scenario, scenarioNumber, totalScenarios = 10, className }: ScenarioCardProps) {
   const imageSrc = SCENARIO_IMAGE_MAP[scenario.id]
 
   return (
-    <div className={cn('rounded-2xl border border-border bg-card overflow-hidden', className)}>
+    <div className={cn('rounded-2xl border border-border bg-card overflow-hidden animate-phase-enter', className)}>
       {/* Scenario image */}
       {imageSrc && (
         <FramedImage src={imageSrc} alt={scenario.title} variant="banner" frameClassName="h-40" />

@@ -442,7 +442,7 @@ export default function ScreenPage() {
         {/* AI news */}
         {state.socialNews && (
           <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Bản tin Xã hội 2030</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest">Bản tin Xã hội Số</p>
             <SocialNewsBanner text={state.socialNews} />
           </div>
         )}

@@ -70,7 +70,7 @@ export async function POST(
     }
 
     // Select random scenarios for this session
-    room.scenarioIds = selectRandomScenarios(6)
+    room.scenarioIds = selectRandomScenarios(10)
     room.phase = 'playing'
     room.currentScenarioIndex = 0
     room.scenarioStartedAt = Date.now()
@@ -126,7 +126,7 @@ export async function POST(
 
     // Fire-and-forget: Tier 1 commentary + Tier 2 trend analysis
     Promise.all([
-      generateCommentary(room, room.currentScenarioIndex, breakdown),
+      generateCommentary(room, room.currentScenarioIndex, breakdown, roleBreakdown, macroDelta),
       generateTrend(room),
     ])
       .then(([commentary, trend]) => {

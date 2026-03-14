@@ -31,7 +31,7 @@ export function SocialNewsBanner({ text }: SocialNewsBannerProps) {
       <div className="bg-primary px-4 py-1.5 flex items-center gap-2">
         <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
         <span className="text-xs font-bold text-white uppercase tracking-widest">
-          Ban tin Xa hoi 2030
+          Bản tin Xã hội Số
         </span>
       </div>
 
@@ -47,7 +47,7 @@ export function SocialNewsBanner({ text }: SocialNewsBannerProps) {
       {done && (
         <div className="border-t border-primary/20 bg-primary/5 py-1 overflow-hidden">
           <div className="animate-ticker whitespace-nowrap text-xs text-primary font-medium px-4">
-            Digital Society Simulator — Nhóm 4 · GD1812 · Half 2 — MLN131 Đại học FPT — Thanh niên Việt Nam trong cơ cấu xã hội — Lê Hoàng Long · Lưu Bảo Trân · Lê Quang Thật · Lâm Thủy Tiên · Nguyễn Hoàng Nghĩa · Nguyễn Vũ Nhật Khoa
+            Digital Society Simulator — Nhóm 4 · GD1812 · Half 2 · Spring 2026 — MLN131 Đại học FPT — Thanh niên Việt Nam trong cơ cấu xã hội — Lê Hoàng Long · Lưu Bảo Trân · Lê Quang Thật · Lâm Thủy Tiên · Nguyễn Hoàng Nghĩa · Nguyễn Vũ Nhật Khoa
           </div>
         </div>
       )}

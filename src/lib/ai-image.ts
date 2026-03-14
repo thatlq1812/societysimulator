@@ -185,7 +185,49 @@ export const IMAGE_PROMPTS: Record<string, string> = {
   'indicator-democracy.png':
     'Abstract composition: transparent ballot boxes and raised hands with holographic digital voting interfaces. Multiple screens showing approval icons. Cyan (#06b6d4) dominant on dark background.',
 
-  // ── Lobby image (new) ──
+  // ── Scenario illustrations for scenarios 13-20 ──
+  'scenario-algorithm.png':
+    'Abstract composition: a maze-like algorithm flowchart where human figures are being sorted — some illuminated, some cast in shadow. Red warning lines separate "favored" from "excluded" paths. Blue and amber tones on dark background. Symbolizes algorithmic bias in job distribution.',
+
+  'scenario-green.png':
+    'Abstract composition: a factory transitioning from dark smoky silhouette on one side to clean bright geometric shapes with solar panels and wind turbines on the other. Emerald and amber tones on dark background. Symbolizes green energy transition.',
+
+  'scenario-dao-governance.png':
+    'Abstract composition: a circular council table made of interconnected blockchain nodes, with diverse human figures seated around it — some transparent/faded, some bright. Violet and cyan tones on dark background. Symbolizes DAO governance participation gap.',
+
+  'scenario-digital-union.png':
+    'Abstract composition: a chain of smartphone-connected worker silhouettes forming a unified line, facing a massive corporate platform wall. Red solidarity accent and blue worker tones on dark background. Symbolizes digital labor union.',
+
+  'scenario-data-leak.png':
+    'Abstract composition: a cracked digital vault with streams of personal data (represented as colored dots) escaping into dark space. An eye watches from above. Red warning and cyan data tones on dark background. Symbolizes data breach.',
+
+  'scenario-generation-gap.png':
+    'Abstract composition: elderly figures with walking sticks on one side of a digital divide — a glowing smartphone barrier — with young figures on the other side. Warm amber and cool blue contrast on dark background. Symbolizes generational digital gap.',
+
+  'scenario-metaverse.png':
+    'Abstract composition: floating virtual land plots with price tags hovering above, while below real-world figures look up from basic infrastructure. Gold/amber virtual tones vs blue reality tones on dark background. Symbolizes metaverse real estate bubble.',
+
+  'scenario-deepfake.png':
+    'Abstract composition: a fractured face half-human half-AI-generated, with social media share icons multiplying around it. Distorted network lines radiating outward. Red and violet tones on dark background. Symbolizes AI misinformation.',
+
+  // ── Thematic images for landing page & decorations ──
+  'theme-youth-vietnam.png':
+    'Abstract composition: young Vietnamese silhouettes in ao dai and modern clothing walking together on a path that transforms from traditional village road to futuristic digital highway. Strong blue (#1e3a8a) dominant with accents of red and gold. Stars and network lines above. Dark background. Symbolizes Vietnamese youth in transition.',
+
+  'theme-alliance.png':
+    'Abstract composition: four distinct colored groups — blue, green, violet, amber — converging into one unified circular formation, their colors blending at intersection points. Red golden connection threads. Dark background. Symbolizes class alliance (liên minh giai cấp).',
+
+  'theme-chapter5.png':
+    'Abstract composition: a layered pyramid/structure with different colored sections (blue workers at base, green farmers, violet intellectuals, amber entrepreneurs) — arrows showing both cooperation and tension between layers. Red and gold accent lines. Dark background. Symbolizes social class structure from Chapter 5.',
+
+  'theme-digital-society.png':
+    'Abstract composition: a cityscape merging with a circuit board pattern, with human figures connected by glowing network lines. Binary streams and data flowing between buildings. Blue and cyan tones on dark background. Symbolizes digital society transformation.',
+
+  'theme-collective-choice.png':
+    'Abstract composition: many hands pressing different colored buttons (red A, green B, blue C) on a shared control panel, with indicator gauges reacting above. Warm and cool tones balanced on dark background. Symbolizes collective decision-making.',
+
+  'theme-fpt-university.png':
+    'Abstract composition: a modern university building silhouette with digital wave emanating from it, student figures walking with laptops and books, connected by network lines. Strong blue (#1e3a8a) dominant with orange accent. Dark background. Symbolizes FPT University digital education.',
   'lobby-gathering.png':
     'Wide abstract illustration: figures approaching from four different directions toward a central glowing hub platform. Each group has a different color aura — blue workers, green farmers, violet intellectuals, amber startup founders. Red and gold accent connection lines. Dark background.',
 }

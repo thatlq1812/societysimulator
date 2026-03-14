@@ -1,0 +1,462 @@
+[
+  {
+    "id": "tu-dong-hoa",
+    "title": "Cú sốc Tự động hóa",
+    "image": "scenario-automation.png",
+    "context": "Năm 2026. AI và robotics thay thế 40% nhân sự cơ bản tại các khu công nghiệp và nền tảng giao hàng. Làn sóng tự động hóa đặt toàn xã hội trước câu hỏi: ưu tiên hiệu quả kinh tế hay bảo vệ sinh kế của người lao động?",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Sa thải hàng loạt, triển khai AI toàn bộ — lợi nhuận tăng 60% ngay lập tức",
+        "effects": { "wealthDelta": 20, "controlDelta": 8, "allianceDelta": -10, "stratificationDelta": 15, "productionDelta": 5, "innovationDelta": 8, "welfareDelta": -12, "democracyDelta": -5 }
+      },
+      {
+        "id": "B",
+        "text": "Tái đào tạo nhân sự hiện tại để vận hành hệ thống AI — tốn chi phí nhưng giữ đội ngũ",
+        "effects": { "wealthDelta": 5, "controlDelta": 4, "allianceDelta": 8, "stratificationDelta": -3, "productionDelta": 10, "innovationDelta": 12, "welfareDelta": 8, "democracyDelta": 5 }
+      },
+      {
+        "id": "C",
+        "text": "Liên kết với các doanh nghiệp khác lập quỹ chuyển đổi nghề — chia sẻ chi phí chuyển đổi",
+        "effects": { "wealthDelta": -5, "controlDelta": 2, "allianceDelta": 20, "stratificationDelta": -10, "productionDelta": 8, "innovationDelta": 6, "welfareDelta": 15, "democracyDelta": 10 }
+      }
+    ]
+  },
+  {
+    "id": "doc-quyen-du-lieu",
+    "title": "Độc quyền Dữ liệu",
+    "image": "scenario-data.png",
+    "context": "Một tập đoàn công nghệ xuyên quốc gia đề nghị mua lại toàn bộ cơ sở dữ liệu nông nghiệp cốt lõi của quốc gia với giá hàng tỷ USD. Dữ liệu này được thu thập từ hàng triệu nông hộ trong 3 năm. Xã hội đang tranh luận về chủ quyền dữ liệu.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Ủng hộ bán toàn bộ — thu về ngoại tệ lớn để đầu tư phát triển nông nghiệp",
+        "effects": { "wealthDelta": 18, "controlDelta": -15, "allianceDelta": -8, "stratificationDelta": 10, "productionDelta": 2, "innovationDelta": -5, "welfareDelta": -8, "democracyDelta": -10 }
+      },
+      {
+        "id": "B",
+        "text": "Từ chối bán, xây dựng nền tảng dữ liệu nông nghiệp quốc gia do hợp tác xã sở hữu",
+        "effects": { "wealthDelta": -5, "controlDelta": 20, "allianceDelta": 15, "stratificationDelta": -8, "productionDelta": 12, "innovationDelta": 10, "welfareDelta": 12, "democracyDelta": 15 }
+      },
+      {
+        "id": "C",
+        "text": "Bán một phần dữ liệu phi nhạy cảm, giữ lại dữ liệu sản xuất cốt lõi",
+        "effects": { "wealthDelta": 8, "controlDelta": 5, "allianceDelta": 3, "stratificationDelta": 3, "productionDelta": 5, "innovationDelta": 5, "welfareDelta": 3, "democracyDelta": 3 }
+      }
+    ]
+  },
+  {
+    "id": "bang-sang-che",
+    "title": "Bằng sáng chế vs. Mã nguồn Mở",
+    "image": "scenario-opensource.png",
+    "context": "Một thuật toán AI tối ưu hóa chuỗi cung ứng nông nghiệp vừa được phát triển thành công tại Việt Nam, có thể tiết kiệm 30% chi phí logistics. Xã hội đang tranh cãi về cách phân phối phát minh này.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Đăng ký bằng sáng chế và bán license — thu nhập thụ động, tối đa hóa lợi ích cá nhân",
+        "effects": { "wealthDelta": 15, "controlDelta": 18, "allianceDelta": -8, "stratificationDelta": 8, "productionDelta": 3, "innovationDelta": 5, "welfareDelta": -5, "democracyDelta": -8 }
+      },
+      {
+        "id": "B",
+        "text": "Công bố mã nguồn mở hoàn toàn — tri thức là tài sản chung của xã hội",
+        "effects": { "wealthDelta": -3, "controlDelta": -5, "allianceDelta": 18, "stratificationDelta": -12, "productionDelta": 15, "innovationDelta": 18, "welfareDelta": 10, "democracyDelta": 12 }
+      },
+      {
+        "id": "C",
+        "text": "Thành lập hợp tác xã công nghệ — chia sẻ quyền sở hữu với các thành viên đóng góp",
+        "effects": { "wealthDelta": 5, "controlDelta": 8, "allianceDelta": 12, "stratificationDelta": -5, "productionDelta": 10, "innovationDelta": 12, "welfareDelta": 5, "democracyDelta": 8 }
+      }
+    ]
+  },
+  {
+    "id": "dinh-cong-gig",
+    "title": "Cuộc đình công Gig",
+    "image": "scenario-strike.png",
+    "context": "Chính phủ đề xuất luật mới: các nền tảng gig phải đóng bảo hiểm xã hội cho tài xế và shipper. Phong trào vận động đang lan rộng trên toàn quốc. Bạn sẽ phản ứng thế nào trước sự kiện này?",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Không tham gia — sợ bị đưa vào danh sách đen của app, ưu tiên thu nhập ngắn hạn",
+        "effects": { "wealthDelta": 5, "controlDelta": -8, "allianceDelta": -12, "stratificationDelta": 8, "productionDelta": 0, "innovationDelta": 0, "welfareDelta": -10, "democracyDelta": -15 }
+      },
+      {
+        "id": "B",
+        "text": "Tổ chức và dẫn đầu phong trào vận động — chấp nhận rủi ro vì quyền lợi tập thể lâu dài",
+        "effects": { "wealthDelta": -8, "controlDelta": 15, "allianceDelta": 20, "stratificationDelta": -10, "productionDelta": 5, "innovationDelta": 3, "welfareDelta": 12, "democracyDelta": 20 }
+      },
+      {
+        "id": "C",
+        "text": "Ký kiến nghị trực tuyến và chia sẻ thông tin — hành động vừa đủ để không bị hệ quả",
+        "effects": { "wealthDelta": 0, "controlDelta": 5, "allianceDelta": 8, "stratificationDelta": -3, "productionDelta": 2, "innovationDelta": 2, "welfareDelta": 5, "democracyDelta": 8 }
+      }
+    ]
+  },
+  {
+    "id": "mua-lai-startup",
+    "title": "Đề nghị Mua lại",
+    "image": "scenario-acquisition.png",
+    "context": "Tập đoàn Big Tech đề nghị mua lại một startup công nghệ Việt Nam với giá 50 triệu USD — gấp 10 lần vòng gọi vốn gần nhất. Nếu chấp nhận, nền tảng sẽ tích hợp vào hệ sinh thái độc quyền của tập đoàn nước ngoài.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Ủng hộ bán — đây là cơ hội sinh lời lớn cho các nhà sáng lập và nhà đầu tư",
+        "effects": { "wealthDelta": 22, "controlDelta": -20, "allianceDelta": -10, "stratificationDelta": 15, "productionDelta": -3, "innovationDelta": -8, "welfareDelta": -5, "democracyDelta": -8 }
+      },
+      {
+        "id": "B",
+        "text": "Từ chối, phát triển độc lập theo mô hình hợp tác xã kỹ thuật số có người dùng sở hữu cổ phần",
+        "effects": { "wealthDelta": -5, "controlDelta": 15, "allianceDelta": 15, "stratificationDelta": -8, "productionDelta": 10, "innovationDelta": 10, "welfareDelta": 8, "democracyDelta": 12 }
+      },
+      {
+        "id": "C",
+        "text": "Đàm phán mô hình đối tác chiến lược — giữ quyền kiểm soát, nhận đầu tư có điều kiện",
+        "effects": { "wealthDelta": 12, "controlDelta": 8, "allianceDelta": 5, "stratificationDelta": 5, "productionDelta": 6, "innovationDelta": 5, "welfareDelta": 3, "democracyDelta": 3 }
+      }
+    ]
+  },
+  {
+    "id": "ha-tang-nong-thon",
+    "title": "Khoảng cách Số",
+    "image": "scenario-rural.png",
+    "context": "Nhà nước công bố chương trình đầu tư hạ tầng internet tốc độ cao cho 500 xã vùng sâu. Chương trình cần đóng góp từ doanh nghiệp công nghệ. Bạn có nguồn lực để quyết định.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Không tham gia — ưu tiên mở rộng thị trường đô thị có ROI cao hơn",
+        "effects": { "wealthDelta": 10, "controlDelta": 5, "allianceDelta": -10, "stratificationDelta": 12, "productionDelta": -2, "innovationDelta": 3, "welfareDelta": -10, "democracyDelta": -5 }
+      },
+      {
+        "id": "B",
+        "text": "Đầu tư đáng kể vào hạ tầng nông thôn — mở rộng thị trường + thu hẹp khoảng cách số",
+        "effects": { "wealthDelta": -2, "controlDelta": 3, "allianceDelta": 18, "stratificationDelta": -12, "productionDelta": 15, "innovationDelta": 8, "welfareDelta": 18, "democracyDelta": 10 }
+      },
+      {
+        "id": "C",
+        "text": "Đóng góp kỹ thuật và nhân lực (không phải tiền) — chia sẻ tri thức xây dựng năng lực địa phương",
+        "effects": { "wealthDelta": 2, "controlDelta": 6, "allianceDelta": 12, "stratificationDelta": -6, "productionDelta": 10, "innovationDelta": 10, "welfareDelta": 12, "democracyDelta": 8 }
+      }
+    ]
+  },
+  {
+    "id": "chia-se-nen-tang",
+    "title": "Chia sẻ Nền tảng Số",
+    "image": "scenario-platform.png",
+    "context": "Một nền tảng thương mại điện tử mới nổi cho phép nông dân bán trực tiếp đến người tiêu dùng, bỏ qua trung gian. Tuy nhiên, nền tảng đang tính phí hoa hồng ngày càng cao. Cộng đồng đang tranh luận về mô hình sở hữu nền tảng.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Tăng hoa hồng lên 25% — tối đa hóa doanh thu nền tảng, mặc kệ nông dân phản đối",
+        "effects": { "wealthDelta": 18, "controlDelta": 12, "allianceDelta": -15, "stratificationDelta": 12, "productionDelta": -3, "innovationDelta": -3, "welfareDelta": -12, "democracyDelta": -10 }
+      },
+      {
+        "id": "B",
+        "text": "Chuyển sang mô hình hợp tác xã — nông dân đồng sở hữu nền tảng, chia lợi nhuận",
+        "effects": { "wealthDelta": -3, "controlDelta": -8, "allianceDelta": 20, "stratificationDelta": -10, "productionDelta": 12, "innovationDelta": 5, "welfareDelta": 15, "democracyDelta": 18 }
+      },
+      {
+        "id": "C",
+        "text": "Giữ hoa hồng 10% cố định, đầu tư lợi nhuận vào đào tạo kỹ năng số cho nông dân",
+        "effects": { "wealthDelta": 5, "controlDelta": 5, "allianceDelta": 10, "stratificationDelta": -5, "productionDelta": 8, "innovationDelta": 8, "welfareDelta": 10, "democracyDelta": 8 }
+      }
+    ]
+  },
+  {
+    "id": "khung-hoang-nha-o",
+    "title": "Khủng hoảng Nhà ở",
+    "image": "scenario-housing.png",
+    "context": "Giá bất động sản tại các thành phố lớn tăng 300% trong 5 năm. Công nhân và trí thức trẻ không thể mua nhà. Chính phủ đề xuất đánh thuế bất động sản thứ hai trở lên để xây nhà ở xã hội.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Phản đối thuế — bảo vệ quyền sở hữu tài sản cá nhân và tự do thị trường",
+        "effects": { "wealthDelta": 12, "controlDelta": 8, "allianceDelta": -12, "stratificationDelta": 15, "productionDelta": 0, "innovationDelta": 0, "welfareDelta": -15, "democracyDelta": -8 }
+      },
+      {
+        "id": "B",
+        "text": "Ủng hộ thuế + đầu tư nhà ở xã hội — chấp nhận thiệt hại ngắn hạn vì công bằng",
+        "effects": { "wealthDelta": -8, "controlDelta": 3, "allianceDelta": 18, "stratificationDelta": -12, "productionDelta": 8, "innovationDelta": 3, "welfareDelta": 18, "democracyDelta": 12 }
+      },
+      {
+        "id": "C",
+        "text": "Đề xuất mô hình nhà ở hợp tác xã — cộng đồng cùng xây, cùng quản lý, giá hợp lý",
+        "effects": { "wealthDelta": 0, "controlDelta": 10, "allianceDelta": 15, "stratificationDelta": -8, "productionDelta": 6, "innovationDelta": 5, "welfareDelta": 12, "democracyDelta": 15 }
+      }
+    ]
+  },
+  {
+    "id": "giao-duc-online",
+    "title": "Giáo dục Online",
+    "image": "scenario-education.png",
+    "context": "Một tập đoàn EdTech nước ngoài ra mắt nền tảng học miễn phí với chất lượng cao, nhưng thu thập dữ liệu học sinh làm tài sản thương mại. Hệ thống giáo dục công lập đang mất sinh viên.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Hợp tác toàn diện với EdTech — sinh viên được học miễn phí, đổi lại dữ liệu cá nhân",
+        "effects": { "wealthDelta": 8, "controlDelta": -15, "allianceDelta": -5, "stratificationDelta": 8, "productionDelta": 10, "innovationDelta": 12, "welfareDelta": 5, "democracyDelta": -10 }
+      },
+      {
+        "id": "B",
+        "text": "Xây dựng nền tảng công lập mã nguồn mở — chậm hơn nhưng bảo vệ chủ quyền dữ liệu",
+        "effects": { "wealthDelta": -5, "controlDelta": 18, "allianceDelta": 15, "stratificationDelta": -8, "productionDelta": 8, "innovationDelta": 15, "welfareDelta": 10, "democracyDelta": 15 }
+      },
+      {
+        "id": "C",
+        "text": "Cho phép cạnh tranh tự do — ai muốn dùng gì thì dùng, thị trường tự điều chỉnh",
+        "effects": { "wealthDelta": 5, "controlDelta": 0, "allianceDelta": -3, "stratificationDelta": 10, "productionDelta": 5, "innovationDelta": 8, "welfareDelta": 3, "democracyDelta": -3 }
+      }
+    ]
+  },
+  {
+    "id": "ai-tuyen-dung",
+    "title": "AI Tuyển dụng",
+    "image": "scenario-hiring.png",
+    "context": "Các doanh nghiệp lớn bắt đầu áp dụng AI để sàng lọc CV và phỏng vấn tự động, tăng hiệu quả tuyển dụng gấp 5 lần. Tuy nhiên, nghiên cứu cho thấy thuật toán có thiên kiến ưu tiên ứng viên đô thị, bất lợi cho lao động nông thôn.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Tiếp tục dùng AI nguyên trạng — hiệu quả là ưu tiên số 1, kinh doanh không phải từ thiện",
+        "effects": { "wealthDelta": 15, "controlDelta": 10, "allianceDelta": -10, "stratificationDelta": 15, "productionDelta": 5, "innovationDelta": 10, "welfareDelta": -8, "democracyDelta": -12 }
+      },
+      {
+        "id": "B",
+        "text": "Dừng AI, mời đoàn kiểm toán độc lập đánh giá thiên kiến — chấp nhận chậm lại",
+        "effects": { "wealthDelta": -5, "controlDelta": 5, "allianceDelta": 15, "stratificationDelta": -10, "productionDelta": 3, "innovationDelta": 5, "welfareDelta": 10, "democracyDelta": 15 }
+      },
+      {
+        "id": "C",
+        "text": "Dùng AI hỗ trợ nhưng giữ con người ra quyết định cuối — kết hợp hiệu quả và công bằng",
+        "effects": { "wealthDelta": 5, "controlDelta": 8, "allianceDelta": 8, "stratificationDelta": -3, "productionDelta": 8, "innovationDelta": 12, "welfareDelta": 5, "democracyDelta": 8 }
+      }
+    ]
+  },
+  {
+    "id": "blockchain-tu-quan",
+    "title": "Blockchain Tự quản",
+    "image": "scenario-blockchain.png",
+    "context": "Một nhóm lập trình viên đề xuất hệ thống DAO (Tổ chức Tự trị Phi tập trung) để quản lý quỹ phúc lợi địa phương, thay thế cơ quan hành chính. Công nghệ minh bạch nhưng loại bỏ nhiều vị trí công chức.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Triển khai DAO toàn diện — loại bỏ bộ máy hành chính, tin tưởng thuật toán",
+        "effects": { "wealthDelta": 10, "controlDelta": -12, "allianceDelta": -8, "stratificationDelta": 12, "productionDelta": 8, "innovationDelta": 15, "welfareDelta": -5, "democracyDelta": 8 }
+      },
+      {
+        "id": "B",
+        "text": "Từ chối — giữ nguyên hệ thống hành chính truyền thống, công nghệ chưa đủ tin cậy",
+        "effects": { "wealthDelta": 0, "controlDelta": 8, "allianceDelta": 5, "stratificationDelta": 3, "productionDelta": -3, "innovationDelta": -5, "welfareDelta": 5, "democracyDelta": -3 }
+      },
+      {
+        "id": "C",
+        "text": "Mô hình kết hợp — DAO để giám sát minh bạch, con người vẫn ra quyết định phân bổ",
+        "effects": { "wealthDelta": 3, "controlDelta": 10, "allianceDelta": 12, "stratificationDelta": -5, "productionDelta": 10, "innovationDelta": 12, "welfareDelta": 8, "democracyDelta": 15 }
+      }
+    ]
+  },
+  {
+    "id": "ubi",
+    "title": "Thu nhập Cơ bản Phổ quát",
+    "image": "scenario-ubi.png",
+    "context": "Trước làn sóng thất nghiệp do tự động hóa, chính phủ thí điểm UBI (Thu nhập Cơ bản Phổ quát) — mỗi công dân nhận 5 triệu đồng/tháng vô điều kiện. Nguồn tài trợ: thuế lợi nhuận doanh nghiệp công nghệ.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Phản đối UBI — khuyến khích lười biếng, phá hủy động lực lao động sáng tạo",
+        "effects": { "wealthDelta": 10, "controlDelta": 5, "allianceDelta": -15, "stratificationDelta": 12, "productionDelta": 3, "innovationDelta": 3, "welfareDelta": -15, "democracyDelta": -8 }
+      },
+      {
+        "id": "B",
+        "text": "Ủng hộ hoàn toàn — UBI là quyền cơ bản, bảo đảm nhân phẩm trong kỷ nguyên AI",
+        "effects": { "wealthDelta": -8, "controlDelta": -3, "allianceDelta": 20, "stratificationDelta": -15, "productionDelta": 5, "innovationDelta": -3, "welfareDelta": 20, "democracyDelta": 15 }
+      },
+      {
+        "id": "C",
+        "text": "Đề xuất UBI có điều kiện — gắn với đào tạo nghề hoặc đóng góp cộng đồng",
+        "effects": { "wealthDelta": 0, "controlDelta": 8, "allianceDelta": 10, "stratificationDelta": -5, "productionDelta": 10, "innovationDelta": 8, "welfareDelta": 12, "democracyDelta": 10 }
+      }
+    ]
+  },
+  {
+    "id": "khung-hoang-thuat-toan",
+    "title": "Khủng hoảng Thuật toán",
+    "image": "scenario-algorithm.png",
+    "context": "Thuật toán của nền tảng gig tự động phân phối việc làm theo điểm uy tín — lao động mới, người cao tuổi và vùng ngoại ô liên tục không nhận được đơn hàng. Xã hội yêu cầu can thiệp vào cách thuật toán vận hành.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Giữ nguyên thuật toán tối ưu lợi nhuận — hiệu quả cao nhất, không cần điều chỉnh",
+        "effects": { "wealthDelta": 15, "controlDelta": 10, "allianceDelta": -12, "stratificationDelta": 14, "productionDelta": 8, "innovationDelta": 5, "welfareDelta": -14, "democracyDelta": -12 }
+      },
+      {
+        "id": "B",
+        "text": "Triển khai phân phối công bằng bắt buộc — đảm bảo mọi lao động đều nhận việc tối thiểu",
+        "effects": { "wealthDelta": -5, "controlDelta": -3, "allianceDelta": 18, "stratificationDelta": -14, "productionDelta": 5, "innovationDelta": 8, "welfareDelta": 18, "democracyDelta": 15 }
+      },
+      {
+        "id": "C",
+        "text": "Lập hội đồng lao động giám sát thuật toán — bao gồm đại diện từ các nhóm bị thiệt thòi",
+        "effects": { "wealthDelta": 0, "controlDelta": 5, "allianceDelta": 12, "stratificationDelta": -8, "productionDelta": 8, "innovationDelta": 10, "welfareDelta": 10, "democracyDelta": 18 }
+      }
+    ]
+  },
+  {
+    "id": "san-xuat-xanh",
+    "title": "Chuyển đổi Sản xuất Xanh",
+    "image": "scenario-green.png",
+    "context": "Chính phủ công bố ưu đãi thuế lớn cho doanh nghiệp chuyển sang năng lượng tái tạo. Tuy nhiên chi phí ban đầu rất cao và sẽ cắt giảm lợi nhuận ngắn hạn tới 25% trong 2 năm đầu.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Từ chối chuyển đổi — giữ lò than hiệu quả cũ, tối đa hóa lợi nhuận trước mắt",
+        "effects": { "wealthDelta": 18, "controlDelta": 5, "allianceDelta": -10, "stratificationDelta": 8, "productionDelta": 10, "innovationDelta": -8, "welfareDelta": -15, "democracyDelta": -5 }
+      },
+      {
+        "id": "B",
+        "text": "Chuyển đổi hoàn toàn sang tái tạo — đầu tư dài hạn, chấp nhận thiệt thòi ngắn hạn",
+        "effects": { "wealthDelta": -8, "controlDelta": 8, "allianceDelta": 15, "stratificationDelta": -8, "productionDelta": 8, "innovationDelta": 20, "welfareDelta": 15, "democracyDelta": 8 }
+      },
+      {
+        "id": "C",
+        "text": "Hợp tác với hợp tác xã năng lượng cộng đồng — chia sẻ chi phí và lợi ích với người dân địa phương",
+        "effects": { "wealthDelta": 3, "controlDelta": 8, "allianceDelta": 18, "stratificationDelta": -10, "productionDelta": 10, "innovationDelta": 15, "welfareDelta": 12, "democracyDelta": 12 }
+      }
+    ]
+  },
+  {
+    "id": "quyet-dinh-dao",
+    "title": "Quản trị DAO: Ai Quyết định?",
+    "image": "scenario-dao-governance.png",
+    "context": "Một cộng đồng vừa thành lập DAO (Decentralized Autonomous Organization) để quản lý quỹ đầu tư chung. Tuy nhiên chỉ có 20% thành viên đủ hiểu biết kỹ thuật để thực sự bỏ phiếu có nghĩa.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Để hội đồng kỹ thuật thiểu số toàn quyền quyết định — họ đủ năng lực, số đông chỉ làm chậm",
+        "effects": { "wealthDelta": 12, "controlDelta": 18, "allianceDelta": -12, "stratificationDelta": 15, "productionDelta": 8, "innovationDelta": 12, "welfareDelta": -8, "democracyDelta": -20 }
+      },
+      {
+        "id": "B",
+        "text": "Đầu tư đào tạo toàn bộ thành viên trước khi bỏ phiếu — chậm hơn nhưng quản trị thực sự dân chủ",
+        "effects": { "wealthDelta": -5, "controlDelta": -5, "allianceDelta": 18, "stratificationDelta": -12, "productionDelta": 5, "innovationDelta": 10, "welfareDelta": 12, "democracyDelta": 22 }
+      },
+      {
+        "id": "C",
+        "text": "Mô hình ủy quyền thanh khoản — người không rành bỏ phiếu ủy quyền cho chuyên gia họ tin",
+        "effects": { "wealthDelta": 5, "controlDelta": 8, "allianceDelta": 10, "stratificationDelta": 3, "productionDelta": 10, "innovationDelta": 15, "welfareDelta": 8, "democracyDelta": 12 }
+      }
+    ]
+  },
+  {
+    "id": "lien-doan-lao-dong-so",
+    "title": "Liên đoàn Lao động Số",
+    "image": "scenario-digital-union.png",
+    "context": "Nhóm 500 gig worker trên khắp cả nước muốn thành lập liên đoàn lao động số đầu tiên để đàm phán điều khoản làm việc, mức phí tối thiểu và bảo hiểm. Nền tảng lớn đe dọa khóa tài khoản những người tham gia.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Tại sao phải tham gia? — cạnh tranh cá nhân tốt hơn, lo bị khóa tài khoản",
+        "effects": { "wealthDelta": 10, "controlDelta": 3, "allianceDelta": -18, "stratificationDelta": 12, "productionDelta": 5, "innovationDelta": 0, "welfareDelta": -12, "democracyDelta": -10 }
+      },
+      {
+        "id": "B",
+        "text": "Tham gia và vận động tích cực — quyền lợi tập thể mới bền vững, chấp nhận rủi ro",
+        "effects": { "wealthDelta": -5, "controlDelta": 8, "allianceDelta": 22, "stratificationDelta": -15, "productionDelta": 5, "innovationDelta": 5, "welfareDelta": 18, "democracyDelta": 18 }
+      },
+      {
+        "id": "C",
+        "text": "Ủng hộ tài chính từ xa mà không đứng tên — đóng góp mà không chịu rủi ro trực tiếp",
+        "effects": { "wealthDelta": -3, "controlDelta": 5, "allianceDelta": 10, "stratificationDelta": -5, "productionDelta": 3, "innovationDelta": 3, "welfareDelta": 8, "democracyDelta": 8 }
+      }
+    ]
+  },
+  {
+    "id": "ro-ri-du-lieu",
+    "title": "Rò rỉ Dữ liệu Người dùng",
+    "image": "scenario-data-leak.png",
+    "context": "Phát hiện lỗ hổng bảo mật khiến dữ liệu cá nhân của 2 triệu người dùng có thể bị rò rỉ. Công bố sự cố sẽ gây khủng hoảng uy tín nhưng ém nhẹm sẽ vi phạm quyền người dùng và pháp lý.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Âm thầm vá lỗi, không thông báo — tránh khủng hoảng truyền thông, bảo vệ cổ phần",
+        "effects": { "wealthDelta": 15, "controlDelta": 8, "allianceDelta": -15, "stratificationDelta": 8, "productionDelta": 5, "innovationDelta": -3, "welfareDelta": -18, "democracyDelta": -20 }
+      },
+      {
+        "id": "B",
+        "text": "Công bố toàn bộ, thông báo người dùng và cơ quan quản lý ngay lập tức",
+        "effects": { "wealthDelta": -12, "controlDelta": -5, "allianceDelta": 15, "stratificationDelta": -5, "productionDelta": -3, "innovationDelta": 8, "welfareDelta": 15, "democracyDelta": 22 }
+      },
+      {
+        "id": "C",
+        "text": "Thông báo nội bộ và xử lý trong 72 giờ trước khi công bố có chọn lọc",
+        "effects": { "wealthDelta": 3, "controlDelta": 3, "allianceDelta": 5, "stratificationDelta": 3, "productionDelta": 3, "innovationDelta": 5, "welfareDelta": 3, "democracyDelta": 5 }
+      }
+    ]
+  },
+  {
+    "id": "khoang-cach-the-he-so",
+    "title": "Khoảng cách Số Thế hệ",
+    "image": "scenario-generation-gap.png",
+    "context": "Chương trình số hóa toàn quốc chuyển tất cả dịch vụ công sang ứng dụng điện thoại. Người cao tuổi trên 65 (chiếm 15% dân số) hầu như không tiếp cận được y tế, trợ cấp và hành chính.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Ưu tiên hiệu quả số — không thể dừng tiến bộ vì thiểu số không thích nghi",
+        "effects": { "wealthDelta": 12, "controlDelta": 5, "allianceDelta": -10, "stratificationDelta": 18, "productionDelta": 12, "innovationDelta": 8, "welfareDelta": -18, "democracyDelta": -15 }
+      },
+      {
+        "id": "B",
+        "text": "Triển khai song song: kênh số và kênh truyền thống — không để ai bị bỏ lại phía sau",
+        "effects": { "wealthDelta": -8, "controlDelta": 5, "allianceDelta": 20, "stratificationDelta": -15, "productionDelta": 5, "innovationDelta": 3, "welfareDelta": 22, "democracyDelta": 18 }
+      },
+      {
+        "id": "C",
+        "text": "Đào tạo đại trà người cao tuổi và cộng đồng tương trợ số — mất thời gian nhưng bền vững",
+        "effects": { "wealthDelta": -3, "controlDelta": 8, "allianceDelta": 15, "stratificationDelta": -10, "productionDelta": 8, "innovationDelta": 10, "welfareDelta": 15, "democracyDelta": 12 }
+      }
+    ]
+  },
+  {
+    "id": "bat-dong-san-ao",
+    "title": "Bong bóng Bất động sản Ảo",
+    "image": "scenario-metaverse.png",
+    "context": "Các nền tảng metaverse đang bùng nổ. Đất ảo được mua đi bán lại với giá hàng trăm triệu đồng trong khi hạ tầng số thực tế cho người nghèo thiếu đầu tư trầm trọng.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Đầu tư vào bất động sản ảo — cơ hội sinh lời cực lớn, tài sản số là tương lai",
+        "effects": { "wealthDelta": 22, "controlDelta": 12, "allianceDelta": -8, "stratificationDelta": 18, "productionDelta": -3, "innovationDelta": 5, "welfareDelta": -12, "democracyDelta": -8 }
+      },
+      {
+        "id": "B",
+        "text": "Vận động chính sách đánh thuế tài sản ảo để tái đầu tư hạ tầng số cho cộng đồng",
+        "effects": { "wealthDelta": -5, "controlDelta": 3, "allianceDelta": 15, "stratificationDelta": -15, "productionDelta": 10, "innovationDelta": 8, "welfareDelta": 18, "democracyDelta": 15 }
+      },
+      {
+        "id": "C",
+        "text": "Xây dựng metaverse phi lợi nhuận cho giáo dục và y tế tiếp cận từ xa",
+        "effects": { "wealthDelta": -8, "controlDelta": 5, "allianceDelta": 18, "stratificationDelta": -10, "productionDelta": 8, "innovationDelta": 18, "welfareDelta": 15, "democracyDelta": 10 }
+      }
+    ]
+  },
+  {
+    "id": "thao-tung-thong-tin",
+    "title": "Thao túng AI trong Truyền thông",
+    "image": "scenario-deepfake.png",
+    "context": "Deepfake AI được dùng để tạo video giả mạo lãnh đạo công nhân kêu gọi hủy đình công. Video lan truyền trên mạng xã hội chỉ trong vài giờ và đang phá vỡ sự đoàn kết của phong trào lao động.",
+    "choices": [
+      {
+        "id": "A",
+        "text": "Phớt lờ — không can thiệp vào thông tin nếu không có lợi cho mình",
+        "effects": { "wealthDelta": 10, "controlDelta": 5, "allianceDelta": -20, "stratificationDelta": 12, "productionDelta": 3, "innovationDelta": -3, "welfareDelta": -10, "democracyDelta": -18 }
+      },
+      {
+        "id": "B",
+        "text": "Vận động khẩn cấp mạng xã hội gỡ bỏ, đồng thời phát hành tuyên bố xác thực chính thức",
+        "effects": { "wealthDelta": -3, "controlDelta": 5, "allianceDelta": 20, "stratificationDelta": -12, "productionDelta": 3, "innovationDelta": 8, "welfareDelta": 15, "democracyDelta": 22 }
+      },
+      {
+        "id": "C",
+        "text": "Xây dựng hệ thống xác minh cộng đồng mã nguồn mở để chống deepfake dài hạn",
+        "effects": { "wealthDelta": -5, "controlDelta": 8, "allianceDelta": 15, "stratificationDelta": -8, "productionDelta": 5, "innovationDelta": 20, "welfareDelta": 12, "democracyDelta": 18 }
+      }
+    ]
+  }
+]

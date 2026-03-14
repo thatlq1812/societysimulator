@@ -29,10 +29,10 @@ export function ChoiceButton({ choice, selected, disabled, submitted, onClick }:
       onClick={() => !disabled && onClick(choice.id)}
       disabled={disabled}
       className={cn(
-        'w-full text-left rounded-xl border p-5 transition-all duration-200 group hover:scale-[1.01]',
-        'bg-card hover:bg-card/80 active:scale-[0.98]',
+        'w-full text-left rounded-xl border p-5 transition-all duration-300 group',
+        'bg-card hover:bg-card/80 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98]',
         selected ? selectedBorder[choice.id] : 'border-border hover:border-border/80',
-        disabled && !selected && 'opacity-50 cursor-not-allowed',
+        disabled && !selected && 'opacity-50 cursor-not-allowed hover:translate-y-0 hover:shadow-none',
         submitted && selected && 'opacity-90',
       )}
     >

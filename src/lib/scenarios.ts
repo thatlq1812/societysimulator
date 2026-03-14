@@ -300,6 +300,206 @@ export const SCENARIOS: Scenario[] = [
       },
     ],
   },
+
+  // ─── Scenario 13: Khủng hoảng Thuật toán Phân phối ──────────────────────
+  {
+    id: 'khung-hoang-thuat-toan',
+    title: 'Khủng hoảng Thuật toán',
+    context:
+      'Thuật toán của nền tảng gig tự động phân phối việc làm theo điểm uy tín — lao động mới, người cao tuổi và vùng ngoại ô liên tục không nhận được đơn hàng. Bạn có thể can thiệp vào cách thuật toán vận hành.',
+    choices: [
+      {
+        id: 'A',
+        text: 'Giữ nguyên thuật toán tối ưu lợi nhuận — hiệu quả cao nhất, không cần điều chỉnh',
+        effects: { wealthDelta: 15, controlDelta: 10, allianceDelta: -12, stratificationDelta: 14, productionDelta: 8, innovationDelta: 5, welfareDelta: -14, democracyDelta: -12 },
+      },
+      {
+        id: 'B',
+        text: 'Triển khai phân phối công bằng bắt buộc — đảm bảo mọi lao động đều nhận việc tối thiểu',
+        effects: { wealthDelta: -5, controlDelta: -3, allianceDelta: 18, stratificationDelta: -14, productionDelta: 5, innovationDelta: 8, welfareDelta: 18, democracyDelta: 15 },
+      },
+      {
+        id: 'C',
+        text: 'Lập hội đồng lao động giám sát thuật toán — bao gồm đại diện từ các nhóm bị thiệt thòi',
+        effects: { wealthDelta: 0, controlDelta: 5, allianceDelta: 12, stratificationDelta: -8, productionDelta: 8, innovationDelta: 10, welfareDelta: 10, democracyDelta: 18 },
+      },
+    ],
+  },
+
+  // ─── Scenario 14: Chuyển đổi Sản xuất Xanh ───────────────────────────────
+  {
+    id: 'san-xuat-xanh',
+    title: 'Chuyển đổi Sản xuất Xanh',
+    context:
+      'Chính phủ công bố ưu đãi thuế lớn cho doanh nghiệp chuyển sang năng lượng tái tạo. Tuy nhiên chi phí ban đầu rất cao và sẽ cắt giảm lợi nhuận ngắn hạn tới 25% trong 2 năm đầu.',
+    choices: [
+      {
+        id: 'A',
+        text: 'Từ chối chuyển đổi — giữ lò than hiệu quả cũ, tối đa hóa lợi nhuận trước mắt',
+        effects: { wealthDelta: 18, controlDelta: 5, allianceDelta: -10, stratificationDelta: 8, productionDelta: 10, innovationDelta: -8, welfareDelta: -15, democracyDelta: -5 },
+      },
+      {
+        id: 'B',
+        text: 'Chuyển đổi hoàn toàn sang tái tạo — đầu tư dài hạn, chấp nhận thiệt thòi ngắn hạn',
+        effects: { wealthDelta: -8, controlDelta: 8, allianceDelta: 15, stratificationDelta: -8, productionDelta: 8, innovationDelta: 20, welfareDelta: 15, democracyDelta: 8 },
+      },
+      {
+        id: 'C',
+        text: 'Hợp tác với hợp tác xã năng lượng cộng đồng — chia sẻ chi phí và lợi ích với người dân địa phương',
+        effects: { wealthDelta: 3, controlDelta: 8, allianceDelta: 18, stratificationDelta: -10, productionDelta: 10, innovationDelta: 15, welfareDelta: 12, democracyDelta: 12 },
+      },
+    ],
+  },
+
+  // ─── Scenario 15: Cơ chế Quản trị DAO ────────────────────────────────────
+  {
+    id: 'quyet-dinh-dao',
+    title: 'Quản trị DAO: Ai Quyết định?',
+    context:
+      'Cộng đồng của bạn vừa thành lập một DAO (Decentralized Autonomous Organization) để quản lý quỹ đầu tư chung. Tuy nhiên chỉ có 20% thành viên đủ hiểu biết kỹ thuật để thực sự bỏ phiếu có nghĩa.',
+    choices: [
+      {
+        id: 'A',
+        text: 'Để hội đồng kỹ thuật thiểu số toàn quyền quyết định — họ đủ năng lực, số đông chỉ làm chậm',
+        effects: { wealthDelta: 12, controlDelta: 18, allianceDelta: -12, stratificationDelta: 15, productionDelta: 8, innovationDelta: 12, welfareDelta: -8, democracyDelta: -20 },
+      },
+      {
+        id: 'B',
+        text: 'Đầu tư đào tạo toàn bộ thành viên trước khi bỏ phiếu — chậm hơn nhưng quản trị thực sự dân chủ',
+        effects: { wealthDelta: -5, controlDelta: -5, allianceDelta: 18, stratificationDelta: -12, productionDelta: 5, innovationDelta: 10, welfareDelta: 12, democracyDelta: 22 },
+      },
+      {
+        id: 'C',
+        text: 'Mô hình ủy quyền thanh khoản — người không rành bỏ phiếu ủy quyền cho chuyên gia họ tin',
+        effects: { wealthDelta: 5, controlDelta: 8, allianceDelta: 10, stratificationDelta: 3, productionDelta: 10, innovationDelta: 15, welfareDelta: 8, democracyDelta: 12 },
+      },
+    ],
+  },
+
+  // ─── Scenario 16: Liên đoàn Lao động Số ──────────────────────────────────
+  {
+    id: 'lien-doan-lao-dong-so',
+    title: 'Liên đoàn Lao động Số',
+    context:
+      'Nhóm 500 gig worker trên khắp cả nước muốn thành lập liên đoàn lao động số đầu tiên để đàm phán điều khoản làm việc, mức phí tối thiểu và bảo hiểm. Nền tảng lớn đe dọa khóa tài khoản những người tham gia.',
+    choices: [
+      {
+        id: 'A',
+        text: 'Tại sao phải tham gia? — cạnh tranh cá nhân tốt hơn, lo bị khóa tài khoản',
+        effects: { wealthDelta: 10, controlDelta: 3, allianceDelta: -18, stratificationDelta: 12, productionDelta: 5, innovationDelta: 0, welfareDelta: -12, democracyDelta: -10 },
+      },
+      {
+        id: 'B',
+        text: 'Tham gia và vận động tích cực — quyền lợi tập thể mới bền vững, chấp nhận rủi ro',
+        effects: { wealthDelta: -5, controlDelta: 8, allianceDelta: 22, stratificationDelta: -15, productionDelta: 5, innovationDelta: 5, welfareDelta: 18, democracyDelta: 18 },
+      },
+      {
+        id: 'C',
+        text: 'Ủng hộ tài chính từ xa mà không đứng tên — đóng góp mà không chịu rủi ro trực tiếp',
+        effects: { wealthDelta: -3, controlDelta: 5, allianceDelta: 10, stratificationDelta: -5, productionDelta: 3, innovationDelta: 3, welfareDelta: 8, democracyDelta: 8 },
+      },
+    ],
+  },
+
+  // ─── Scenario 17: Rò rỉ Dữ liệu Người dùng ──────────────────────────────
+  {
+    id: 'ro-ri-du-lieu',
+    title: 'Rò rỉ Dữ liệu Người dùng',
+    context:
+      'Phát hiện lỗ hổng bảo mật khiến dữ liệu cá nhân của 2 triệu người dùng có thể bị rò rỉ. Công bố sự cố sẽ gây khủng hoảng uy tín nhưng ém nhẹm sẽ vi phạm quyền người dùng và pháp lý.',
+    choices: [
+      {
+        id: 'A',
+        text: 'Âm thầm vá lỗi, không thông báo — tránh khủng hoảng truyền thông, bảo vệ cổ phần',
+        effects: { wealthDelta: 15, controlDelta: 8, allianceDelta: -15, stratificationDelta: 8, productionDelta: 5, innovationDelta: -3, welfareDelta: -18, democracyDelta: -20 },
+      },
+      {
+        id: 'B',
+        text: 'Công bố toàn bộ, thông báo người dùng và cơ quan quản lý ngay lập tức',
+        effects: { wealthDelta: -12, controlDelta: -5, allianceDelta: 15, stratificationDelta: -5, productionDelta: -3, innovationDelta: 8, welfareDelta: 15, democracyDelta: 22 },
+      },
+      {
+        id: 'C',
+        text: 'Thông báo nội bộ và xử lý trong 72 giờ trước khi công bố có chọn lọc',
+        effects: { wealthDelta: 3, controlDelta: 3, allianceDelta: 5, stratificationDelta: 3, productionDelta: 3, innovationDelta: 5, welfareDelta: 3, democracyDelta: 5 },
+      },
+    ],
+  },
+
+  // ─── Scenario 18: Khoảng cách Số Thế hệ ─────────────────────────────────
+  {
+    id: 'khoang-cach-the-he-so',
+    title: 'Khoảng cách Số Thế hệ',
+    context:
+      'Chương trình số hóa toàn quốc chuyển tất cả dịch vụ công sang ứng dụng điện thoại. Người cao tuổi trên 65 (chiếm 15% dân số) hầu như không tiếp cận được y tế, trợ cấp và hành chính.',
+    choices: [
+      {
+        id: 'A',
+        text: 'Ưu tiên hiệu quả số — không thể dừng tiến bộ vì thiểu số không thích nghi',
+        effects: { wealthDelta: 12, controlDelta: 5, allianceDelta: -10, stratificationDelta: 18, productionDelta: 12, innovationDelta: 8, welfareDelta: -18, democracyDelta: -15 },
+      },
+      {
+        id: 'B',
+        text: 'Triển khai song song: kênh số và kênh truyền thống — không để ai bị bỏ lại phía sau',
+        effects: { wealthDelta: -8, controlDelta: 5, allianceDelta: 20, stratificationDelta: -15, productionDelta: 5, innovationDelta: 3, welfareDelta: 22, democracyDelta: 18 },
+      },
+      {
+        id: 'C',
+        text: 'Đào tạo đại trà người cao tuổi và cộng đồng tương trợ số — mất thời gian nhưng bền vững',
+        effects: { wealthDelta: -3, controlDelta: 8, allianceDelta: 15, stratificationDelta: -10, productionDelta: 8, innovationDelta: 10, welfareDelta: 15, democracyDelta: 12 },
+      },
+    ],
+  },
+
+  // ─── Scenario 19: Bong bóng Đất ảo / NFT ─────────────────────────────────
+  {
+    id: 'bat-dong-san-ao',
+    title: 'Bong bóng Bất động sản Ảo',
+    context:
+      'Các nền tảng metaverse đang bùng nổ. Đất ảo được mua đi bán lại với giá hàng trăm triệu đồng trong khi hạ tầng số thực tế cho người nghèo thiếu đầu tư trầm trọng.',
+    choices: [
+      {
+        id: 'A',
+        text: 'Đầu tư vào bất động sản ảo — cơ hội sinh lời cực lớn, tài sản số là tương lai',
+        effects: { wealthDelta: 22, controlDelta: 12, allianceDelta: -8, stratificationDelta: 18, productionDelta: -3, innovationDelta: 5, welfareDelta: -12, democracyDelta: -8 },
+      },
+      {
+        id: 'B',
+        text: 'Vận động chính sách đánh thuế tài sản ảo để tái đầu tư hạ tầng số cho cộng đồng',
+        effects: { wealthDelta: -5, controlDelta: 3, allianceDelta: 15, stratificationDelta: -15, productionDelta: 10, innovationDelta: 8, welfareDelta: 18, democracyDelta: 15 },
+      },
+      {
+        id: 'C',
+        text: 'Xây dựng metaverse phi lợi nhuận cho giáo dục và y tế tiếp cận từ xa',
+        effects: { wealthDelta: -8, controlDelta: 5, allianceDelta: 18, stratificationDelta: -10, productionDelta: 8, innovationDelta: 18, welfareDelta: 15, democracyDelta: 10 },
+      },
+    ],
+  },
+
+  // ─── Scenario 20: Thao túng AI và Thông tin Xã hội ───────────────────────
+  {
+    id: 'thao-tung-thong-tin',
+    title: 'Thao túng AI trong Truyền thông',
+    context:
+      'Deepfake AI được dùng để tạo video giả mạo lãnh đạo công nhân kêu gọi hủy đình công. Video lan truyền trên mạng xã hội chỉ trong vài giờ và đang phá vỡ sự đoàn kết của phong trào lao động.',
+    choices: [
+      {
+        id: 'A',
+        text: 'Phớt lờ — không can thiệp vào thông tin nếu không có lợi cho mình',
+        effects: { wealthDelta: 10, controlDelta: 5, allianceDelta: -20, stratificationDelta: 12, productionDelta: 3, innovationDelta: -3, welfareDelta: -10, democracyDelta: -18 },
+      },
+      {
+        id: 'B',
+        text: 'Vận động khẩn cấp mạng xã hội gỡ bỏ, đồng thời phát hành tuyên bố xác thực chính thức',
+        effects: { wealthDelta: -3, controlDelta: 5, allianceDelta: 20, stratificationDelta: -12, productionDelta: 3, innovationDelta: 8, welfareDelta: 15, democracyDelta: 22 },
+      },
+      {
+        id: 'C',
+        text: 'Xây dựng hệ thống xác minh cộng đồng mã nguồn mở để chống deepfake dài hạn',
+        effects: { wealthDelta: -5, controlDelta: 8, allianceDelta: 15, stratificationDelta: -8, productionDelta: 5, innovationDelta: 20, welfareDelta: 12, democracyDelta: 18 },
+      },
+    ],
+  },
 ]
 
 // ─── Utility functions ──────────────────────────────────────────────────────
@@ -312,7 +512,7 @@ export function getScenarioById(id: string): Scenario | undefined {
 }
 
 /** Fisher-Yates shuffle → pick `count` random scenario IDs */
-export function selectRandomScenarios(count = 6): string[] {
+export function selectRandomScenarios(count = 10): string[] {
   const ids = SCENARIOS.map((s) => s.id)
   for (let i = ids.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))

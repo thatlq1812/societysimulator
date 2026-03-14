@@ -250,7 +250,7 @@ export default function HostControlPage() {
         {state.phase === 'ai-generating' && (
           <div className="w-full rounded-xl bg-violet-100 border border-violet-300 py-4 text-center text-violet-700 font-medium flex items-center justify-center gap-2">
             <BrainIcon size={16} className="text-violet-600 animate-pulse" />
-            AI đang tự động tổng hợp Bản tin...
+            AI đang tự động tổng hợp Bản tin Xã hội Số...
           </div>
         )}
 

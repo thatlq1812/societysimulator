@@ -5,7 +5,7 @@ import { ROLES } from '@/lib/roles'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
-const SYSTEM_PROMPT = `Bạn là một nhà phân tích xã hội học của Viện Nghiên cứu Xã hội Việt Nam năm 2030. Bạn được giao nhiệm vụ viết "Bản tin Xã hội 2030" — một bản tổng hợp học thuật về hình thái xã hội mà lớp học vừa tạo ra thông qua quyết định tập thể.
+const SYSTEM_PROMPT = `Bạn là một nhà phân tích xã hội học của Viện Nghiên cứu Xã hội Việt Nam. Bạn được giao nhiệm vụ viết "Bản tin Xã hội Số" — một bản tổng hợp học thuật về hình thái xã hội mà lớp học vừa tạo ra thông qua quyết định tập thể trong kỷ nguyên chuyển đổi số.
 
 Nền tảng lý luận của bạn là Chủ nghĩa Xã hội Khoa học, đặc biệt Chương 5: Cơ cấu xã hội – giai cấp và liên minh giai cấp, tầng lớp trong thời kỳ quá độ lên chủ nghĩa xã hội (Giáo trình Bộ GD&ĐT 2021).
 
@@ -88,7 +88,7 @@ ${buildRoleStats(room)}
 PHÂN BỐ LỰA CHỌN THEO TÌNH HUỐNG:
 ${buildChoiceStats(room)}
 
-Hãy viết Bản tin Xã hội 2030 dựa trên dữ liệu trên. Phân tích hệ quả cơ cấu xã hội của những lựa chọn này theo lý luận Chương 5. Đây là dữ liệu từ hành vi thực tế của lớp học — hãy phản ánh trung thực kết quả đó.`
+Hãy viết Bản tin Xã hội Số dựa trên dữ liệu trên. Phân tích hệ quả cơ cấu xã hội của những lựa chọn này theo lý luận Chương 5. Đây là dữ liệu từ hành vi thực tế của lớp học — hãy phản ánh trung thực kết quả đó.`
 
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash',

@@ -15,6 +15,14 @@ export const SCENARIO_IMAGE_MAP: Record<string, string> = {
   'ai-tuyen-dung': '/images/scenario-hiring.png',
   'blockchain-tu-quan': '/images/scenario-blockchain.png',
   'ubi': '/images/scenario-ubi.png',
+  'khung-hoang-thuat-toan': '/images/scenario-algorithm.png',
+  'san-xuat-xanh': '/images/scenario-green.png',
+  'quyet-dinh-dao': '/images/scenario-dao-governance.png',
+  'lien-doan-lao-dong-so': '/images/scenario-digital-union.png',
+  'ro-ri-du-lieu': '/images/scenario-data-leak.png',
+  'khoang-cach-the-he-so': '/images/scenario-generation-gap.png',
+  'bat-dong-san-ao': '/images/scenario-metaverse.png',
+  'thao-tung-thong-tin': '/images/scenario-deepfake.png',
 }
 
 export const ROLE_IMAGE_MAP: Record<string, string> = {
@@ -42,3 +50,12 @@ export const INDICATOR_IMAGE_MAP: Record<string, string> = {
 }
 
 export const LOBBY_IMAGE = '/images/lobby-gathering.png'
+
+export const THEME_IMAGE_MAP: Record<string, string> = {
+  'youth-vietnam': '/images/theme-youth-vietnam.png',
+  'alliance': '/images/theme-alliance.png',
+  'chapter5': '/images/theme-chapter5.png',
+  'digital-society': '/images/theme-digital-society.png',
+  'collective-choice': '/images/theme-collective-choice.png',
+  'fpt-university': '/images/theme-fpt-university.png',
+}
