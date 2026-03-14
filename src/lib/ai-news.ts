@@ -91,7 +91,7 @@ ${buildChoiceStats(room)}
 Hãy viết Bản tin Xã hội Số dựa trên dữ liệu trên. Phân tích hệ quả cơ cấu xã hội của những lựa chọn này theo lý luận Chương 5. Đây là dữ liệu từ hành vi thực tế của lớp học — hãy phản ánh trung thực kết quả đó.`
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.1-pro-preview',
     systemInstruction: SYSTEM_PROMPT,
     generationConfig: {
       temperature: 0.7,

@@ -1,4 +1,5 @@
-import type { GameRoom, MacroState, MacroSnapshot, OutcomeId, ChoiceId } from '@/types/game'
+import type { GameRoom, MacroState, MacroSnapshot, OutcomeId, ChoiceId, ChoiceEffects } from '@/types/game'
+import { getChoicesForRole } from '@/types/game'
 import { getCurrentScenario } from '@/lib/game-store'
 import { clamp } from '@/lib/utils'
 
@@ -6,13 +7,77 @@ import { clamp } from '@/lib/utils'
  * Dampening function: diminishing returns near extremes (0 and 100).
  * At center (value=50): ~65% of raw delta applied.
  * Near extreme (value=5 or 95): ~33% of raw delta applied.
- * This makes hitting 0 or 100 very difficult, creating richer gameplay.
  */
 function dampenDelta(current: number, delta: number): number {
   if (delta === 0) return 0
   const remaining = delta > 0 ? (100 - current) : current
   const factor = 0.3 + 0.7 * (remaining / 100)
   return delta * factor
+}
+
+/**
+ * Dynamic Scoring with Cross-Penalty/Reward mechanics.
+ * Adjusts base effects based on current macro state to create
+ * realistic interdependencies between indicators.
+ */
+function dynamicScore(base: ChoiceEffects, macro: MacroState): ChoiceEffects {
+  const fx = { ...base }
+
+  // ── Cross-Penalty Mechanics ──────────────────────────────────────────────
+
+  // 1. Production Multiplier: wealth gains scale with national production
+  if (fx.wealthDelta > 0) {
+    fx.wealthDelta = Math.round(fx.wealthDelta * (0.5 + 0.5 * macro.production / 100))
+  }
+
+  // 2. Stratification Snowball: high inequality amplifies further inequality
+  if (macro.stratification > 70 && fx.stratificationDelta > 0) {
+    fx.stratificationDelta = Math.round(fx.stratificationDelta * 1.5)
+  }
+
+  // 3. Democracy Penalty: low democracy suppresses political voice
+  if (macro.democracy < 30 && fx.influenceDelta > 0) {
+    fx.influenceDelta = Math.round(fx.influenceDelta * 0.5)
+  }
+
+  // 4. Welfare-Production tension: very high welfare spending drags production
+  if (macro.welfare > 75 && fx.welfareDelta > 0 && fx.productionDelta >= 0) {
+    fx.productionDelta = fx.productionDelta - Math.round(fx.welfareDelta * 0.2)
+  }
+
+  // 5. Innovation-Stratification link: rapid innovation without welfare → more inequality
+  if (macro.welfare < 35 && fx.innovationDelta > 5) {
+    fx.stratificationDelta = fx.stratificationDelta + Math.round(fx.innovationDelta * 0.25)
+  }
+
+  // 6. Low production crisis: selfish choices hurt resilience in recession
+  if (macro.production < 30 && fx.allianceDelta < 0) {
+    fx.resilienceDelta = (fx.resilienceDelta || 0) - 3
+  }
+
+  // ── Cross-Reward Mechanics ───────────────────────────────────────────────
+
+  // 7. Alliance Buff: strong alliance rewards cooperative choices with resilience
+  if (macro.alliance > 65 && fx.allianceDelta > 0) {
+    fx.resilienceDelta = (fx.resilienceDelta || 0) + Math.round(fx.allianceDelta * 0.3)
+  }
+
+  // 8. Democracy-Innovation synergy: open society boosts innovation gains
+  if (macro.democracy > 65 && fx.innovationDelta > 0) {
+    fx.innovationDelta = Math.round(fx.innovationDelta * 1.25)
+  }
+
+  // 9. Production-Welfare dividend: strong economy amplifies welfare improvements
+  if (macro.production > 70 && fx.welfareDelta > 0) {
+    fx.welfareDelta = Math.round(fx.welfareDelta * 1.2)
+  }
+
+  // 10. Low alliance → weakened collective bargaining, wealth gains for elites
+  if (macro.alliance < 30 && fx.wealthDelta > 5 && fx.allianceDelta < 0) {
+    fx.stratificationDelta = fx.stratificationDelta + 3
+  }
+
+  return fx
 }
 
 export function computeScenarioEffects(
@@ -32,27 +97,33 @@ export function computeScenarioEffects(
     const choiceId = player.choices[scenario.id] as ChoiceId | undefined
     if (!choiceId) continue
 
-    const choice = scenario.choices.find((c) => c.id === choiceId)
+    // Look up the role-specific choices for this player
+    const roleChoices = scenario.roleSpecificChoices[player.roleId]
+    const choice = roleChoices?.find((c) => c.id === choiceId)
     if (!choice) continue
 
-    const fx = choice.effects
+    // Apply dynamic scoring based on current macro state
+    const fx = dynamicScore(choice.effects, room.macro)
 
     // Update player micro stats
     player.wealth = clamp(player.wealth + fx.wealthDelta)
     player.control = clamp(player.control + fx.controlDelta)
+    player.influence = clamp(player.influence + (fx.influenceDelta || 0))
+    player.resilience = clamp(player.resilience + (fx.resilienceDelta || 0))
     player.allianceContribution += fx.allianceDelta
 
     if (fx.allianceDelta < 0) {
       player.neverHurtAlliance = false
     }
 
-    // Accumulate macro deltas
-    totalAllianceDelta += fx.allianceDelta
-    totalStratDelta += fx.stratificationDelta
-    totalProdDelta += fx.productionDelta
-    totalInnovationDelta += fx.innovationDelta
-    totalWelfareDelta += fx.welfareDelta
-    totalDemocracyDelta += fx.democracyDelta
+    // Accumulate macro deltas (weighted by player influence)
+    const influenceWeight = 0.7 + 0.3 * (player.influence / 100)
+    totalAllianceDelta += fx.allianceDelta * influenceWeight
+    totalStratDelta += fx.stratificationDelta * influenceWeight
+    totalProdDelta += fx.productionDelta * influenceWeight
+    totalInnovationDelta += fx.innovationDelta * influenceWeight
+    totalWelfareDelta += fx.welfareDelta * influenceWeight
+    totalDemocracyDelta += fx.democracyDelta * influenceWeight
   }
 
   // Divide by total players so non-participation dampens collective gains

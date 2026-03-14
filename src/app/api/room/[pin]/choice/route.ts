@@ -5,6 +5,9 @@ import type { ChoiceId } from '@/types/game'
 
 export const dynamic = 'force-dynamic'
 
+// Debounce timers for vote-update broadcasts (prevents 35 broadcasts in quick succession)
+const voteDebounceTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
 export async function POST(
   req: Request,
   { params }: { params: { pin: string } },
@@ -31,15 +34,30 @@ export async function POST(
   // Record choice (allow re-selection while window is open)
   player.choices[scenario.id] = choice
 
-  // Compute current vote count and broadcast lightweight update
+  // Compute current vote count — broadcast is debounced to handle 35 simultaneous votes
   let voteCount = 0
   for (const p of room.players.values()) {
     if (p.choices[scenario.id]) voteCount++
   }
-  broadcast(params.pin.toUpperCase(), 'vote-update', {
-    voteCount,
-    playerCount: room.players.size,
-  })
+
+  // Debounce vote-update broadcasts: schedule one 150ms from now, cancel any pending
+  const pinUpper = params.pin.toUpperCase()
+  const debounceKey = `vote-${pinUpper}-${scenario.id}`
+  if (voteDebounceTimers.has(debounceKey)) {
+    clearTimeout(voteDebounceTimers.get(debounceKey)!)
+  }
+  voteDebounceTimers.set(debounceKey, setTimeout(() => {
+    // Re-count at broadcast time for accuracy
+    let latestCount = 0
+    for (const p of room.players.values()) {
+      if (p.choices[scenario.id]) latestCount++
+    }
+    broadcast(pinUpper, 'vote-update', {
+      voteCount: latestCount,
+      playerCount: room.players.size,
+    })
+    voteDebounceTimers.delete(debounceKey)
+  }, 150))
 
   return NextResponse.json({ ok: true, voteCount })
 }

@@ -75,6 +75,46 @@ export function computeAwards(room: GameRoom): Award[] {
       playerRoleId: riskWinner.player.roleId,
       reason: `Tích lũy +${gained}, đóng góp Liên minh ${Math.round(riskWinner.player.allianceContribution)} — chênh lệch: ${Math.round(riskWinner.riskScore)}`,
     })
+    awardedPlayerIds.add(riskWinner.player.id)
+  }
+
+  // ─── Award 4: Nhà Cách tân ────────────────────────────────────────────────
+  // Highest influence — the political voice / thought leader of the society
+  const influencePool = players.filter((p) => !awardedPlayerIds.has(p.id))
+  const influenceWinner = [...influencePool].sort((a, b) => b.influence - a.influence)[0]
+
+  if (influenceWinner && influenceWinner.influence > 30) {
+    awards.push({
+      id: 'nha-cach-tan',
+      name: 'Nhà Cách tân',
+      icon: 'brain',
+      description:
+        'Người có ảnh hưởng chính trị lớn nhất — tiếng nói dẫn dắt dư luận và định hình chính sách xã hội số.',
+      playerId: influenceWinner.id,
+      playerName: influenceWinner.name,
+      playerRoleId: influenceWinner.roleId,
+      reason: `Chỉ số ảnh hưởng: ${Math.round(influenceWinner.influence)}/100`,
+    })
+    awardedPlayerIds.add(influenceWinner.id)
+  }
+
+  // ─── Award 5: Lá chắn Xã hội ─────────────────────────────────────────────
+  // Highest resilience — survived all crises with strong social safety net
+  const resiliencePool = players.filter((p) => !awardedPlayerIds.has(p.id))
+  const resilienceWinner = [...resiliencePool].sort((a, b) => b.resilience - a.resilience)[0]
+
+  if (resilienceWinner && resilienceWinner.resilience > 40) {
+    awards.push({
+      id: 'la-chan-xa-hoi',
+      name: 'Lá chắn Xã hội',
+      icon: 'globe',
+      description:
+        'Sức chống chịu rủi ro cao nhất — xây dựng được mạng lưới an sinh cá nhân vững chắc qua mọi biến động.',
+      playerId: resilienceWinner.id,
+      playerName: resilienceWinner.name,
+      playerRoleId: resilienceWinner.roleId,
+      reason: `Sức chống chịu: ${Math.round(resilienceWinner.resilience)}/100`,
+    })
   }
 
   return awards

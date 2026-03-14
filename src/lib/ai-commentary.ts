@@ -83,7 +83,7 @@ CHỈ SỐ HIỆN TẠI: LM=${Math.round(macro.alliance)}, PH=${Math.round(macro
 Bình luận 3-4 câu: nhận xét lựa chọn cụ thể của từng nhóm vai trò, chỉ số thay đổi mạnh nhất, và dự đoán hệ quả.`
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-3.0-flash',
     systemInstruction: SYSTEM_PROMPT,
     generationConfig: {
       temperature: 0.8,

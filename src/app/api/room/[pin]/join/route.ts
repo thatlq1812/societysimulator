@@ -43,7 +43,9 @@ export async function POST(
     roleId: player.roleId,
     player: {
       id: player.id, name: player.name, roleId: player.roleId,
-      wealth: player.wealth, control: player.control, allianceContribution: player.allianceContribution,
+      wealth: player.wealth, control: player.control,
+      influence: player.influence, resilience: player.resilience,
+      allianceContribution: player.allianceContribution,
       choiceCount: 0,
     },
     macro: room.macro,

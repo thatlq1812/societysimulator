@@ -14,9 +14,9 @@ Web game mô phỏng xã hội thời gian thực cho ~35 sinh viên môn MLN131
 | Styling | Tailwind CSS v3, light theme, CSS custom properties |
 | Real-time | SSE (`/api/room/[pin]/events`) + REST polling (`/state` every 1.5s) |
 | State | In-memory `Map` singleton (HMR-safe via `global.__rooms`) |
-| AI Tier 1 | `gemini-2.0-flash` — per-round commentary (2-3 sentences) |
-| AI Tier 2 | `gemini-2.5-flash` — trend analysis (host-visible) |
-| AI Tier 3 | `gemini-2.5-flash` — final "Bản tin Xã hội Số" (auto-generated) |
+| AI Tier 1 | `gemini-3.0-flash` — per-round commentary (3-4 sentences) |
+| AI Tier 2 | `gemini-3.1-pro-preview` — trend analysis (host-visible) |
+| AI Tier 3 | `gemini-3.1-pro-preview` — final "Bản tin Xã hội Số" (auto-generated) |
 | AI Images | `@google/genai` SDK, `gemini-2.5-flash-image`, 26 pre-gen images |
 | Charts | Recharts (dynamic import, no SSR) |
 | Icons | Custom SVG system — no emojis |
@@ -34,20 +34,28 @@ npm run lint         # ESLint
 ## Architecture Rules
 
 ### Critical Patterns
-- **20 scenarios**, Fisher-Yates shuffle picks 10 per session (`selectRandomScenarios`)
+- **20 scenarios in `data/scenarios.json`** — externalized, editable without touching code
+- **Scenario data flow:** `data/scenarios.json` → `scenarios.ts` (imports JSON) → `getScenarioById()` / `selectRandomScenarios()`
+- **Google Sheets sync:** `node scripts/sync-scenarios.mjs <SHEET_ID>` pulls from published Google Sheet
 - **Server resolves by ID:** `room.scenarioIds[]` + `getScenarioById()` + `getCurrentScenario(room)`
 - **Client receives resolved data:** `state.currentScenario` (never import SCENARIOS client-side)
 - **Image maps split:** `image-maps.ts` (client-safe) vs `ai-image.ts` (server, imports `fs`)
+- **Scenario images:** each scenario has `image` field in JSON, mapped in `SCENARIO_IMAGE_MAP`
 - **6 macro indicators:** alliance, stratification, production, innovation, welfare, democracy
+- **Dampening:** `effects.ts` uses `dampenDelta()` — diminishing returns near 0/100 (harder to hit extremes)
 - **4 roles:** cong-nhan, nong-dan, tri-thuc, startup (round-robin assignment)
+- **Scenario contexts:** Written as macro-events / social policies — NOT role-specific POV (so all 35 players can engage)
 - **Auto AI news:** Game auto-generates "Bản tin Xã hội Số" at end — no manual button
 
 ### File Organization
 - `src/types/game.ts` — ALL TypeScript interfaces (single source of truth)
+- `data/scenarios.json` — 20 scenarios with effects + image fields (editable by team)
+- `src/lib/scenarios.ts` — imports JSON, exports SCENARIOS + utility functions
 - `src/lib/` — Server logic (effects, game-store, scenarios, AI modules)
 - `src/components/game/` — Reusable game UI components
 - `src/app/` — Next.js pages and API routes
-- `public/images/` — 26 Gemini-generated images
+- `public/images/` — 40 Gemini-generated images (26 original + 14 new)
+- `scripts/` — Image generation + Google Sheets sync scripts
 
 ### Known Gotchas
 - `@apply dark` in CSS is INVALID — use `className="dark"` on `<html>`

@@ -4,11 +4,13 @@ export type RoleId = 'cong-nhan' | 'nong-dan' | 'tri-thuc' | 'startup'
 export type GamePhase = 'lobby' | 'playing' | 'between' | 'ai-generating' | 'results'
 export type OutcomeId = 'ben-vung' | 'dut-gay' | 'trung-tinh'
 export type ChoiceId = 'A' | 'B' | 'C'
-export type AwardId = 'ngon-co' | 'ke-sinh-ton' | 'mat-xich'
+export type AwardId = 'ngon-co' | 'ke-sinh-ton' | 'mat-xich' | 'nha-cach-tan' | 'la-chan-xa-hoi'
 
 export interface ChoiceEffects {
   wealthDelta: number          // vi mô: Tích lũy Cá nhân
   controlDelta: number         // vi mô: Quyền lực Tư liệu Sản xuất
+  influenceDelta: number       // vi mô: Tiếng nói chính trị / Sức ảnh hưởng
+  resilienceDelta: number      // vi mô: Sức chống chịu rủi ro
   allianceDelta: number        // vĩ mô: Chỉ số Liên minh
   stratificationDelta: number  // vĩ mô: Chỉ số Phân hóa Xã hội
   productionDelta: number      // vĩ mô: Lực lượng Sản xuất Quốc gia
@@ -23,12 +25,19 @@ export interface Choice {
   effects: ChoiceEffects
 }
 
+export type RoleChoices = [Choice, Choice, Choice]
+
 export interface Scenario {
   id: string
   title: string
   context: string
   image?: string
-  choices: [Choice, Choice, Choice]
+  roleSpecificChoices: Record<RoleId, RoleChoices>
+}
+
+/** Helper: get the 3 choices for a specific role from a scenario */
+export function getChoicesForRole(scenario: Scenario, roleId: RoleId): RoleChoices {
+  return scenario.roleSpecificChoices[roleId]
 }
 
 export interface MacroSnapshot {
@@ -64,6 +73,8 @@ export interface Player {
   roleId: RoleId
   wealth: number
   control: number
+  influence: number             // Tiếng nói chính trị / Sức ảnh hưởng
+  resilience: number            // Sức chống chịu rủi ro (0 = bần cùng hóa)
   allianceContribution: number
   neverHurtAlliance: boolean
   choices: Record<string, ChoiceId>  // scenarioId → choice
@@ -109,6 +120,8 @@ export interface PlayerPublic {
   roleId: RoleId
   wealth: number
   control: number
+  influence: number
+  resilience: number
   allianceContribution: number
   choiceCount: number
 }

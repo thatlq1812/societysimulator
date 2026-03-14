@@ -13,7 +13,8 @@ import { BrainIcon, PlantIcon, BoltIcon, ChartIcon, IconByKey } from '@/componen
 import { FramedImage } from '@/components/game/FramedImage'
 import { getStratificationLevel } from '@/lib/stratification-theme'
 import { cn } from '@/lib/utils'
-import type { RoomStatePublic, ChoiceId } from '@/types/game'
+import type { RoomStatePublic, ChoiceId, RoleId } from '@/types/game'
+import { getChoicesForRole } from '@/types/game'
 
 const POLL_INTERVAL = 1500
 
@@ -28,9 +29,11 @@ export default function PlayPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(true)
   const [roomNotFound, setRoomNotFound] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'polling'>('connecting')
 
   const currentPlayer = state?.players.find((p) => p.id === playerId)
 
+  // Polling fallback — runs at slower rate when SSE is connected
   const fetchState = useCallback(async () => {
     try {
       const res = await fetch(`/api/room/${pin}/state`)
@@ -42,7 +45,6 @@ export default function PlayPage() {
       if (!res.ok) return
       const data: RoomStatePublic = await res.json()
       setState((prev) => {
-        // Reset choice state when scenario changes
         if (prev?.currentScenarioIndex !== data.currentScenarioIndex) {
           setSelectedChoice(null)
           setSubmitted(false)
@@ -56,14 +58,101 @@ export default function PlayPage() {
     }
   }, [pin])
 
+  // Attempt rejoin if playerId exists but player not found in state
+  useEffect(() => {
+    if (!playerId || !state || state.players.find((p) => p.id === playerId)) return
+    // Player exists in store but not in room — try rejoin
+    fetch(`/api/room/${pin}/rejoin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId }),
+    }).then((res) => {
+      if (res.status === 404) {
+        // Player truly gone — clear store and redirect to join
+        router.replace(`/join?pin=${pin}`)
+      }
+    }).catch(() => {})
+  }, [playerId, state, pin, router])
+
   useEffect(() => {
     if (!playerId || !roleId) {
       router.replace(`/join?pin=${pin}`)
       return
     }
+
+    // Initial fetch
     fetchState()
-    const id = setInterval(fetchState, POLL_INTERVAL)
-    return () => clearInterval(id)
+
+    // SSE connection for real-time updates
+    const es = new EventSource(`/api/room/${pin}/events`)
+
+    es.addEventListener('init', (e) => {
+      const data: RoomStatePublic = JSON.parse(e.data)
+      setState(data)
+      setConnectionStatus('connected')
+      setLoading(false)
+    })
+
+    es.addEventListener('scenario-start', (e) => {
+      const data = JSON.parse(e.data)
+      setSelectedChoice(null)
+      setSubmitted(false)
+      setState((prev) =>
+        prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, voteCount: 0, aiCommentary: undefined } : prev,
+      )
+    })
+
+    es.addEventListener('vote-update', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, voteCount: data.voteCount } : prev)
+    })
+
+    es.addEventListener('scenario-result', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, phase: 'between', macro: data.macro, lastBreakdown: data.breakdown, roleBreakdown: data.roleBreakdown, macroDelta: data.macroDelta } : prev)
+    })
+
+    es.addEventListener('ai-commentary', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, aiCommentary: data.commentary } : prev)
+    })
+
+    es.addEventListener('ai-trend', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, aiTrend: data.trend } : prev)
+    })
+
+    es.addEventListener('ai-generating', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, phase: 'ai-generating', outcome: data.outcome } : prev)
+    })
+
+    es.addEventListener('game-ended', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) =>
+        prev ? { ...prev, phase: 'results', outcome: data.outcome, macro: data.macro, socialNews: data.socialNews, awards: data.awards } : prev,
+      )
+    })
+
+    es.onerror = () => {
+      setConnectionStatus('polling')
+      // Browser auto-reconnects SSE; polling fallback covers the gap
+    }
+
+    es.onopen = () => {
+      setConnectionStatus('connected')
+    }
+
+    // Polling fallback — slower when SSE works, faster when SSE is down
+    const id = setInterval(() => {
+      // Always poll but at reduced rate — SSE handles real-time, polling handles player stats
+      fetchState()
+    }, POLL_INTERVAL)
+
+    return () => {
+      es.close()
+      clearInterval(id)
+    }
   }, [fetchState, playerId, roleId, pin, router])
 
   async function submitChoice(choiceId: ChoiceId) {
@@ -114,6 +203,12 @@ export default function PlayPage() {
   return (
     <>
       <Navbar pin={pin} />
+      {/* SSE connection indicator */}
+      {connectionStatus === 'polling' && (
+        <div className="bg-amber-100 text-amber-800 text-xs text-center py-1">
+          Kết nối yếu — đang dùng chế độ dự phòng
+        </div>
+      )}
 
       {/* --- Lobby --------------------------------------------------------- */}
       {state.phase === 'lobby' && (
@@ -127,7 +222,7 @@ export default function PlayPage() {
             <p className="text-sm text-muted-foreground">{state.playerCount} người đã tham gia</p>
           </div>
           {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
           )}
         </div>
       )}
@@ -142,7 +237,7 @@ export default function PlayPage() {
           <div className="flex items-center justify-between">
             <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} />
             {currentPlayer && roleId && (
-              <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} className="text-right" />
+              <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} className="text-right" />
             )}
           </div>
 
@@ -154,7 +249,7 @@ export default function PlayPage() {
 
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground uppercase tracking-widest">Lựa chọn của bạn</p>
-            {scenario.choices.map((choice, idx) => (
+            {getChoicesForRole(scenario, roleId as RoleId).map((choice, idx) => (
               <div key={choice.id} className="choice-btn-enter" style={{ animationDelay: `${idx * 0.1}s` }}>
                 <ChoiceButton
                   choice={choice}
@@ -261,7 +356,7 @@ export default function PlayPage() {
             </div>
           )}
           {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
           )}
         </div>
       )}
@@ -313,7 +408,7 @@ export default function PlayPage() {
           )}
 
           {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
           )}
 
           {state.socialNews && (

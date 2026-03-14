@@ -6,6 +6,8 @@ interface MicroStatsProps {
   roleId: RoleId
   wealth: number
   control: number
+  influence?: number
+  resilience?: number
   allianceContribution?: number
   choiceCount?: number
   className?: string
@@ -13,7 +15,7 @@ interface MicroStatsProps {
 
 const MAX_WEALTH = 100
 
-export function MicroStats({ roleId, wealth, control, allianceContribution, choiceCount, className }: MicroStatsProps) {
+export function MicroStats({ roleId, wealth, control, influence, resilience, allianceContribution, choiceCount, className }: MicroStatsProps) {
   const role = ROLES[roleId]
 
   return (
@@ -51,6 +53,38 @@ export function MicroStats({ roleId, wealth, control, allianceContribution, choi
             />
           </div>
         </div>
+
+        {/* Influence */}
+        {influence !== undefined && (
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-sm">
+              <span className="text-foreground/80">Ảnh hưởng</span>
+              <span className="font-bold tabular-nums text-amber-600">{Math.round(influence)}</span>
+            </div>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700 bg-amber-500"
+                style={{ width: `${Math.min(100, influence)}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Resilience */}
+        {resilience !== undefined && (
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-sm">
+              <span className="text-foreground/80">Sức chống chịu</span>
+              <span className={cn('font-bold tabular-nums', resilience > 30 ? 'text-cyan-600' : 'text-red-500')}>{Math.round(resilience)}</span>
+            </div>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className={cn('h-full rounded-full transition-all duration-700', resilience > 30 ? 'bg-cyan-500' : 'bg-red-400')}
+                style={{ width: `${Math.min(100, resilience)}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Alliance Contribution */}
         {allianceContribution !== undefined && (
