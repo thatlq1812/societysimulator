@@ -35,17 +35,27 @@ npm run lint         # ESLint
 
 ### Critical Patterns
 - **20 scenarios in `data/scenarios.json`** — externalized, editable without touching code
-- **Scenario data flow:** `data/scenarios.json` → `scenarios.ts` (imports JSON) → `getScenarioById()` / `selectRandomScenarios()`
+- **20×4 asymmetric matrix:** each scenario has `roleSpecificChoices: Record<RoleId, [Choice, Choice, Choice]>`
+- **Client filters by role:** `getChoicesForRole(scenario, roleId)` — never show other roles' choices
+- **Scenario data flow:** `data/scenarios.json` → `scenarios.ts` (imports JSON) → `getScenarioById()` / `selectRandomScenarios(10)`
 - **Google Sheets sync:** `node scripts/sync-scenarios.mjs <SHEET_ID>` pulls from published Google Sheet
 - **Server resolves by ID:** `room.scenarioIds[]` + `getScenarioById()` + `getCurrentScenario(room)`
 - **Client receives resolved data:** `state.currentScenario` (never import SCENARIOS client-side)
 - **Image maps split:** `image-maps.ts` (client-safe) vs `ai-image.ts` (server, imports `fs`)
 - **Scenario images:** each scenario has `image` field in JSON, mapped in `SCENARIO_IMAGE_MAP`
 - **6 macro indicators:** alliance, stratification, production, innovation, welfare, democracy
-- **Dampening:** `effects.ts` uses `dampenDelta()` — diminishing returns near 0/100 (harder to hit extremes)
+- **4 micro indicators:** wealth, control, influence, resilience
+- **Dynamic scoring:** 10 cross-penalty/reward rules in `effects.ts` → `dynamicScore()`
+- **Dampening:** `dampenDelta()` — diminishing returns near 0/100 (harder to hit extremes)
+- **Delta cap:** all scenario deltas capped at ±15 (enforced by `fix-balance.mjs`)
+- **Influence weight:** player macro contributions weighted by `0.7 + 0.3 * influence/100`
 - **4 roles:** cong-nhan, nong-dan, tri-thuc, startup (round-robin assignment)
-- **Scenario contexts:** Written as macro-events / social policies — NOT role-specific POV (so all 35 players can engage)
+- **5 awards:** ngon-co, ke-sinh-ton, mat-xich, nha-cach-tan, la-chan-xa-hoi
+- **Scenario contexts:** Written as macro-events / social policies — NOT role-specific POV
 - **Auto AI news:** Game auto-generates "Bản tin Xã hội Số" at end — no manual button
+- **Dual real-time:** Play page uses SSE + polling fallback; Screen page uses SSE only
+- **Vote debounce:** choice route debounces broadcast 150ms to batch 35 simultaneous votes
+- **Rejoin endpoint:** `/api/room/[pin]/rejoin` — POST with playerId for reconnection
 
 ### File Organization
 - `src/types/game.ts` — ALL TypeScript interfaces (single source of truth)
