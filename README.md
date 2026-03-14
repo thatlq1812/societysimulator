@@ -508,6 +508,6 @@ node scripts/fix-balance.mjs
 
 ## Team
 
-**Nhóm 4** — Lớp GD1812 — MLN131 — FPT University
+**Nhóm 4** — Lớp GD1812 — MLN131 — FPT University — Half 2 — Spring 2024
 
 Lê Hoàng Long · Lưu Bảo Trân · Lê Quang Thật · Lâm Thủy Tiên · Nguyễn Hoàng Nghĩa · Nguyễn Vũ Nhật Khoa
