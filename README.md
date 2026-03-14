@@ -20,10 +20,18 @@ Web game mô phỏng cơ cấu xã hội trong kỷ nguyên chuyển đổi số
 - **Hệ thống tính điểm động** — 10 cơ chế thưởng/phạt chéo giữa các chỉ số + dampening (giảm tốc gần cực trị)
 - **3 kết cục** xã hội: Bền vững / Đứt gãy / Bất ổn
 - **AI 3 tầng** (Google Gemini): bình luận real-time + phân tích xu hướng + bản tin cuối
-- **5 danh hiệu** cá nhân: Ngọn cờ Liên minh, Kẻ sinh tồn Tối ưu, Mắt xích Rủi ro, Nhà Cách tân, Lá chắn Xã hội
-- **39 hình AI-generated** (Gemini) — scenario, role, theme, indicator, outcome illustrations
+- **5 danh hiệu** cá nhân với ảnh anime AI-generated: Ngọn cờ Liên minh, Kẻ sinh tồn Tối ưu, Mắt xích Rủi ro, Nhà Cách tân, Lá chắn Xã hội
+- **44 hình AI-generated** (Gemini) — scenario, role, theme, indicator, outcome, award illustrations
 - **SSE + REST polling** — dual real-time cho cả projection screen và mobile
 - **Dữ liệu ngoại hóa** — scenarios lưu trong `data/scenarios.json`, team edit không cần code
+
+### Hiệu ứng & UI
+
+- **Landing page** kiểu photo album galaxy — 3×3 ảnh với parallax, glow orbs, floating particles
+- **Trang trí tất cả các trang** — corner accents, floating dots, shimmer borders, gradient backgrounds
+- **Award cards** kiểu tarot — ảnh anime Makoto Shinkai, aura glow, sparkle particles, shimmer overlay
+- **Scroll-triggered reveal** — award cards zoom vào khi cuộn xuống (IntersectionObserver)
+- **20+ CSS animations** — float, shimmer, sparkle, aura-pulse, card-reveal, stagger-in, celebrate, v.v.
 
 ---
 
@@ -35,10 +43,10 @@ Web game mô phỏng cơ cấu xã hội trong kỷ nguyên chuyển đổi số
 | Styling | Tailwind CSS v3 + CSS custom properties |
 | Real-time | SSE (`/api/room/[pin]/events`) + REST polling (`/state` mỗi 1.5s) |
 | State | In-memory `Map` singleton (HMR-safe via `global.__rooms`) |
-| AI Tier 1 | `gemini-3.0-flash` — bình luận mỗi vòng (3-4 câu) |
-| AI Tier 2 | `gemini-3.1-pro-preview` — phân tích xu hướng (host-visible) |
-| AI Tier 3 | `gemini-3.1-pro-preview` — "Bản tin Xã hội Số" cuối game |
-| AI Images | `gemini-2.5-flash-image` — 39 pre-generated images |
+| AI Tier 1 | `gemini-3-flash-preview` — bình luận mỗi vòng (3-4 câu) |
+| AI Tier 2 | `gemini-3-flash-preview` — phân tích xu hướng (host-visible) |
+| AI Tier 3 | `gemini-3-flash-preview` — "Bản tin Xã hội Số" cuối game |
+| AI Images | `gemini-2.5-flash-image` — 44 pre-generated images (scenarios, awards, themes) |
 | Charts | Recharts (dynamic import, no SSR) |
 | Icons | Custom SVG system (16 icons) — no emojis |
 | Deploy | GCP Cloud Run, `output: 'standalone'`, `--max-instances 1` |
@@ -181,7 +189,7 @@ src/
 │   │   ├── MicroStats.tsx      # 4 chỉ số vi mô (wealth, control, influence, resilience)
 │   │   ├── MacroGauges.tsx     # 6 gauge vĩ mô
 │   │   ├── MacroCharts*.tsx    # Recharts biểu đồ lịch sử
-│   │   ├── AwardCard.tsx       # Danh hiệu
+│   │   ├── AwardCard.tsx       # Danh hiệu (tarot-style, anime images, aura glow)
 │   │   ├── SocialNewsBanner.tsx # Bản tin AI
 │   │   └── ...                 # CountdownTimer, FramedImage, PlayerRoster, etc.
 │   ├── icons/index.tsx         # 16 custom SVG icons + IconByKey mapper
@@ -192,9 +200,9 @@ src/
 │   ├── awards.ts               # 5 danh hiệu + dedup logic
 │   ├── game-store.ts           # In-memory state (rooms, players, serialize)
 │   ├── sse.ts                  # SSE broadcast registry
-│   ├── ai-commentary.ts        # Tier 1: gemini-3.0-flash (per-round)
-│   ├── ai-trend.ts             # Tier 2: gemini-3.1-pro-preview (host)
-│   ├── ai-news.ts              # Tier 3: gemini-3.1-pro-preview (final)
+│   ├── ai-commentary.ts        # Tier 1: gemini-3-flash-preview (per-round)
+│   ├── ai-trend.ts             # Tier 2: gemini-3-flash-preview (host)
+│   ├── ai-news.ts              # Tier 3: gemini-3-flash-preview (final)
 │   ├── ai-image.ts             # Image generation (server-only, imports fs)
 │   ├── image-maps.ts           # Image path maps (client-safe)
 │   ├── roles.ts                # 4 roles definition + assignment
@@ -208,10 +216,11 @@ scripts/
 ├── gen-role-choices.mjs        # Gemini 3.1 Pro: generate 240 role-specific choices
 ├── gen-images-v2.mjs           # Gemini: generate scenario/theme images
 ├── gen-new-images.mjs          # Gemini: generate additional images
+├── gen-award-images.mjs        # Gemini: generate 5 anime-style award card portraits
 ├── fix-balance.mjs             # Cap deltas ±15 + dialectical trade-offs
 └── sync-scenarios.mjs          # Google Sheets → scenarios.json sync
 
-public/images/                  # 39 AI-generated images
+public/images/                  # 44 AI-generated images (scenarios, awards, themes)
 
 docs/
 ├── ke-hoach-digital-society-simulator.md
@@ -289,6 +298,9 @@ node scripts/gen-role-choices.mjs
 # Generate AI images
 node scripts/gen-images-v2.mjs
 node scripts/gen-new-images.mjs
+
+# Generate 5 anime-style award card images
+node scripts/gen-award-images.mjs
 
 # Rebalance scenario deltas (cap ±15 + trade-offs)
 node scripts/fix-balance.mjs

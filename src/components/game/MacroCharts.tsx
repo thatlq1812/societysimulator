@@ -8,7 +8,7 @@ const MacroChartsClient = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[280px] flex items-center justify-center">
+      <div className="h-full min-h-[200px] flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     ),

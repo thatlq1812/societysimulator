@@ -80,6 +80,54 @@
     animation: gradient-shift 12s ease infinite;
   }
 
+  .results-galaxy {
+    background: linear-gradient(135deg, #1e293b 0%, #1e3a8a 35%, #2563eb 60%, #1e40af 80%, #1e293b 100%);
+    background-size: 400% 400%;
+    animation: gradient-shift 12s ease infinite;
+  }
+
+  /* Neon border glow for award cards */
+  .award-neon {
+    position: relative;
+  }
+  .award-neon::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 1rem;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--neon-color-1), transparent 40%, var(--neon-color-2), transparent 80%, var(--neon-color-1));
+    background-size: 300% 300%;
+    animation: neon-rotate 4s linear infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .award-neon::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 1.25rem;
+    background: radial-gradient(ellipse at center, var(--neon-color-1), transparent 70%);
+    opacity: 0.3;
+    filter: blur(12px);
+    animation: neon-breathe 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @keyframes neon-rotate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes neon-breathe {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(1.05); }
+  }
+
   .choice-btn-enter {
     animation: stagger-in 0.4s ease-out backwards;
   }

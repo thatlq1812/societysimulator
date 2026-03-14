@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { usePlayerStore } from '@/stores/player-store'
 import { Navbar } from '@/components/Navbar'
@@ -9,11 +9,13 @@ import { ScenarioCard } from '@/components/game/ScenarioCard'
 import { ChoiceButton } from '@/components/game/ChoiceButton'
 import { CountdownTimer } from '@/components/game/CountdownTimer'
 import { MicroStats } from '@/components/game/MicroStats'
+import { AwardCard } from '@/components/game/AwardCard'
 import { BrainIcon, PlantIcon, BoltIcon, ChartIcon, IconByKey } from '@/components/icons'
 import { FramedImage } from '@/components/game/FramedImage'
 import { getStratificationLevel } from '@/lib/stratification-theme'
-import { cn } from '@/lib/utils'
-import type { RoomStatePublic, ChoiceId, RoleId } from '@/types/game'
+import { playSound } from '@/lib/sounds'
+import { cn, stripMarkdown } from '@/lib/utils'
+import type { RoomStatePublic, ChoiceId, RoleId, Award } from '@/types/game'
 import { getChoicesForRole } from '@/types/game'
 
 const POLL_INTERVAL = 1500
@@ -97,6 +99,7 @@ export default function PlayPage() {
       const data = JSON.parse(e.data)
       setSelectedChoice(null)
       setSubmitted(false)
+      playSound('scenario-start')
       setState((prev) =>
         prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, voteCount: 0, aiCommentary: undefined } : prev,
       )
@@ -109,6 +112,7 @@ export default function PlayPage() {
 
     es.addEventListener('scenario-result', (e) => {
       const data = JSON.parse(e.data)
+      playSound('scenario-end')
       setState((prev) => prev ? { ...prev, phase: 'between', macro: data.macro, lastBreakdown: data.breakdown, roleBreakdown: data.roleBreakdown, macroDelta: data.macroDelta } : prev)
     })
 
@@ -127,8 +131,14 @@ export default function PlayPage() {
       setState((prev) => prev ? { ...prev, phase: 'ai-generating', outcome: data.outcome } : prev)
     })
 
+    es.addEventListener('ai-news-stream', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, socialNews: data.socialNews } : prev)
+    })
+
     es.addEventListener('game-ended', (e) => {
       const data = JSON.parse(e.data)
+      playSound('game-end')
       setState((prev) =>
         prev ? { ...prev, phase: 'results', outcome: data.outcome, macro: data.macro, socialNews: data.socialNews, awards: data.awards } : prev,
       )
@@ -155,10 +165,23 @@ export default function PlayPage() {
     }
   }, [fetchState, playerId, roleId, pin, router])
 
+  const awardSoundPlayed = useRef(false)
+
+  useEffect(() => {
+    if (state?.awards) {
+      const myAw = state.awards.find((a) => a.playerId === playerId)
+      if (myAw && !awardSoundPlayed.current) {
+        awardSoundPlayed.current = true
+        setTimeout(() => playSound('award'), 500)
+      }
+    }
+  }, [state?.awards, playerId])
+
   async function submitChoice(choiceId: ChoiceId) {
     if (submitted || !playerId) return
     setSelectedChoice(choiceId)
     setSubmitted(true)
+    playSound('vote-submit')
     try {
       await fetch(`/api/room/${pin}/choice`, {
         method: 'POST',
@@ -212,213 +235,418 @@ export default function PlayPage() {
 
       {/* --- Lobby --------------------------------------------------------- */}
       {state.phase === 'lobby' && (
-        <div className="min-h-screen p-4 space-y-4 max-w-2xl mx-auto py-8">
-          {roleId && playerName && (
-            <RoleCard roleId={roleId} playerName={playerName} />
-          )}
-          <div className="rounded-2xl border border-border bg-card p-5 text-center space-y-2">
-            <div className="w-3 h-3 bg-amber-600 rounded-full animate-pulse mx-auto" />
-            <p className="font-semibold">Chờ giảng viên bắt đầu...</p>
-            <p className="text-sm text-muted-foreground">{state.playerCount} người đã tham gia</p>
+        <div className="h-screen p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col">
+          {/* Decorative background */}
+          <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-b-3xl" />
+          {/* Floating dots */}
+          <div className="absolute top-[10%] right-[6%] w-2 h-2 rounded-full bg-primary/12 animate-float-slow pointer-events-none" />
+          <div className="absolute top-[30%] left-[4%] w-1.5 h-1.5 rounded-full bg-blue-500/10 animate-float-slow pointer-events-none" style={{ animationDelay: '1.5s' }} />
+          <div className="absolute bottom-[15%] right-[10%] w-1 h-1 rounded-full bg-violet-500/10 animate-float-slow pointer-events-none" style={{ animationDelay: '3s' }} />
+          <div className="absolute top-[55%] left-[8%] w-2.5 h-2.5 rounded-full bg-emerald-500/8 animate-float-slow pointer-events-none" style={{ animationDelay: '2s' }} />
+          <div className="absolute bottom-[30%] left-[30%] w-1 h-1 rounded-full bg-amber-500/8 animate-float-slow pointer-events-none" style={{ animationDelay: '4s' }} />
+          {/* Corner accents */}
+          <div className="absolute top-3 left-3 w-14 h-14 border-l border-t border-primary/8 rounded-tl-xl pointer-events-none" />
+          <div className="absolute bottom-3 right-3 w-14 h-14 border-r border-b border-primary/8 rounded-br-xl pointer-events-none" />
+
+          <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-start overflow-y-auto">
+            {/* Left: Role card */}
+            <div className="space-y-5">
+              {roleId && playerName && (
+                <RoleCard roleId={roleId} playerName={playerName} />
+              )}
+
+              {currentPlayer && roleId && (
+                <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+              )}
+            </div>
+
+            {/* Right: Waiting status + role highlight */}
+            <div className="space-y-5">
+              {/* Group title */}
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Các tầng lớp trong xã hội số</p>
+                <p className="text-sm text-muted-foreground">Bạn thuộc nhóm được đánh dấu bên dưới</p>
+              </div>
+              {/* 4-role highlight strip */}
+              <div className="grid grid-cols-2 gap-2">
+                {(['cong-nhan', 'nong-dan', 'tri-thuc', 'startup'] as const).map((rid) => {
+                  const isMe = rid === roleId
+                  const roleColors: Record<string, { border: string; bg: string; text: string; ring: string }> = {
+                    'cong-nhan': { border: 'border-blue-300', bg: 'bg-blue-50', text: 'text-blue-700', ring: 'ring-blue-400' },
+                    'nong-dan': { border: 'border-emerald-300', bg: 'bg-emerald-50', text: 'text-emerald-700', ring: 'ring-emerald-400' },
+                    'tri-thuc': { border: 'border-violet-300', bg: 'bg-violet-50', text: 'text-violet-700', ring: 'ring-violet-400' },
+                    'startup': { border: 'border-amber-300', bg: 'bg-amber-50', text: 'text-amber-700', ring: 'ring-amber-400' },
+                  }
+                  const roleNames: Record<string, string> = { 'cong-nhan': 'Công nhân', 'nong-dan': 'Nông dân', 'tri-thuc': 'Trí thức', 'startup': 'Startup' }
+                  const roleImages: Record<string, string> = { 'cong-nhan': '/images/role-worker.png', 'nong-dan': '/images/role-farmer.png', 'tri-thuc': '/images/role-intellectual.png', 'startup': '/images/role-startup.png' }
+                  const c = roleColors[rid]
+                  return (
+                    <div
+                      key={rid}
+                      className={cn(
+                        'rounded-xl border-2 p-3 flex items-center gap-3 transition-all',
+                        isMe ? `${c.border} ${c.bg} ring-2 ${c.ring} shadow-md scale-[1.02]` : 'border-border bg-card opacity-50',
+                      )}
+                    >
+                      <img src={roleImages[rid]} alt="" className={cn('w-10 h-10 rounded-lg object-cover border', isMe ? c.border : 'border-border')} />
+                      <div>
+                        <p className={cn('text-sm font-bold', isMe ? c.text : 'text-muted-foreground')}>{roleNames[rid]}</p>
+                        {isMe && <p className="text-[10px] text-primary font-medium">Vai trò của bạn</p>}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Waiting card */}
+              <div className="rounded-2xl border border-border bg-card overflow-hidden animate-fade-in">
+                <div className="relative h-40 overflow-hidden">
+                  <img src="/images/lobby-gathering.png" alt="" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-0 right-0 text-center">
+                    <div className="flex justify-center gap-1.5 mb-2">
+                      {[0, 1, 2].map((i) => (
+                        <div key={i} className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
+                      ))}
+                    </div>
+                    <p className="font-semibold text-foreground">Trò chơi sắp bắt đầu...</p>
+                  </div>
+                </div>
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-sm"><span className="font-bold text-primary tabular-nums">{state.playerCount}</span> <span className="text-muted-foreground">người đã tham gia</span></span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">PIN: <span className="font-bold text-foreground tracking-widest">{pin}</span></span>
+                </div>
+              </div>
+            </div>
           </div>
-          {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
-          )}
         </div>
       )}
 
       {/* --- Playing ------------------------------------------------------- */}
       {state.phase === 'playing' && scenario && state.scenarioStartedAt && (
         <div className={cn(
-          'min-h-screen p-4 space-y-4 max-w-lg mx-auto py-6',
+          'h-screen p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col',
           stratLevel === 'danger' && 'bg-red-50',
           stratLevel === 'warning' && 'bg-amber-50/50'
         )}>
-          <div className="flex items-center justify-between">
+          {/* Subtle top gradient */}
+          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-primary/3 to-transparent pointer-events-none rounded-b-3xl" />
+          <div className="flex items-center justify-between mb-2">
             <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} />
             {currentPlayer && roleId && (
               <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} className="text-right" />
             )}
           </div>
 
-          <ScenarioCard
-            scenario={scenario}
-            scenarioNumber={state.currentScenarioIndex + 1}
-            totalScenarios={state.totalScenarios}
-          />
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 overflow-y-auto">
+            {/* Left: Scenario */}
+            <ScenarioCard
+              scenario={scenario}
+              scenarioNumber={state.currentScenarioIndex + 1}
+              totalScenarios={state.totalScenarios}
+            />
 
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Lựa chọn của bạn</p>
-            {getChoicesForRole(scenario, roleId as RoleId).map((choice, idx) => (
-              <div key={choice.id} className="choice-btn-enter" style={{ animationDelay: `${idx * 0.1}s` }}>
-                <ChoiceButton
-                  choice={choice}
-                  selected={selectedChoice === choice.id}
-                  submitted={submitted}
-                  disabled={submitted && selectedChoice !== choice.id}
-                  onClick={submitChoice}
-                />
-              </div>
-            ))}
-          </div>
-
-          {submitted && (
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center space-y-3 animate-fade-in">
-              <FramedImage
-                src="/images/transition-waiting.png"
-                alt="Đang chờ..."
-                variant="banner"
-                frameClassName="h-24 mb-2"
-              />
-              <div className="flex justify-center gap-1.5">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 bg-primary rounded-full animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
+            {/* Right: Choices */}
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest">Lựa chọn của bạn</p>
+              {getChoicesForRole(scenario, roleId as RoleId).map((choice, idx) => (
+                <div key={choice.id} className="choice-btn-enter" style={{ animationDelay: `${idx * 0.1}s` }}>
+                  <ChoiceButton
+                    choice={choice}
+                    selected={selectedChoice === choice.id}
+                    submitted={submitted}
+                    disabled={submitted && selectedChoice !== choice.id}
+                    onClick={submitChoice}
                   />
-                ))}
-              </div>
-              <p className="text-sm font-medium text-primary">Đã ghi nhận lựa chọn</p>
-              <p className="text-xs text-muted-foreground">
-                Đang chờ các giai cấp khác quyết định...
-              </p>
+                </div>
+              ))}
+
+              {submitted && (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center space-y-3 animate-fade-in">
+                  <FramedImage
+                    src="/images/transition-waiting.png"
+                    alt="Đang chờ..."
+                    variant="banner"
+                    frameClassName="h-24 mb-2"
+                  />
+                  <div className="flex justify-center gap-1.5">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                        style={{ animationDelay: `${i * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-sm font-medium text-primary">Đã ghi nhận lựa chọn</p>
+                  <p className="text-xs text-muted-foreground">
+                    Đang chờ các giai cấp khác quyết định...
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
 
       {/* --- Between ------------------------------------------------------- */}
       {state.phase === 'between' && (
         <div className={cn(
-          'min-h-screen p-4 space-y-4 max-w-2xl mx-auto py-8',
+          'h-screen p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col',
           stratLevel === 'danger' && 'bg-red-50',
           stratLevel === 'warning' && 'bg-amber-50/50'
         )}>
-          <div className="rounded-2xl border border-border bg-card p-5 text-center space-y-3 animate-fade-in">
-            <ChartIcon size={30} className="text-primary mx-auto" />
-            <h2 className="font-bold">Kết quả vừa cập nhật</h2>
-            <div className="grid grid-cols-3 gap-2 text-sm">
-              <div>
-                <p className="text-primary font-bold tabular-nums">{Math.round(state.macro.alliance)}</p>
-                <p className="text-xs text-muted-foreground">Liên minh</p>
+          {/* Decorative gradient top */}
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-b-3xl" />
+
+          <div className="relative z-10 flex-1 flex flex-col gap-3 overflow-y-auto">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+              {/* Left: Macro indicators */}
+              <div className="rounded-2xl border border-border bg-card overflow-hidden animate-fade-in">
+                <div className="relative h-20 overflow-hidden bg-gradient-to-r from-primary/10 via-blue-500/10 to-violet-500/10">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <ChartIcon size={32} className="text-primary/30" />
+                  </div>
+                </div>
+                <div className="p-5 space-y-3 -mt-3 relative z-10">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mx-auto -mt-6 border-2 border-card">
+                    <ChartIcon size={20} className="text-primary" />
+                  </div>
+                  <h2 className="font-bold text-center">Kết quả vừa cập nhật</h2>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    {[
+                      { label: 'Liên minh', desc: 'Đoàn kết giai cấp', value: state.macro.alliance, key: 'alliance', color: 'text-primary', bg: 'bg-emerald-50' },
+                      { label: 'Phân hóa', desc: 'Khoảng cách giàu-nghèo', value: state.macro.stratification, key: 'stratification', color: 'text-amber-600', bg: 'bg-amber-50' },
+                      { label: 'Sản xuất', desc: 'Lực lượng sản xuất', value: state.macro.production, key: 'production', color: 'text-blue-600', bg: 'bg-blue-50' },
+                      { label: 'Đổi mới', desc: 'Sáng tạo công nghệ', value: state.macro.innovation, key: 'innovation', color: 'text-violet-600', bg: 'bg-violet-50' },
+                      { label: 'Phúc lợi', desc: 'An sinh xã hội', value: state.macro.welfare, key: 'welfare', color: 'text-pink-500', bg: 'bg-pink-50' },
+                      { label: 'Dân chủ', desc: 'Quyết định tập thể', value: state.macro.democracy, key: 'democracy', color: 'text-cyan-600', bg: 'bg-cyan-50' },
+                    ].map(({ label, desc, value, key, color, bg }) => {
+                      const delta = state.macroDelta ? Math.round((state.macroDelta[key as keyof typeof state.macroDelta] ?? 0) * 10) / 10 : 0
+                      return (
+                        <div key={key} className={cn('rounded-lg p-2', bg)}>
+                          <div className="flex items-center justify-center gap-1">
+                            <p className={cn(color, 'font-bold tabular-nums')}>{Math.round(value)}</p>
+                            {delta !== 0 && (
+                              <span className={cn('text-[10px] font-bold tabular-nums', delta > 0 ? 'text-emerald-500' : 'text-red-500')}>
+                                {delta > 0 ? '+' : ''}{delta}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{label}</p>
+                          <p className="text-[9px] text-muted-foreground/50">{desc}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="flex items-center justify-center gap-2 pt-2">
+                    <div className="flex gap-1">
+                      {[0, 1, 2].map((i) => (
+                        <div key={i} className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                      ))}
+                    </div>
+                    <p className="text-sm text-muted-foreground">Tình huống tiếp theo sắp bắt đầu...</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-amber-600 font-bold tabular-nums">{Math.round(state.macro.stratification)}</p>
-                <p className="text-xs text-muted-foreground">Phân hóa</p>
-              </div>
-              <div>
-                <p className="text-blue-600 font-bold tabular-nums">{Math.round(state.macro.production)}</p>
-                <p className="text-xs text-muted-foreground">Sản xuất</p>
-              </div>
-              <div>
-                <p className="text-violet-600 font-bold tabular-nums">{Math.round(state.macro.innovation)}</p>
-                <p className="text-xs text-muted-foreground">Đổi mới</p>
-              </div>
-              <div>
-                <p className="text-pink-500 font-bold tabular-nums">{Math.round(state.macro.welfare)}</p>
-                <p className="text-xs text-muted-foreground">Phúc lợi</p>
-              </div>
-              <div>
-                <p className="text-cyan-600 font-bold tabular-nums">{Math.round(state.macro.democracy)}</p>
-                <p className="text-xs text-muted-foreground">Dân chủ</p>
+
+              {/* Right: AI + Stats */}
+              <div className="space-y-4">
+                {state.aiCommentary ? (
+                  <div className="rounded-xl border border-primary/20 bg-card p-4 space-y-2 animate-fade-in">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+                        <BrainIcon size={14} className="text-primary" />
+                      </div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">Bình luận AI</p>
+                    </div>
+                    <p className="text-sm leading-relaxed">{state.aiCommentary}</p>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-primary/10 bg-card p-4 flex items-center gap-3 animate-pulse">
+                    <BrainIcon size={16} className="text-primary/30" />
+                    <p className="text-sm text-muted-foreground/50">AI đang soạn bình luận...</p>
+                  </div>
+                )}
+                {currentPlayer && roleId && (
+                  <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+                )}
               </div>
             </div>
-            {state.macroDelta && (
-              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs">
-                {([
-                  { key: 'alliance', label: 'LM' },
-                  { key: 'stratification', label: 'PH' },
-                  { key: 'production', label: 'SX' },
-                  { key: 'innovation', label: 'ĐM' },
-                  { key: 'welfare', label: 'PL' },
-                  { key: 'democracy', label: 'DC' },
-                ] as const).map(({ key, label }) => {
-                  const d = Math.round((state.macroDelta![key as keyof typeof state.macroDelta] ?? 0) * 10) / 10
-                  if (d === 0) return null
-                  return (
-                    <span key={key} className={d > 0 ? 'text-emerald-600' : 'text-red-500'}>
-                      {label} {d > 0 ? '+' : ''}{d.toFixed(1)}
-                    </span>
-                  )
-                })}
-              </div>
-            )}
-            <p className="text-sm text-muted-foreground">Tình huống tiếp theo sắp bắt đầu...</p>
           </div>
-          {state.aiCommentary && (
-            <div className="rounded-xl border border-primary/20 bg-card p-4 space-y-2 animate-fade-in">
-              <div className="flex items-center gap-2">
-                <BrainIcon size={16} className="text-primary" />
-                <p className="text-xs text-muted-foreground uppercase tracking-widest">Bình luận AI</p>
-              </div>
-              <p className="text-sm leading-relaxed">{state.aiCommentary}</p>
-            </div>
-          )}
-          {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
-          )}
         </div>
       )}
 
       {/* --- AI Generating ------------------------------------------------- */}
       {state.phase === 'ai-generating' && (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
-          <FramedImage
-            src="/images/transition-analyzing.png"
-            alt="AI đang phân tích"
-            variant="card"
-            frameClassName="w-40 h-40"
-          />
-          <BrainIcon size={40} className="text-primary animate-pulse" />
-          <h2 className="font-bold text-center">AI đang phân tích dữ liệu...</h2>
-          <p className="text-sm text-muted-foreground text-center">
-            Tổng hợp hành vi của {state.playerCount} người chơi
-          </p>
-          <div className="flex gap-1">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="w-2 h-2 bg-primary rounded-full animate-bounce"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
+        <div className="h-screen flex flex-col items-center justify-center p-4 gap-4 relative overflow-hidden">
+          {/* Background pulse effect */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-violet-500/3 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+          </div>
+          <div className="relative z-10 flex flex-col items-center gap-4 w-full max-w-2xl px-4">            <FramedImage
+              src="/images/transition-analyzing.png"
+              alt="AI đang phân tích"
+              variant="card"
+              frameClassName="w-40 h-40"
+            />
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center animate-float">
+              <BrainIcon size={32} className="text-primary" />
+            </div>
+            <h2 className="font-bold text-center text-lg">AI đang phân tích dữ liệu...</h2>
+            <p className="text-sm text-muted-foreground text-center">
+              Tổng hợp hành vi của {state.playerCount} người chơi qua {state.totalScenarios ?? 10} tình huống
+            </p>
+            <div className="flex gap-1.5">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: `${i * 0.12}s` }}
+                />
+              ))}
+            </div>
+            {/* Live streaming news text */}
+            {state.socialNews && (
+              <div className="glass-card p-4 w-full animate-fade-in mt-4">
+                <h3 className="text-sm font-bold text-primary mb-2 flex items-center gap-2">
+                  <BrainIcon size={16} className="animate-pulse" />
+                  Bản tin đang được viết...
+                </h3>
+                <div className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed">
+                  {stripMarkdown(state.socialNews || '')}
+                  <span className="inline-block w-1.5 h-3 bg-primary/60 animate-pulse ml-0.5" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* --- Results ------------------------------------------------------- */}
       {state.phase === 'results' && (
-        <div className="min-h-screen p-4 space-y-4 max-w-2xl mx-auto py-8 animate-fade-in">
-          <div className="text-center">
-            <h2 className="text-xl font-bold">Kết quả hoàn thành</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {state.outcome === 'ben-vung' && <><PlantIcon size={18} className="text-emerald-600 inline-block mr-1" /> Chuyển đổi số Bền vững</>}
-              {state.outcome === 'dut-gay' && <><BoltIcon size={18} className="text-red-600 inline-block mr-1" /> Đứt gãy Cơ cấu</>}
-              {state.outcome === 'trung-tinh' && <><BoltIcon size={18} className="text-amber-600 inline-block mr-1" /> Trạng thái Bất ổn</>}
-            </p>
-          </div>
+        <PlayerResultsView
+          state={state}
+          myAward={myAward}
+          currentPlayer={currentPlayer}
+          roleId={roleId}
+        />
+      )}
+    </>
+  )
+}
 
-          {myAward && (
-            <div className="rounded-2xl border border-primary/40 bg-primary/10 p-5 text-center space-y-2 animate-slide-up">
-              <IconByKey name={myAward.icon} size={40} className="text-primary mx-auto" />
-              <h3 className="font-bold text-primary">{myAward.name}</h3>
-              <p className="text-sm text-muted-foreground">{myAward.reason}</p>
+/** Player results with dramatic award reveal animation */
+function PlayerResultsView({
+  state,
+  myAward,
+  currentPlayer,
+  roleId,
+}: {
+  state: RoomStatePublic
+  myAward: Award | undefined
+  currentPlayer: RoomStatePublic['players'][number] | undefined
+  roleId: RoleId | null
+}) {
+  const [phase, setPhase] = useState<'darken' | 'card-zoom' | 'settle' | 'done'>('darken')
+
+  useEffect(() => {
+    // Phase 1: darken (0ms), Phase 2: card zoom in (600ms), Phase 3: settle (2200ms), Phase 4: done (3000ms)
+    const t1 = setTimeout(() => { setPhase('card-zoom'); playSound('reveal') }, 600)
+    const t2 = setTimeout(() => { setPhase('settle'); playSound('whoosh') }, 2200)
+    const t3 = setTimeout(() => setPhase('done'), 3000)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+  }, [])
+
+  const showCard = phase !== 'darken'
+  const isOverlay = phase === 'card-zoom'
+  const settled = phase === 'settle' || phase === 'done'
+  const galaxyBg = phase === 'settle' || phase === 'done'
+
+  return (
+    <div className={cn(
+      'h-screen w-full relative overflow-hidden flex flex-col transition-colors duration-1000',
+      galaxyBg ? 'results-galaxy' : 'bg-background',
+    )}>
+      {/* Dark overlay during darken/card-zoom phase */}
+      <div className={cn(
+        'absolute inset-0 z-30 transition-all duration-700 pointer-events-none',
+        phase === 'darken' ? 'bg-black/80' : phase === 'card-zoom' ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent',
+      )} />
+
+      {/* Star particles (visible after settle) */}
+      {galaxyBg && Array.from({ length: 30 }, (_, i) => (
+        <div
+          key={`star-${i}`}
+          className={cn(
+            'absolute rounded-full animate-sparkle pointer-events-none z-0',
+            i % 3 === 0 ? 'w-1 h-1 bg-white/25' : 'w-0.5 h-0.5 bg-white/20',
+          )}
+          style={{
+            top: `${3 + ((i * 41) % 90)}%`,
+            left: `${2 + ((i * 67) % 94)}%`,
+            animationDelay: `${(i * 0.19) % 2.5}s`,
+          }}
+        />
+      ))}
+
+      {/* Award card overlay — zooms in center then settles into position */}
+      {showCard && myAward && (
+        <div className={cn(
+          'transition-all duration-800 ease-out',
+          isOverlay
+            ? 'fixed inset-0 z-50 flex items-center justify-center'
+            : 'relative z-10 flex-shrink-0 flex items-center justify-center pt-4 pb-2',
+        )}>
+          <div className={cn(
+            'transition-all duration-700 ease-out',
+            isOverlay ? 'w-[220px]' : 'w-[160px]',
+          )}>
+            <AwardCard award={myAward} index={0} />
+          </div>
+        </div>
+      )}
+
+      {/* Main content (appears after settle) */}
+      <div className={cn(
+        'relative z-10 flex-1 flex flex-col gap-4 overflow-y-auto px-4 lg:px-12 transition-all duration-700',
+        settled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+      )}>
+        <div className="text-center space-y-2 pt-2">
+          <h2 className={cn('text-xl font-bold', galaxyBg ? 'text-white' : 'text-foreground')}>Kết quả hoàn thành</h2>
+          <p className={cn('text-sm', galaxyBg ? 'text-blue-100/80' : 'text-muted-foreground')}>
+            {state.outcome === 'ben-vung' && <><PlantIcon size={18} className="text-emerald-300 inline-block mr-1" /> Chuyển đổi số Bền vững</>}
+            {state.outcome === 'dut-gay' && <><BoltIcon size={18} className="text-red-300 inline-block mr-1" /> Đứt gãy Cơ cấu</>}
+            {state.outcome === 'trung-tinh' && <><BoltIcon size={18} className="text-amber-300 inline-block mr-1" /> Trạng thái Bất ổn</>}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
+          {/* Stats */}
+          {currentPlayer && roleId && (
+            <div className={cn('rounded-2xl border p-4', galaxyBg ? 'border-white/15 bg-slate-900/70 backdrop-blur-sm' : 'border-border bg-card')}>
+              <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
             </div>
           )}
 
-          {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
-          )}
-
+          {/* Social News */}
           {state.socialNews && (
-            <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
-              <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Bản tin Xã hội Số</h3>
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{state.socialNews}</p>
+            <div className={cn('rounded-2xl border overflow-hidden', galaxyBg ? 'border-white/15 bg-slate-900/70 backdrop-blur-sm' : 'border-border bg-card')}>
+              <div className={cn('px-4 py-2.5 border-b flex items-center gap-2', galaxyBg ? 'bg-blue-600/60 border-white/10' : 'bg-gradient-to-r from-primary/5 via-blue-500/5 to-violet-500/5 border-border/50')}>
+                <BrainIcon size={14} className={galaxyBg ? 'text-blue-200' : 'text-primary'} />
+                <span className={cn('font-bold text-xs uppercase tracking-widest', galaxyBg ? 'text-white' : 'text-muted-foreground')}>Bản tin Xã hội Số</span>
+              </div>
+              <div className="p-4">
+                <p className={cn('text-sm leading-relaxed whitespace-pre-wrap', galaxyBg ? 'text-blue-50/90' : '')}>{stripMarkdown(state.socialNews)}</p>
+              </div>
             </div>
           )}
         </div>
-      )}
-    </>
+      </div>
+    </div>
   )
 }

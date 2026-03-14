@@ -10,11 +10,11 @@ import { QRDisplay } from '@/components/game/QRDisplay'
 import { AwardCard } from '@/components/game/AwardCard'
 import { SocialNewsBanner } from '@/components/game/SocialNewsBanner'
 import { CountdownTimer } from '@/components/game/CountdownTimer'
-import { FramedImage } from '@/components/game/FramedImage'
 import { GlobeIcon, BrainIcon, PlantIcon, BoltIcon } from '@/components/icons'
 import { SCENARIO_IMAGE_MAP, OUTCOME_IMAGE_MAP, LOBBY_IMAGE, TRANSITION_IMAGE_MAP } from '@/lib/image-maps'
 import { getStratificationLevel } from '@/lib/stratification-theme'
-import { cn } from '@/lib/utils'
+import { playSound } from '@/lib/sounds'
+import { cn, stripMarkdown } from '@/lib/utils'
 import type { RoomStatePublic } from '@/types/game'
 
 export default function ScreenPage() {
@@ -56,11 +56,13 @@ export default function ScreenPage() {
 
     es.addEventListener('player-joined', (e) => {
       const data = JSON.parse(e.data)
+      playSound('player-joined')
       setState((prev) => prev ? { ...prev, players: data.players, playerCount: data.playerCount } : prev)
     })
 
     es.addEventListener('scenario-start', (e) => {
       const data = JSON.parse(e.data)
+      playSound('scenario-start')
       setState((prev) =>
         prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, voteCount: 0, lastBreakdown: undefined, aiCommentary: undefined } : prev,
       )
@@ -73,6 +75,7 @@ export default function ScreenPage() {
 
     es.addEventListener('scenario-result', (e) => {
       const data = JSON.parse(e.data)
+      playSound('scenario-end')
       setState((prev) => prev ? { ...prev, phase: 'between', macro: data.macro, lastBreakdown: data.breakdown, roleBreakdown: data.roleBreakdown, macroDelta: data.macroDelta } : prev)
     })
 
@@ -81,8 +84,14 @@ export default function ScreenPage() {
       setState((prev) => prev ? { ...prev, phase: 'ai-generating', outcome: data.outcome } : prev)
     })
 
+    es.addEventListener('ai-news-stream', (e) => {
+      const data = JSON.parse(e.data)
+      setState((prev) => prev ? { ...prev, socialNews: data.socialNews } : prev)
+    })
+
     es.addEventListener('game-ended', (e) => {
       const data = JSON.parse(e.data)
+      playSound('game-end')
       setState((prev) =>
         prev ? { ...prev, phase: 'results', outcome: data.outcome, macro: data.macro, socialNews: data.socialNews, awards: data.awards } : prev,
       )
@@ -121,11 +130,21 @@ export default function ScreenPage() {
   // ─── Lobby — show QR code prominently ─────────────────────────────────────
   if (state.phase === 'lobby') {
     return (
-      <div className="min-h-screen bg-background p-8 flex flex-col relative overflow-hidden">
+      <div className="h-screen bg-background p-8 flex flex-col relative overflow-hidden">
         {/* Background hero image */}
         <div className="absolute inset-0 opacity-10">
           <Image src={LOBBY_IMAGE} alt="" fill className="object-cover" />
         </div>
+        {/* Floating dots */}
+        <div className="absolute top-[8%] left-[5%] w-3 h-3 rounded-full bg-primary/10 animate-float-slow pointer-events-none" />
+        <div className="absolute top-[15%] right-[10%] w-2 h-2 rounded-full bg-blue-500/10 animate-float-slow pointer-events-none" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-[20%] left-[8%] w-1.5 h-1.5 rounded-full bg-violet-500/10 animate-float-slow pointer-events-none" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-[50%] right-[4%] w-2.5 h-2.5 rounded-full bg-emerald-500/8 animate-float-slow pointer-events-none" style={{ animationDelay: '3s' }} />
+        <div className="absolute bottom-[12%] right-[20%] w-1.5 h-1.5 rounded-full bg-amber-500/8 animate-float-slow pointer-events-none" style={{ animationDelay: '4s' }} />
+        <div className="absolute bottom-[40%] left-[25%] w-1 h-1 rounded-full bg-pink-500/8 animate-float-slow pointer-events-none" style={{ animationDelay: '2.5s' }} />
+        {/* Corner accents */}
+        <div className="absolute top-6 left-6 w-20 h-20 border-l-2 border-t-2 border-primary/8 rounded-tl-2xl pointer-events-none" />
+        <div className="absolute bottom-6 right-6 w-20 h-20 border-r-2 border-b-2 border-primary/8 rounded-br-2xl pointer-events-none" />
 
         <div className="flex-1 grid grid-cols-2 gap-12 items-center relative z-10">
           <div className="space-y-6">
@@ -141,9 +160,12 @@ export default function ScreenPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <p className="text-muted-foreground mb-1 text-sm">Sinh viên đã tham gia</p>
-              <p className="projection-value text-primary">{state.playerCount}</p>
+            <div className="rounded-2xl border border-border bg-card p-5 flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-muted-foreground text-sm">Sinh viên đã tham gia</span>
+              </div>
+              <p className="projection-value text-primary ml-auto">{state.playerCount}</p>
             </div>
           </div>
 
@@ -170,31 +192,39 @@ export default function ScreenPage() {
 
     return (
       <div key={`game-${state.currentScenarioIndex}-${state.phase}`} className={cn(
-        'min-h-screen bg-background p-8 space-y-8 animate-phase-enter',
+        'h-screen bg-background p-6 flex flex-col gap-4 animate-phase-enter overflow-hidden',
         stratLevel === 'warning' && 'bg-amber-50/50',
         stratLevel === 'danger' && 'bg-red-50',
       )}>
+        {/* Floating dots */}
+        <div className="absolute top-[6%] right-[4%] w-2 h-2 rounded-full bg-primary/8 animate-float-slow pointer-events-none" />
+        <div className="absolute bottom-[10%] left-[3%] w-1.5 h-1.5 rounded-full bg-violet-500/8 animate-float-slow pointer-events-none" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[40%] left-[2%] w-1 h-1 rounded-full bg-blue-500/8 animate-float-slow pointer-events-none" style={{ animationDelay: '3s' }} />
+        <div className="absolute bottom-[25%] right-[6%] w-2 h-2 rounded-full bg-emerald-500/6 animate-float-slow pointer-events-none" style={{ animationDelay: '1.5s' }} />
+        {/* Corner accents */}
+        <div className="absolute top-4 left-4 w-12 h-12 border-l border-t border-primary/6 rounded-tl-lg pointer-events-none" />
+        <div className="absolute bottom-4 right-4 w-12 h-12 border-r border-b border-primary/6 rounded-br-lg pointer-events-none" />
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-shrink-0">
           <div>
-            <p className="text-sm text-muted-foreground uppercase tracking-widest">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest">
               Digital Society Simulator
             </p>
             {scenario && (
-              <h2 className="text-2xl font-bold mt-1">
+              <h2 className="text-xl font-bold">
                 T{state.currentScenarioIndex + 1}/{state.totalScenarios}: {scenario.title}
               </h2>
             )}
           </div>
           <div className="flex items-center gap-6">
             {state.phase === 'playing' && state.scenarioStartedAt && (
-              <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} className="scale-125" />
+              <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} className="scale-110" />
             )}
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">Người chơi</p>
-              <p className="text-3xl font-bold text-primary">{state.playerCount}</p>
+              <p className="text-xs text-muted-foreground">Người chơi</p>
+              <p className="text-2xl font-bold text-primary">{state.playerCount}</p>
               {state.phase === 'playing' && (
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground">
                   Đã vote: <span className="font-bold text-emerald-600">{state.voteCount ?? 0}</span>/{state.playerCount}
                 </p>
               )}
@@ -202,150 +232,169 @@ export default function ScreenPage() {
           </div>
         </div>
 
-        {/* Scenario context */}
-        {scenario && state.phase === 'playing' && (
-          <div className="rounded-2xl border border-primary/20 bg-primary/5 overflow-hidden animate-fade-in">
-            {SCENARIO_IMAGE_MAP[scenario.id] && (
-              <FramedImage
-                src={SCENARIO_IMAGE_MAP[scenario.id]}
-                alt={scenario.title}
-                variant="banner"
-                frameClassName="h-40"
-              />
+        {/* Main content — 2 column layout */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 overflow-hidden">
+          {/* Left column: Scenario + Macro */}
+          <div className="flex flex-col gap-3 overflow-y-auto">
+            {scenario && (
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-3 animate-fade-in">
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col justify-center">
+                  <p className="text-sm leading-relaxed text-foreground/90">{scenario.context}</p>
+                </div>
+                {SCENARIO_IMAGE_MAP[scenario.id] && (
+                  <div className="rounded-xl overflow-hidden border border-border shadow-md hidden lg:block relative">
+                    <img
+                      src={SCENARIO_IMAGE_MAP[scenario.id]}
+                      alt={scenario.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-black/10" />
+                  </div>
+                )}
+              </div>
             )}
-            <div className="p-5">
-              <p className="text-base leading-relaxed text-foreground/90">{scenario.context}</p>
+
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">
+                Chỉ số Vĩ mô · Thời gian thực
+              </p>
+              <MacroGauges
+                alliance={state.macro.alliance}
+                stratification={state.macro.stratification}
+                production={state.macro.production}
+                innovation={state.macro.innovation}
+                welfare={state.macro.welfare}
+                democracy={state.macro.democracy}
+                deltas={state.macroDelta}
+              />
             </div>
+
+            {state.macro.history.length > 0 && (
+              <div className="rounded-xl border border-border bg-card p-4">
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Diễn biến</p>
+                <MacroCharts macro={state.macro} />
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Macro gauges */}
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-5">
-            Chỉ số Vĩ mô · Cập nhật thời gian thực
-          </p>
-          <MacroGauges
-            alliance={state.macro.alliance}
-            stratification={state.macro.stratification}
-            production={state.macro.production}
-            innovation={state.macro.innovation}
-            welfare={state.macro.welfare}
-            democracy={state.macro.democracy}
-          />
-        </div>
-
-        {/* Chart history */}
-        {state.macro.history.length > 0 && (
-          <div className="rounded-2xl border border-border bg-card p-6">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Diễn biến theo tình huống</p>
-            <MacroCharts macro={state.macro} />
-          </div>
-        )}
-
-        {state.phase === 'between' && state.lastBreakdown && (
-          <div className="rounded-2xl border border-border bg-card p-5 space-y-5 animate-fade-in">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left: Overall + Per-role breakdown */}
-              <div className="space-y-4">
+          {/* Right column: Breakdown + AI */}
+          <div className="flex flex-col gap-3 overflow-y-auto">
+            {state.phase === 'between' && state.lastBreakdown && (
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3 animate-fade-in">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest">Phân bố lựa chọn</p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   {(['A', 'B', 'C'] as const).map((opt) => {
                     const count = state.lastBreakdown![opt]
                     const pct = state.lastBreakdown!.total > 0 ? Math.round((count / state.lastBreakdown!.total) * 100) : 0
                     const colors = { A: 'bg-amber-500', B: 'bg-emerald-500', C: 'bg-blue-500' }
                     const labels = { A: 'text-amber-600', B: 'text-emerald-600', C: 'text-blue-600' }
                     return (
-                      <div key={opt} className="text-center space-y-1.5">
-                        <p className={`text-2xl font-bold tabular-nums ${labels[opt]}`}>{count}</p>
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div key={opt} className="text-center space-y-1">
+                        <p className={`text-xl font-bold tabular-nums ${labels[opt]}`}>{count}</p>
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className={`h-full rounded-full transition-all duration-1000 ${colors[opt]}`} style={{ width: `${pct}%` }} />
                         </div>
-                        <p className="text-xs text-muted-foreground">Lựa chọn {opt} · {pct}%</p>
+                        <p className="text-[10px] text-muted-foreground">Lựa chọn {opt} · {pct}%</p>
                       </div>
                     )
                   })}
                 </div>
 
-                {/* Per-role breakdown */}
                 {state.roleBreakdown && state.roleBreakdown.length > 0 && (
-                  <div className="space-y-2 pt-2 border-t border-border">
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Theo nhóm vai trò</p>
+                  <div className="space-y-1.5 pt-2 border-t border-border">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Theo nhóm vai trò</p>
                     {state.roleBreakdown.map((rb) => {
                       const roleColors: Record<string, string> = { 'cong-nhan': 'text-blue-600', 'nong-dan': 'text-emerald-600', 'tri-thuc': 'text-violet-600', 'startup': 'text-amber-600' }
                       return (
-                        <div key={rb.roleId} className="flex items-center gap-2 text-sm">
-                          <span className={`font-medium w-32 truncate ${roleColors[rb.roleId] ?? ''}`}>{rb.roleName}</span>
-                          <div className="flex-1 flex gap-2">
+                        <div key={rb.roleId} className="flex items-center gap-2 text-xs">
+                          <span className={`font-medium w-24 truncate ${roleColors[rb.roleId] ?? ''}`}>{rb.roleName}</span>
+                          <div className="flex-1 flex gap-1.5">
                             {rb.A > 0 && <span className="text-amber-600 tabular-nums">A:{rb.A}</span>}
                             {rb.B > 0 && <span className="text-emerald-600 tabular-nums">B:{rb.B}</span>}
                             {rb.C > 0 && <span className="text-blue-600 tabular-nums">C:{rb.C}</span>}
                           </div>
-                          <span className="text-xs text-muted-foreground">{rb.total} người</span>
+                          <span className="text-[10px] text-muted-foreground">{rb.total}</span>
                         </div>
                       )
                     })}
                   </div>
                 )}
-              </div>
 
-              {/* Right: Macro indicator changes */}
-              {state.macroDelta && (
-                <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground uppercase tracking-widest">Thay đổi chỉ số lượt này</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {([
-                      { key: 'alliance', label: 'Liên minh', color: 'text-emerald-600' },
-                      { key: 'stratification', label: 'Phân hóa', color: 'text-amber-600' },
-                      { key: 'production', label: 'Sản xuất', color: 'text-blue-600' },
-                      { key: 'innovation', label: 'Đổi mới', color: 'text-violet-600' },
-                      { key: 'welfare', label: 'Phúc lợi', color: 'text-pink-500' },
-                      { key: 'democracy', label: 'Dân chủ', color: 'text-cyan-600' },
-                    ] as const).map(({ key, label, color }) => {
-                      const delta = state.macroDelta![key as keyof typeof state.macroDelta]
-                      const rounded = Math.round(delta * 10) / 10
-                      return (
-                        <div key={key} className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
-                          <span className="text-xs text-muted-foreground">{label}</span>
-                          <span className={`font-bold tabular-nums text-sm ${rounded > 0 ? 'text-emerald-600' : rounded < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
-                            {rounded > 0 ? '+' : ''}{rounded.toFixed(1)}
-                          </span>
-                        </div>
-                      )
-                    })}
+                {state.macroDelta && (
+                  <div className="space-y-2 pt-2 border-t border-border">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Thay đổi chỉ số</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {([
+                        { key: 'alliance', label: 'Liên minh' },
+                        { key: 'stratification', label: 'Phân hóa' },
+                        { key: 'production', label: 'Sản xuất' },
+                        { key: 'innovation', label: 'Đổi mới' },
+                        { key: 'welfare', label: 'Phúc lợi' },
+                        { key: 'democracy', label: 'Dân chủ' },
+                      ] as const).map(({ key, label }) => {
+                        const delta = state.macroDelta![key as keyof typeof state.macroDelta]
+                        const rounded = Math.round(delta * 10) / 10
+                        return (
+                          <div key={key} className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-2 py-1.5">
+                            <span className="text-[10px] text-muted-foreground">{label}</span>
+                            <span className={`font-bold tabular-nums text-xs ${rounded > 0 ? 'text-emerald-600' : rounded < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                              {rounded > 0 ? '+' : ''}{rounded.toFixed(1)}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
+                )}
+              </div>
+            )}
+
+            {state.phase === 'between' && !state.lastBreakdown && (
+              <div className="rounded-xl border border-border bg-card/80 p-3 text-center text-sm text-muted-foreground">
+                Đang chuẩn bị tình huống tiếp theo...
+              </div>
+            )}
+
+            {state.phase === 'between' && (
+              <>
+                <div className={cn(
+                  'rounded-xl border p-4 space-y-2 animate-fade-in',
+                  state.aiCommentary ? 'border-primary/20 bg-card/80 backdrop-blur-sm' : 'border-primary/10 bg-primary/5',
+                )}>
+                  <div className="flex items-center gap-2">
+                    <BrainIcon size={14} className={state.aiCommentary ? 'text-primary' : 'text-primary/40 animate-pulse'} />
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Bình luận AI</p>
+                  </div>
+                  {state.aiCommentary ? (
+                    <p className="text-sm leading-relaxed text-foreground/90">{state.aiCommentary}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground/50">AI đang soạn bình luận...</p>
+                  )}
                 </div>
-              )}
-            </div>
-            <p className="text-center text-xs text-muted-foreground">Đang chuẩn bị tình huống tiếp theo...</p>
-          </div>
-        )}
-        {state.phase === 'between' && !state.lastBreakdown && (
-          <div className="rounded-2xl border border-border bg-card/80 p-4 text-center text-muted-foreground">
-            Đang chuẩn bị tình huống tiếp theo...
-          </div>
-        )}
+                <div className={cn(
+                  'rounded-xl border p-4 space-y-2 animate-fade-in',
+                  state.aiTrend ? 'border-violet-200 bg-card/80 backdrop-blur-sm' : 'border-violet-100 bg-violet-50/50',
+                )}>
+                  <div className="flex items-center gap-2">
+                    <BrainIcon size={14} className={state.aiTrend ? 'text-violet-600' : 'text-violet-400 animate-pulse'} />
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Phân tích Xu hướng</p>
+                  </div>
+                  {state.aiTrend ? (
+                    <p className="text-sm leading-relaxed text-foreground/90">{state.aiTrend}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground/50">AI đang phân tích xu hướng...</p>
+                  )}
+                </div>
+              </>
+            )}
 
-        {/* AI Commentary — Tier 1 */}
-        {state.phase === 'between' && state.aiCommentary && (
-          <div className="rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-sm p-5 space-y-3 animate-fade-in">
-            <div className="flex items-center gap-2">
-              <BrainIcon size={18} className="text-primary" />
-              <p className="text-xs text-muted-foreground uppercase tracking-widest">Bình luận AI</p>
-            </div>
-            <p className="text-sm leading-relaxed text-foreground/90">{state.aiCommentary}</p>
+            {state.phase === 'playing' && (
+              <div className="rounded-xl border border-border bg-card/80 p-4 flex items-center justify-center h-full">
+                <p className="text-sm text-muted-foreground animate-pulse">Đang chờ lựa chọn của sinh viên...</p>
+              </div>
+            )}
           </div>
-        )}
-
-        {/* AI Trend — Tier 2 */}
-        {state.phase === 'between' && state.aiTrend && (
-          <div className="rounded-2xl border border-violet-200 bg-card/80 backdrop-blur-sm p-5 space-y-3 animate-fade-in">
-            <div className="flex items-center gap-2">
-              <BrainIcon size={18} className="text-violet-600" />
-              <p className="text-xs text-muted-foreground uppercase tracking-widest">Phân tích Xu hướng</p>
-            </div>
-            <p className="text-sm leading-relaxed text-foreground/90">{state.aiTrend}</p>
-          </div>
-        )}
+        </div>
       </div>
     )
   }
@@ -353,12 +402,12 @@ export default function ScreenPage() {
   // ─── AI Generating ─────────────────────────────────────────────────────────
   if (state.phase === 'ai-generating') {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-8 relative overflow-hidden">
+      <div className="h-screen bg-background flex flex-col items-center justify-center gap-6 relative overflow-hidden">
         {/* Background image */}
         <div className="absolute inset-0 opacity-15">
           <Image src={TRANSITION_IMAGE_MAP['analyzing']} alt="" fill className="object-cover" />
         </div>
-        <div className="relative z-10 flex flex-col items-center space-y-8">
+        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-4xl px-4">
         <BrainIcon size={80} className="text-primary animate-pulse" />
         <div className="text-center space-y-3">
           <h2 className="projection-title">AI đang phân tích...</h2>
@@ -375,6 +424,19 @@ export default function ScreenPage() {
             />
           ))}
         </div>
+        {/* Live streaming news text */}
+        {state.socialNews && (
+          <div className="glass-card p-6 w-full animate-fade-in">
+            <h3 className="text-lg font-bold text-primary mb-3 flex items-center gap-2">
+              <BrainIcon size={20} className="animate-pulse" />
+              Bản tin Xã hội Số đang được viết...
+            </h3>
+            <div className="prose prose-sm max-w-none text-foreground/90 whitespace-pre-wrap">
+              {stripMarkdown(state.socialNews || '')}
+              <span className="inline-block w-2 h-4 bg-primary/60 animate-pulse ml-0.5" />
+            </div>
+          </div>
+        )}
         <MacroGauges
           alliance={state.macro.alliance}
           stratification={state.macro.stratification}
@@ -393,33 +455,40 @@ export default function ScreenPage() {
     const outcomeImage = state.outcome ? OUTCOME_IMAGE_MAP[state.outcome] : undefined
 
     return (
-      <div className="min-h-screen bg-background p-8 space-y-8 animate-phase-enter">
-        {/* Outcome header with image */}
-        <div className="text-center space-y-3">
-          {outcomeImage && (
-            <FramedImage
-              src={outcomeImage}
-              alt="Outcome"
-              variant="card"
-              frameClassName="w-48 h-48 mx-auto mb-4 animate-celebrate"
-            />
-          )}
-          {!outcomeImage && (
-            <div className="flex justify-center animate-celebrate">
-              {state.outcome === 'ben-vung' ? <PlantIcon size={56} className="text-emerald-600" /> : state.outcome === 'dut-gay' ? <BoltIcon size={56} className="text-red-600" /> : <BoltIcon size={56} className="text-amber-600" />}
-            </div>
-          )}
-          <h1 className="projection-title">
-            {state.outcome === 'ben-vung' && 'Chuyển đổi số Bền vững'}
-            {state.outcome === 'dut-gay' && 'Đứt gãy Cơ cấu'}
-            {state.outcome === 'trung-tinh' && 'Trạng thái Bất ổn'}
-          </h1>
-        </div>
+      <div className="h-screen results-galaxy p-5 flex flex-col gap-3 animate-phase-enter overflow-hidden relative">
+        {/* Galaxy glow orbs */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-400/15 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-300/15 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-[20%] right-[10%] w-72 h-72 bg-violet-400/10 rounded-full blur-[80px] animate-pulse-soft pointer-events-none" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute bottom-[25%] left-[8%] w-64 h-64 bg-cyan-400/8 rounded-full blur-[60px] animate-pulse-soft pointer-events-none" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[50%] left-[40%] w-80 h-80 bg-indigo-400/8 rounded-full blur-[100px] animate-pulse-soft pointer-events-none" style={{ animationDelay: '3s' }} />
+        <div className="absolute top-[5%] left-[55%] w-48 h-48 bg-purple-400/10 rounded-full blur-[50px] animate-pulse-soft pointer-events-none" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-[8%] right-[35%] w-56 h-56 bg-blue-200/8 rounded-full blur-[70px] animate-pulse-soft pointer-events-none" style={{ animationDelay: '2.5s' }} />
+        <div className="absolute top-[70%] left-[20%] w-60 h-60 bg-amber-400/5 rounded-full blur-[80px] animate-pulse-soft pointer-events-none" style={{ animationDelay: '3.5s' }} />
 
-        <div className="grid grid-cols-2 gap-8">
-          {/* Macro summary */}
-          <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Kết quả Vĩ mô Cuối cùng</p>
+        {/* Star field — many particles */}
+        {Array.from({ length: 60 }, (_, i) => (
+          <div
+            key={`star-${i}`}
+            className={cn(
+              'absolute rounded-full animate-sparkle pointer-events-none',
+              i % 4 === 0 ? 'w-1 h-1 bg-white/30' : i % 3 === 0 ? 'w-[3px] h-[3px] bg-white/20' : 'w-0.5 h-0.5 bg-white/25',
+            )}
+            style={{
+              top: `${2 + ((i * 41) % 93)}%`,
+              left: `${1 + ((i * 67) % 96)}%`,
+              animationDelay: `${(i * 0.17) % 2.5}s`,
+              animationDuration: `${1.5 + (i % 5) * 0.4}s`,
+            }}
+          />
+        ))}
+
+        {/* 2×2 Grid: top row = macro + outcome, bottom row = chart + news */}
+        <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-2 grid-rows-[auto_minmax(0,1fr)] gap-3 min-h-0">
+
+          {/* Top-left: Macro gauges */}
+          <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 space-y-2">
+            <p className="text-sm font-semibold text-blue-100 uppercase tracking-widest">Kết quả Vĩ mô</p>
             <MacroGauges
               alliance={state.macro.alliance}
               stratification={state.macro.stratification}
@@ -430,25 +499,198 @@ export default function ScreenPage() {
             />
           </div>
 
-          {/* Awards */}
-          <div className="space-y-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Danh hiệu</p>
-            {state.awards?.map((award) => (
-              <AwardCard key={award.id} award={award} />
-            ))}
+          {/* Top-right: Outcome card */}
+          <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 flex items-center gap-5">
+            {outcomeImage ? (
+              <div className="w-32 h-32 flex-shrink-0 rounded-xl overflow-hidden border-2 border-white/25 shadow-xl shadow-blue-500/10 animate-celebrate">
+                <img src={outcomeImage} alt="Outcome" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="w-32 h-32 flex-shrink-0 rounded-xl border-2 border-white/25 bg-slate-800 flex items-center justify-center animate-celebrate">
+                {state.outcome === 'ben-vung' ? <PlantIcon size={48} className="text-emerald-300" /> : state.outcome === 'dut-gay' ? <BoltIcon size={48} className="text-red-300" /> : <BoltIcon size={48} className="text-amber-300" />}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-blue-100 uppercase tracking-widest">Kết quả cuối cùng</p>
+              <h2 className="text-2xl font-bold leading-tight mt-1 text-white">
+                {state.outcome === 'ben-vung' && 'Chuyển đổi số Bền vững'}
+                {state.outcome === 'dut-gay' && 'Đứt gãy Cơ cấu'}
+                {state.outcome === 'trung-tinh' && 'Trạng thái Bất ổn'}
+              </h2>
+            </div>
+            <a
+              href="/"
+              className="flex-shrink-0 rounded-xl border border-white/25 bg-white/10 backdrop-blur-sm px-4 py-2 text-xs font-medium text-white hover:bg-white/20 transition-all hover-lift shadow-sm"
+            >
+              ← Trang chủ
+            </a>
+          </div>
+
+          {/* Bottom-left: Chart */}
+          {state.macro.history.length > 0 && (
+            <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 min-h-0 flex flex-col">
+              <p className="text-sm font-semibold text-blue-100 uppercase tracking-widest mb-2 flex-shrink-0">Diễn biến</p>
+              <div className="flex-1 min-h-0">
+                <MacroCharts macro={state.macro} />
+              </div>
+            </div>
+          )}
+
+          {/* Bottom-right: Social News — fixed header, scrollable content */}
+          <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm flex flex-col overflow-hidden">
+            {state.socialNews ? (
+              <>
+                <div className="flex-shrink-0 bg-blue-600/80 px-4 py-1.5 flex items-center gap-2 border-b border-white/10">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <span className="text-xs font-bold text-white uppercase tracking-widest">Bản tin Xã hội Số</span>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4">
+                  <div className="text-sm leading-relaxed text-blue-50/90 whitespace-pre-wrap">
+                    {stripMarkdown(state.socialNews)}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-6">
+                <div className="text-center space-y-2">
+                  <BrainIcon size={36} className="text-blue-300/40 mx-auto animate-pulse" />
+                  <p className="text-sm text-blue-100/60">Bản tin Xã hội Số đang được tạo...</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* AI news */}
-        {state.socialNews && (
-          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Bản tin Xã hội Số</p>
-            <SocialNewsBanner text={state.socialNews} />
-          </div>
+        {/* Bottom: Awards — scroll-triggered zoom, centered */}
+        {state.awards && state.awards.length > 0 && (
+          <AwardsReveal awards={state.awards} />
         )}
       </div>
     )
   }
 
   return null
+}
+
+/** Scroll-triggered award zoom — smooth progressive scale driven by scroll amount */
+function AwardsReveal({ awards }: { awards: RoomStatePublic['awards'] }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+  // zoom: 0 = resting, 1 = fully expanded
+  const [zoom, setZoom] = useState(0)
+  const zoomRef = useRef(0)
+  const soundPlayed = useRef(false)
+
+  // Initial reveal when scrolled into view
+  useEffect(() => {
+    if (!containerRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      { threshold: 0.2 },
+    )
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  // Smooth scroll-driven zoom
+  useEffect(() => {
+    const parent = containerRef.current?.closest('.h-screen')
+    if (!parent) return
+    const onWheel = (e: Event) => {
+      if (!visible) return
+      const we = e as WheelEvent
+      const delta = we.deltaY * 0.003 // small increments per scroll tick
+      const next = Math.max(0, Math.min(1, zoomRef.current + delta))
+      zoomRef.current = next
+      setZoom(next)
+      // Sound triggers
+      if (next > 0.5 && !soundPlayed.current) {
+        soundPlayed.current = true
+        playSound('reveal')
+        setTimeout(() => playSound('award'), 400)
+      }
+      if (next < 0.3 && soundPlayed.current) {
+        soundPlayed.current = false
+        playSound('whoosh')
+      }
+    }
+    parent.addEventListener('wheel', onWheel, { passive: true })
+    return () => parent.removeEventListener('wheel', onWheel)
+  }, [visible])
+
+  const expanded = zoom > 0.5
+  // Interpolated values
+  const overlayOpacity = Math.min(zoom * 1.2, 0.7)
+  const blurAmount = zoom * 6
+  const cardScale = 1 + zoom * 0.35
+  const cardGap = 24 + zoom * 16 // 24px → 40px
+
+  return (
+    <>
+      {/* Blur overlay behind awards when zoomed */}
+      {zoom > 0.01 && (
+        <div
+          className="fixed inset-0 z-40 pointer-events-none"
+          style={{
+            backgroundColor: `rgba(0,0,0,${overlayOpacity})`,
+            backdropFilter: `blur(${blurAmount}px)`,
+          }}
+        />
+      )}
+
+      <div
+        ref={containerRef}
+        className={cn(
+          expanded
+            ? 'fixed inset-0 z-50 flex items-center justify-center'
+            : 'relative flex-shrink-0 pb-2',
+        )}
+        onClick={() => {
+          if (expanded) {
+            zoomRef.current = 0
+            setZoom(0)
+            soundPlayed.current = false
+            playSound('whoosh')
+          }
+        }}
+      >
+        {/* Glow haze behind awards */}
+        <div
+          className="absolute rounded-3xl blur-3xl pointer-events-none inset-0 -inset-x-16 -bottom-4 bg-gradient-to-t from-blue-500/15 via-violet-500/10 to-transparent"
+          style={{ opacity: 0.3 + zoom * 0.5 }}
+        />
+
+        <div
+          className="relative z-10 flex items-center justify-center"
+          style={{ gap: `${cardGap}px` }}
+        >
+          {awards!.map((award, i) => (
+            <div
+              key={award.id}
+              className="flex-shrink-0 w-[160px]"
+              style={{
+                transform: visible
+                  ? `scale(${cardScale}) translateY(0)`
+                  : 'scale(0.3) translateY(3rem)',
+                opacity: visible ? 1 : 0,
+                transition: visible
+                  ? 'transform 0.15s ease-out, opacity 0.4s ease-out'
+                  : `all 0.6s cubic-bezier(0.34,1.56,0.64,1) ${i * 200}ms`,
+                willChange: 'transform, opacity',
+              }}
+            >
+              <AwardCard award={award} index={i} />
+            </div>
+          ))}
+        </div>
+
+        {/* Hint text */}
+        {visible && zoom < 0.1 && (
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] text-blue-200/40 animate-pulse-soft tracking-wider uppercase">
+            ↓ Cuộn xuống để phóng to
+          </div>
+        )}
+      </div>
+    </>
+  )
 }

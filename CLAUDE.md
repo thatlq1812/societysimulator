@@ -14,9 +14,9 @@ Web game mô phỏng xã hội thời gian thực cho ~35 sinh viên môn MLN131
 | Styling | Tailwind CSS v3, light theme, CSS custom properties |
 | Real-time | SSE (`/api/room/[pin]/events`) + REST polling (`/state` every 1.5s) |
 | State | In-memory `Map` singleton (HMR-safe via `global.__rooms`) |
-| AI Tier 1 | `gemini-3.0-flash` — per-round commentary (3-4 sentences) |
-| AI Tier 2 | `gemini-3.1-pro-preview` — trend analysis (host-visible) |
-| AI Tier 3 | `gemini-3.1-pro-preview` — final "Bản tin Xã hội Số" (auto-generated) |
+| AI Tier 1 | `gemini-3-flash-preview` — per-round commentary (3-4 sentences) |
+| AI Tier 2 | `gemini-3-flash-preview` — trend analysis (host-visible) |
+| AI Tier 3 | `gemini-3-flash-preview` — final "Bản tin Xã hội Số" (auto-generated) |
 | AI Images | `@google/genai` SDK, `gemini-2.5-flash-image`, 26 pre-gen images |
 | Charts | Recharts (dynamic import, no SSR) |
 | Icons | Custom SVG system — no emojis |

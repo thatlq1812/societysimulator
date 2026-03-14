@@ -51,6 +51,14 @@ export const INDICATOR_IMAGE_MAP: Record<string, string> = {
 
 export const LOBBY_IMAGE = '/images/lobby-gathering.png'
 
+export const AWARD_IMAGE_MAP: Record<string, string> = {
+  'ngon-co': '/images/award-ngon-co.png',
+  'ke-sinh-ton': '/images/award-ke-sinh-ton.png',
+  'mat-xich': '/images/award-mat-xich.png',
+  'nha-cach-tan': '/images/award-nha-cach-tan.png',
+  'la-chan-xa-hoi': '/images/award-la-chan-xa-hoi.png',
+}
+
 export const THEME_IMAGE_MAP: Record<string, string> = {
   'youth-vietnam': '/images/theme-youth-vietnam.png',
   'alliance': '/images/theme-alliance.png',

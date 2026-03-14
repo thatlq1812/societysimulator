@@ -3,9 +3,9 @@ import { getRoom, getCurrentScenario } from '@/lib/game-store'
 import { broadcast } from '@/lib/sse'
 import { computeScenarioEffects, determineOutcome } from '@/lib/effects'
 import { selectRandomScenarios } from '@/lib/scenarios'
-import { generateCommentary } from '@/lib/ai-commentary'
-import { generateTrend } from '@/lib/ai-trend'
-import { generateSocialNews } from '@/lib/ai-news'
+import { streamCommentary } from '@/lib/ai-commentary'
+import { streamTrend } from '@/lib/ai-trend'
+import { streamSocialNews } from '@/lib/ai-news'
 import { computeAwards } from '@/lib/awards'
 import type { ChoiceBreakdown, ChoiceId, RoleBreakdown, MacroDelta, RoleId } from '@/types/game'
 import { ROLES } from '@/lib/roles'
@@ -124,16 +124,30 @@ export async function POST(
       macroDelta,
     })
 
-    // Fire-and-forget: Tier 1 commentary + Tier 2 trend analysis
+    // Fire-and-forget: Tier 1 commentary + Tier 2 trend analysis (streaming)
+    const pinUpper = params.pin.toUpperCase()
     Promise.all([
-      generateCommentary(room, room.currentScenarioIndex, breakdown, roleBreakdown, macroDelta),
-      generateTrend(room),
+      streamCommentary(
+        room, room.currentScenarioIndex, breakdown,
+        (text) => {
+          room.aiCommentary = text
+          broadcast(pinUpper, 'ai-commentary', { commentary: text, streaming: true })
+        },
+        roleBreakdown, macroDelta,
+      ),
+      streamTrend(
+        room,
+        (text) => {
+          room.aiTrend = text
+          broadcast(pinUpper, 'ai-trend', { trend: text, streaming: true })
+        },
+      ),
     ])
       .then(([commentary, trend]) => {
         room.aiCommentary = commentary
         room.aiTrend = trend
-        broadcast(params.pin.toUpperCase(), 'ai-commentary', { commentary })
-        broadcast(params.pin.toUpperCase(), 'ai-trend', { trend })
+        broadcast(pinUpper, 'ai-commentary', { commentary, streaming: false })
+        broadcast(pinUpper, 'ai-trend', { trend, streaming: false })
       })
       .catch(console.error)
 
@@ -153,15 +167,20 @@ export async function POST(
       room.phase = 'ai-generating'
       broadcast(params.pin.toUpperCase(), 'ai-generating', { outcome: room.outcome })
 
-      // Fire-and-forget: auto-generate AI news + awards, then advance to results
+      // Fire-and-forget: auto-generate AI news (streaming) + awards, then advance to results
       const pinUpper = params.pin.toUpperCase()
-      Promise.all([
-        generateSocialNews({ macro: room.macro, outcome: room.outcome, room }),
-        Promise.resolve(computeAwards(room)),
-      ])
-        .then(([socialNews, awards]) => {
+      const awards = computeAwards(room)
+      room.awards = awards
+
+      streamSocialNews(
+        { macro: room.macro, outcome: room.outcome, room },
+        (text) => {
+          room.socialNews = text
+          broadcast(pinUpper, 'ai-news-stream', { socialNews: text, streaming: true })
+        },
+      )
+        .then((socialNews) => {
           room.socialNews = socialNews
-          room.awards = awards
           room.phase = 'results'
           broadcast(pinUpper, 'game-ended', {
             outcome: room.outcome,
@@ -172,8 +191,6 @@ export async function POST(
         })
         .catch((err) => {
           console.error('Auto AI generation failed:', err)
-          // Fallback: still advance to results with no news
-          room.awards = computeAwards(room)
           room.socialNews = 'Bản tin AI không thể tạo. Vui lòng thử lại.'
           room.phase = 'results'
           broadcast(pinUpper, 'game-ended', {

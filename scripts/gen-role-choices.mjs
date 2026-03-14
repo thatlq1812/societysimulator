@@ -82,7 +82,7 @@ BỐI CẢNH: ${scenario.context}
 Tạo 12 lựa chọn (4 vai trò × 3 choices A/B/C) cho tình huống trên. Trả về JSON.`
 
   const res = await client.models.generateContent({
-    model: 'gemini-3.1-pro-preview',
+    model: 'gemini-3-flash-preview',
     contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
     config: {
       systemInstruction: SYSTEM_PROMPT,

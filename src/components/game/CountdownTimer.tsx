@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { playSound } from '@/lib/sounds'
 
 interface CountdownTimerProps {
   startedAt: number
@@ -14,12 +15,22 @@ export function CountdownTimer({ startedAt, duration = 30, onExpire, className }
   const [remaining, setRemaining] = useState(duration)
   const onExpireRef = useRef(onExpire)
   onExpireRef.current = onExpire
+  const lastTickRef = useRef(duration)
 
   useEffect(() => {
     const tick = () => {
       const elapsed = Math.floor((Date.now() - startedAt) / 1000)
       const left = Math.max(0, duration - elapsed)
       setRemaining(left)
+
+      // Sound on last 5 seconds
+      if (left !== lastTickRef.current && left <= 5 && left > 0) {
+        playSound('countdown-urgent')
+      } else if (left !== lastTickRef.current && left <= 10 && left > 5) {
+        playSound('countdown-tick')
+      }
+      lastTickRef.current = left
+
       if (left === 0) onExpireRef.current?.()
     }
 

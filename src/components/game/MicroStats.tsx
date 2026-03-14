@@ -15,6 +15,23 @@ interface MicroStatsProps {
 
 const MAX_WEALTH = 100
 
+function StatBar({ label, desc, value, displayValue, color, barColor, danger }: {
+  label: string; desc: string; value: number; displayValue?: string; color: string; barColor: string; danger?: boolean
+}) {
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-sm">
+        <span className="text-foreground/80">{label}</span>
+        <span className={cn('font-bold tabular-nums', color)}>{displayValue ?? Math.round(value)}</span>
+      </div>
+      <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div className={cn('h-full rounded-full transition-all duration-700', barColor)} style={{ width: `${Math.min(100, Math.abs(value))}%` }} />
+      </div>
+      <p className="text-[10px] text-muted-foreground/70 leading-tight">{desc}</p>
+    </div>
+  )
+}
+
 export function MicroStats({ roleId, wealth, control, influence, resilience, allianceContribution, choiceCount, className }: MicroStatsProps) {
   const role = ROLES[roleId]
 
@@ -23,88 +40,54 @@ export function MicroStats({ roleId, wealth, control, influence, resilience, all
       <h3 className="text-xs text-muted-foreground uppercase tracking-widest">Chỉ số cá nhân</h3>
 
       <div className="grid grid-cols-2 gap-3">
-        {/* Wealth */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-sm">
-            <span className="text-foreground/80">Tích lũy</span>
-            <span className={cn('font-bold tabular-nums', role.colorClass)}>{Math.round(wealth)}</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{
-                width: `${Math.min(100, (wealth / MAX_WEALTH) * 100)}%`,
-                backgroundColor: 'hsl(var(--primary))',
-              }}
-            />
-          </div>
-        </div>
+        <StatBar
+          label="Tích lũy tư bản"
+          desc="Tài sản vật chất hiện có"
+          value={(wealth / MAX_WEALTH) * 100}
+          displayValue={String(Math.round(wealth))}
+          color={role.colorClass}
+          barColor="bg-primary"
+        />
 
-        {/* Control */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-sm">
-            <span className="text-foreground/80">Quyền lực TLSX</span>
-            <span className={cn('font-bold tabular-nums', role.colorClass)}>{Math.round(control)}</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700 bg-violet-500"
-              style={{ width: `${Math.min(100, control)}%` }}
-            />
-          </div>
-        </div>
+        <StatBar
+          label="Quyền lực Tư liệu SX"
+          desc="Sở hữu công nghệ, đất đai, dữ liệu"
+          value={control}
+          color={role.colorClass}
+          barColor="bg-violet-500"
+        />
 
-        {/* Influence */}
         {influence !== undefined && (
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-foreground/80">Ảnh hưởng</span>
-              <span className="font-bold tabular-nums text-amber-600">{Math.round(influence)}</span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-700 bg-amber-500"
-                style={{ width: `${Math.min(100, influence)}%` }}
-              />
-            </div>
-          </div>
+          <StatBar
+            label="Ảnh hưởng"
+            desc="Tiếng nói chính trị & sức ảnh hưởng"
+            value={influence}
+            color="text-amber-600"
+            barColor="bg-amber-500"
+          />
         )}
 
-        {/* Resilience */}
         {resilience !== undefined && (
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-foreground/80">Sức chống chịu</span>
-              <span className={cn('font-bold tabular-nums', resilience > 30 ? 'text-cyan-600' : 'text-red-500')}>{Math.round(resilience)}</span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className={cn('h-full rounded-full transition-all duration-700', resilience > 30 ? 'bg-cyan-500' : 'bg-red-400')}
-                style={{ width: `${Math.min(100, resilience)}%` }}
-              />
-            </div>
-          </div>
+          <StatBar
+            label="Sức chống chịu"
+            desc="Mạng lưới an sinh xã hội cá nhân"
+            value={resilience}
+            color={resilience > 30 ? 'text-cyan-600' : 'text-red-500'}
+            barColor={resilience > 30 ? 'bg-cyan-500' : 'bg-red-400'}
+          />
         )}
 
-        {/* Alliance Contribution */}
         {allianceContribution !== undefined && (
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-foreground/80">Đóng góp LM</span>
-              <span className={cn('font-bold tabular-nums', allianceContribution >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-                {allianceContribution >= 0 ? '+' : ''}{Math.round(allianceContribution)}
-              </span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className={cn('h-full rounded-full transition-all duration-700', allianceContribution >= 0 ? 'bg-emerald-500' : 'bg-red-400')}
-                style={{ width: `${Math.min(100, Math.abs(allianceContribution) * 2)}%` }}
-              />
-            </div>
-          </div>
+          <StatBar
+            label="Đóng góp Liên minh"
+            desc="Tổng đóng góp vào khối liên minh giai cấp"
+            value={Math.abs(allianceContribution) * 2}
+            displayValue={`${allianceContribution >= 0 ? '+' : ''}${Math.round(allianceContribution)}`}
+            color={allianceContribution >= 0 ? 'text-emerald-600' : 'text-red-500'}
+            barColor={allianceContribution >= 0 ? 'bg-emerald-500' : 'bg-red-400'}
+          />
         )}
 
-        {/* Choice count */}
         {choiceCount !== undefined && choiceCount > 0 && (
           <div className="flex items-center justify-between text-sm">
             <span className="text-foreground/80">Đã trả lời</span>

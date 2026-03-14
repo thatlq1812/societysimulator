@@ -1,7 +1,7 @@
 # Kế hoạch Hoạt động Tương tác — *Digital Society Simulator*
 
 **Môn học:** Chủ nghĩa Xã hội Khoa học (MLN131) — Đại học FPT
-**Nhóm:** Nhóm 4 — Lớp GD1812 — Half 2 - Spring 2026
+**Nhóm:** Nhóm 4 — Lớp GD1812 — Half 2 — Spring 2026
 **Chủ đề thuyết trình:** Thanh niên Việt Nam trong cơ cấu xã hội
 **Căn cứ nội dung:** Chương 5 — *Cơ cấu xã hội – giai cấp và liên minh giai cấp, tầng lớp trong thời kỳ quá độ lên chủ nghĩa xã hội*
 **Thành viên:** Lê Hoàng Long · Lưu Bảo Trân · Lê Quang Thật · Lâm Thủy Tiên · Nguyễn Hoàng Nghĩa · Nguyễn Vũ Nhật Khoa

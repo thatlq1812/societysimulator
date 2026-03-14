@@ -42,17 +42,24 @@ export default function MacroChartsClient({ history, current }: MacroChartsClien
       : []),
   ]
 
+  // Compute dynamic Y-axis domain focused on the data range
+  const allValues = data.flatMap(d => [d.alliance, d.stratification, d.production, d.innovation, d.welfare, d.democracy])
+  const dataMin = Math.min(...allValues)
+  const dataMax = Math.max(...allValues)
+  const yMin = Math.max(0, Math.floor((dataMin - 10) / 5) * 5)
+  const yMax = Math.min(100, Math.ceil((dataMax + 10) / 5) * 5)
+
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.08)" />
-        <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-        <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} width={30} />
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={data} margin={{ top: 5, right: 20, bottom: 20, left: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+        <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+        <YAxis domain={[yMin, yMax]} tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} width={30} />
         <Tooltip
-          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 8 }}
-          labelStyle={{ color: '#475569' }}
+          contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#e2e8f0' }}
+          labelStyle={{ color: '#94a3b8' }}
         />
-        <Legend wrapperStyle={{ fontSize: 13, color: '#475569' }} />
+        <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8', paddingTop: 4 }} />
         <Line type="monotone" dataKey="alliance" stroke="#34d399" strokeWidth={2.5} dot={{ r: 4 }} name="Liên minh" />
         <Line type="monotone" dataKey="stratification" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 4 }} name="Phân hóa" />
         <Line type="monotone" dataKey="production" stroke="#60a5fa" strokeWidth={2.5} dot={{ r: 4 }} name="Sản xuất" />

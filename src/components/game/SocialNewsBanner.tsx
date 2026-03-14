@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { stripMarkdown } from '@/lib/utils'
 
 interface SocialNewsBannerProps {
   text: string
@@ -10,20 +11,22 @@ export function SocialNewsBanner({ text }: SocialNewsBannerProps) {
   const [displayed, setDisplayed] = useState('')
   const [done, setDone] = useState(false)
 
+  const cleanText = stripMarkdown(text)
+
   useEffect(() => {
     setDisplayed('')
     setDone(false)
     let i = 0
     const id = setInterval(() => {
       i++
-      setDisplayed(text.slice(0, i))
-      if (i >= text.length) {
+      setDisplayed(cleanText.slice(0, i))
+      if (i >= cleanText.length) {
         clearInterval(id)
         setDone(true)
       }
     }, 18)
     return () => clearInterval(id)
-  }, [text])
+  }, [cleanText])
 
   return (
     <div className="relative overflow-hidden rounded-xl border-2 border-primary/30">

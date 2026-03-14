@@ -1,27 +1,28 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import type { GameRoom, ChoiceBreakdown, RoleBreakdown, MacroDelta } from '@/types/game'
+import type { GameRoom, ChoiceBreakdown, RoleBreakdown, MacroDelta, RoleId } from '@/types/game'
 import { getScenarioById } from '@/lib/scenarios'
+import { ROLES } from '@/lib/roles'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
-const SYSTEM_PROMPT = `Bạn là một bình luận viên xã hội học cho trò chơi mô phỏng xã hội số. Sau mỗi tình huống, bạn bình luận ngắn gọn (3-4 câu) về kết quả lựa chọn tập thể.
+const SYSTEM_PROMPT = `Bạn là nhà phân tích xã hội học bình luận trò chơi mô phỏng cơ cấu xã hội số.
 
-Phong cách: Sinh động, có insight, liên hệ với lý luận Chương 5 (cơ cấu xã hội – giai cấp). Viết bằng tiếng Việt. KHÔNG dùng emoji.
+NHIỆM VỤ: Sau mỗi tình huống, viết 3-4 câu INSIGHT sắc bén. KHÔNG mô tả lại dữ liệu. KHÔNG nói "nhóm X đã chọn phương án A/B/C".
 
-6 chỉ số vĩ mô: Liên minh (LM), Phân hóa (PH), Sản xuất (SX), Đổi mới Công nghệ (ĐM), Phúc lợi Xã hội (PL), Dân chủ & Minh bạch (DC).
+PHONG CÁCH BẮT BUỘC:
+- Phân tích HỆ QUẢ của lựa chọn, không liệt kê lựa chọn
+- Dùng ngôn ngữ phân tích xã hội học: "mâu thuẫn giai cấp", "phân hóa cơ cấu", "liên minh bị xói mòn", "lực lượng sản xuất"
+- Liên hệ lý luận Chương 5: mâu thuẫn cá nhân vs. tập thể, vai trò liên minh công–nông–trí thức
+- Mỗi câu phải có insight mới, không lặp ý
 
-Cấu trúc nhận xét (3-4 câu):
-1. Nhận xét cụ thể về nhóm vai trò nào (Công nhân, Nông dân, Trí thức, Startup) đã chọn gì — có sự đồng thuận hay phân tách giai cấp?
-2. Phân tích chỉ số nào thay đổi mạnh nhất và ý nghĩa cơ cấu xã hội của điều đó
-3. Liên hệ với lý luận giai cấp Chương 5 (mâu thuẫn lợi ích cá nhân vs. tập thể, liên minh công–nông–trí thức)
-4. Dự đoán hệ quả cho tình trạng xã hội ở các vòng tiếp theo
+VÍ DỤ TỐT:
+"Sự phân tách lợi ích giữa nhóm nắm tư liệu sản xuất số và người lao động nền tảng đang đẩy chỉ số phân hóa lên ngưỡng cảnh báo. Khi Startup chọn tối đa hóa lợi nhuận trong khi Công nhân đấu tranh tập thể, xã hội đang tái hiện chính xác mâu thuẫn giai cấp mà Marx đã chỉ ra — nhưng trong bối cảnh thuật toán và dữ liệu. Đáng chú ý, nhóm Trí thức đang đứng giữa hai chiến tuyến, và lựa chọn của họ ở vòng tới sẽ quyết định liên minh nghiêng về phía nào."
 
-Quy tắc bổ sung:
-- Đề cập tên cụ thể của nhóm vai trò khi nói về xu hướng lựa chọn
-- Nếu một nhóm chọn khác với các nhóm còn lại: nhận xét về sự phân tách giai cấp
-- Nếu phần lớn chọn A: nhận xét về xu hướng cá nhân chủ nghĩa, phân hóa gia tăng
-- Nếu phần lớn chọn B: nhận xét về tinh thần đoàn kết, liên minh giai cấp được củng cố
-- Nếu phân tán: nhận xét về mâu thuẫn nội bộ trong cấu trúc xã hội`
+VÍ DỤ XẤU (TUYỆT ĐỐI KHÔNG VIẾT KIỂU NÀY):
+"Nhóm Trí thức Công nghệ đã lựa chọn phương án A. Nhóm Công nhân đã chọn B. Chỉ số Liên minh tăng 5 điểm."
+
+6 chỉ số vĩ mô: Liên minh (LM), Phân hóa (PH), Sản xuất (SX), Đổi mới (ĐM), Phúc lợi (PL), Dân chủ (DC).
+Viết bằng tiếng Việt. KHÔNG dùng emoji. KHÔNG dùng ký hiệu A/B/C. KHÔNG dùng Markdown (**, ***, #, ##). Viết văn xuôi thuần túy.`
 
 /**
  * Tier 1: Enhanced per-round commentary using gemini-2.0-flash
@@ -34,25 +35,59 @@ export async function generateCommentary(
   roleBreakdown?: RoleBreakdown[],
   macroDelta?: MacroDelta,
 ): Promise<string> {
+  const prompt = buildPrompt(room, scenarioIndex, breakdown, roleBreakdown, macroDelta)
+  if (!prompt) return ''
+
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-3-flash-preview',
+    systemInstruction: SYSTEM_PROMPT,
+    generationConfig: {
+      temperature: 0.8,
+      maxOutputTokens: 800,
+    },
+  })
+
+  const result = await model.generateContent(prompt)
+  return result.response.text()
+}
+
+const ROLE_IDS: RoleId[] = ['cong-nhan', 'nong-dan', 'tri-thuc', 'startup']
+
+/** Build the prompt with choice descriptions for context */
+function buildPrompt(
+  room: GameRoom,
+  scenarioIndex: number,
+  breakdown: ChoiceBreakdown,
+  roleBreakdown?: RoleBreakdown[],
+  macroDelta?: MacroDelta,
+): string | null {
   const scenarioId = room.scenarioIds[scenarioIndex]
   const scenario = scenarioId ? getScenarioById(scenarioId) : undefined
-  if (!scenario) return ''
+  if (!scenario) return null
 
   const pctA = breakdown.total > 0 ? Math.round((breakdown.A / breakdown.total) * 100) : 0
   const pctB = breakdown.total > 0 ? Math.round((breakdown.B / breakdown.total) * 100) : 0
   const pctC = breakdown.total > 0 ? Math.round((breakdown.C / breakdown.total) * 100) : 0
-
   const macro = room.macro
 
-  // Role breakdown summary
-  const roleLines = roleBreakdown && roleBreakdown.length > 0
-    ? roleBreakdown.map((rb) => {
-        const dominant = rb.total > 0
-          ? (['A', 'B', 'C'] as const).reduce((best, opt) => rb[opt] > rb[best] ? opt : best, 'A' as 'A'|'B'|'C')
-          : null
-        return `${rb.roleName}: A=${rb.A}/${rb.total}, B=${rb.B}/${rb.total}, C=${rb.C}/${rb.total}${dominant ? ` (xu hướng ${dominant})` : ''}`
-      }).join('\n')
-    : 'Không có dữ liệu phân vai'
+  // Build rich role breakdown with actual choice descriptions
+  const roleLines = ROLE_IDS.map((rid) => {
+    const role = ROLES[rid]
+    const rb = roleBreakdown?.find((r) => r.roleId === rid)
+    const choices = scenario.roleSpecificChoices[rid]
+    const [choiceA, choiceB, choiceC] = choices
+
+    // Find dominant choice for this role
+    const dominant = rb && rb.total > 0
+      ? (['A', 'B', 'C'] as const).reduce((best, opt) => rb[opt] > rb[best] ? opt : best, 'A' as 'A'|'B'|'C')
+      : null
+    const dominantText = dominant === 'A' ? choiceA.text : dominant === 'B' ? choiceB.text : dominant === 'C' ? choiceC.text : ''
+    const dominantCount = dominant && rb ? rb[dominant] : 0
+    const totalCount = rb?.total ?? 0
+
+    return `${role.name} (${totalCount} người): Đa số chọn "${dominantText}" (${dominantCount}/${totalCount}).
+  Ba lựa chọn: "${choiceA.text}" / "${choiceB.text}" / "${choiceC.text}"`
+  }).join('\n')
 
   // Macro delta summary
   const deltaLines = macroDelta
@@ -69,28 +104,58 @@ export async function generateCommentary(
         .join(', ')
     : ''
 
-  const prompt = `Tình huống "${scenario.title}": ${scenario.context}
+  // Find the biggest macro change
+  const biggestChange = macroDelta
+    ? [
+        { label: 'Liên minh', val: macroDelta.alliance },
+        { label: 'Phân hóa', val: macroDelta.stratification },
+        { label: 'Sản xuất', val: macroDelta.production },
+        { label: 'Đổi mới', val: macroDelta.innovation },
+        { label: 'Phúc lợi', val: macroDelta.welfare },
+        { label: 'Dân chủ', val: macroDelta.democracy },
+      ].sort((a, b) => Math.abs(b.val) - Math.abs(a.val))[0]
+    : null
 
-KẾT QUẢ TỔNG: A=${breakdown.A} (${pctA}%), B=${breakdown.B} (${pctB}%), C=${breakdown.C} (${pctC}%) — Tổng ${breakdown.total} người.
+  return `BỐI CẢNH: "${scenario.title}" — ${scenario.context}
 
-PHÂN BỐ THEO NHÓM XÃ HỘI:
+HÀNH VI TỪNG GIAI CẤP (${breakdown.total} người tham gia):
 ${roleLines}
 
-THAY ĐỔI CHỈ SỐ VÒNG NÀY: ${deltaLines || 'Không đáng kể'}
-CHỈ SỐ HIỆN TẠI: LM=${Math.round(macro.alliance)}, PH=${Math.round(macro.stratification)}, SX=${Math.round(macro.production)}, ĐM=${Math.round(macro.innovation)}, PL=${Math.round(macro.welfare)}, DC=${Math.round(macro.democracy)}.
-Đây là tình huống ${scenarioIndex + 1}/${room.scenarioIds.length}.
+TỔNG: Tư bản hóa=${breakdown.A} (${pctA}%) | Tập thể=${breakdown.B} (${pctB}%) | Thỏa hiệp=${breakdown.C} (${pctC}%)
 
-Bình luận 3-4 câu: nhận xét lựa chọn cụ thể của từng nhóm vai trò, chỉ số thay đổi mạnh nhất, và dự đoán hệ quả.`
+BIẾN ĐỘNG CHỈ SỐ: ${deltaLines || 'Không đáng kể'}
+${biggestChange ? `CHỈ SỐ BIẾN ĐỘNG MẠNH NHẤT: ${biggestChange.label} (${biggestChange.val > 0 ? '+' : ''}${biggestChange.val.toFixed(1)})` : ''}
+TRẠNG THÁI XÃ HỘI: LM=${Math.round(macro.alliance)}, PH=${Math.round(macro.stratification)}, SX=${Math.round(macro.production)}, ĐM=${Math.round(macro.innovation)}, PL=${Math.round(macro.welfare)}, DC=${Math.round(macro.democracy)}.
+Vòng ${scenarioIndex + 1}/${room.scenarioIds.length}.
+
+Viết 3-4 câu INSIGHT: phân tích mâu thuẫn lợi ích giữa các giai cấp, hệ quả cơ cấu xã hội, và dự đoán xu hướng. KHÔNG liệt kê lại dữ liệu.`
+}
+
+/**
+ * Tier 1 streaming: generates commentary and calls onChunk with accumulated text
+ */
+export async function streamCommentary(
+  room: GameRoom,
+  scenarioIndex: number,
+  breakdown: ChoiceBreakdown,
+  onChunk: (accumulated: string) => void,
+  roleBreakdown?: RoleBreakdown[],
+  macroDelta?: MacroDelta,
+): Promise<string> {
+  const prompt = buildPrompt(room, scenarioIndex, breakdown, roleBreakdown, macroDelta)
+  if (!prompt) return ''
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-3.0-flash',
+    model: 'gemini-3-flash-preview',
     systemInstruction: SYSTEM_PROMPT,
-    generationConfig: {
-      temperature: 0.8,
-      maxOutputTokens: 400,
-    },
+    generationConfig: { temperature: 0.8, maxOutputTokens: 800 },
   })
 
-  const result = await model.generateContent(prompt)
-  return result.response.text()
+  const stream = await model.generateContentStream(prompt)
+  let accumulated = ''
+  for await (const chunk of stream.stream) {
+    accumulated += chunk.text()
+    onChunk(accumulated)
+  }
+  return accumulated
 }

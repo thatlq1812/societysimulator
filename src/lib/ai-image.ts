@@ -230,6 +230,18 @@ export const IMAGE_PROMPTS: Record<string, string> = {
     'Abstract composition: a modern university building silhouette with digital wave emanating from it, student figures walking with laptops and books, connected by network lines. Strong blue (#1e3a8a) dominant with orange accent. Dark background. Symbolizes FPT University digital education.',
   'lobby-gathering.png':
     'Wide abstract illustration: figures approaching from four different directions toward a central glowing hub platform. Each group has a different color aura — blue workers, green farmers, violet intellectuals, amber startup founders. Red and gold accent connection lines. Dark background.',
+
+  // ── Award anime portrait images (Makoto Shinkai style, half-body, no frame) ──
+  'award-ngon-co.png':
+    'Anime half-body portrait: noble young man with golden hair and golden eyes, dark military coat, holding a radiant golden banner. Four colored energy streams merge behind into a starburst. Golden particles float around. Golden yellow (#eab308) glow on dark background. NO text, NO frame.',
+  'award-ke-sinh-ton.png':
+    'Anime half-body portrait: serene young woman with emerald-silver hair and green eyes, dark robe, cupping a glowing crystal balance scale. Emerald aurora and crystalline shards behind. Emerald green (#34d399) glow on dark background. NO text, NO frame.',
+  'award-mat-xich.png':
+    'Anime half-body portrait: intense young man with dark red hair and orange eyes, torn jacket, one hand clenching flames, broken chains and embers swirl behind. Fiery orange (#f97316) glow on dark smoky background. NO text, NO frame.',
+  'award-nha-cach-tan.png':
+    'Anime half-body portrait: mysterious young man with long silver hair and glowing violet eyes, dark coat, orbiting violet runes, gears, books around him. Cosmic nebula behind. Deep violet (#8b5cf6) glow on dark background. NO text, NO frame.',
+  'award-la-chan-xa-hoi.png':
+    'Anime half-body portrait: resolute young woman with ice-blue hair and cyan eyes, dark armor, arms crossed projecting cyan hexagonal shield. Storm above, calm light below. Cyan (#06b6d4) glow on dark stormy background. NO text, NO frame.',
 }
 
 // Re-export client-safe image maps

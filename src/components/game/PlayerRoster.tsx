@@ -17,25 +17,25 @@ export function PlayerRoster({ players, className }: PlayerRosterProps) {
   }, {} as Record<RoleId, PlayerPublic[]>)
 
   return (
-    <div className={cn('grid grid-cols-2 gap-4', className)}>
+    <div className={cn('grid grid-cols-2 lg:grid-cols-4 gap-3', className)}>
       {ROLE_IDS.map((rid) => {
         const role = ROLES[rid]
         const rolePlayers = byRole[rid]
         return (
-          <div key={rid} className={cn('rounded-xl border p-3', role.bgClass, role.borderClass)}>
-            <div className="flex items-center gap-2 mb-2">
-              <IconByKey name={role.icon} size={20} className={role.colorClass} />
-              <span className={cn('text-sm font-semibold', role.colorClass)}>{role.name}</span>
-              <span className="ml-auto text-xs text-muted-foreground">{rolePlayers.length}</span>
+          <div key={rid} className={cn('rounded-xl border p-2.5', role.bgClass, role.borderClass)}>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <IconByKey name={role.icon} size={16} className={role.colorClass} />
+              <span className={cn('text-xs font-semibold', role.colorClass)}>{role.name}</span>
+              <span className="ml-auto text-xs text-muted-foreground tabular-nums">{rolePlayers.length}</span>
             </div>
             <div className="flex flex-wrap gap-1">
               {rolePlayers.map((p) => (
-                <span key={p.id} className="text-xs bg-background/40 rounded-md px-2 py-0.5">
+                <span key={p.id} className="text-[11px] bg-background/40 rounded px-1.5 py-0.5">
                   {p.name}
                 </span>
               ))}
               {rolePlayers.length === 0 && (
-                <span className="text-xs text-muted-foreground italic">Chưa có người</span>
+                <span className="text-[11px] text-muted-foreground italic">—</span>
               )}
             </div>
           </div>

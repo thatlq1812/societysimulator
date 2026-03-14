@@ -149,6 +149,19 @@ const config: Config = {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
         },
+        'sparkle': {
+          '0%, 100%': { opacity: '0', transform: 'scale(0) rotate(0deg)' },
+          '50%': { opacity: '1', transform: 'scale(1) rotate(180deg)' },
+        },
+        'aura-pulse': {
+          '0%, 100%': { boxShadow: '0 0 15px 0 var(--aura-color, hsl(210 100% 50% / 0.2)), 0 0 30px 0 var(--aura-color, hsl(210 100% 50% / 0.1))' },
+          '50%': { boxShadow: '0 0 25px 5px var(--aura-color, hsl(210 100% 50% / 0.3)), 0 0 50px 10px var(--aura-color, hsl(210 100% 50% / 0.15))' },
+        },
+        'card-reveal': {
+          '0%': { opacity: '0', transform: 'translateY(40px) rotateX(15deg) scale(0.8)' },
+          '60%': { opacity: '1', transform: 'translateY(-5px) rotateX(0deg) scale(1.02)' },
+          '100%': { opacity: '1', transform: 'translateY(0) rotateX(0deg) scale(1)' },
+        },
       },
       animation: {
         'pulse-ring': 'pulse-ring 2s ease-in-out infinite',
@@ -174,6 +187,9 @@ const config: Config = {
         'stagger-in': 'stagger-in 0.6s ease-out forwards',
         'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
         'rotate-slow': 'rotate-slow 20s linear infinite',
+        'sparkle': 'sparkle 2s ease-in-out infinite',
+        'aura-pulse': 'aura-pulse 3s ease-in-out infinite',
+        'card-reveal': 'card-reveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
       },
     },
   },
