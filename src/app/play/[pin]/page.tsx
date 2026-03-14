@@ -10,6 +10,7 @@ import { ChoiceButton } from '@/components/game/ChoiceButton'
 import { CountdownTimer } from '@/components/game/CountdownTimer'
 import { MicroStats } from '@/components/game/MicroStats'
 import { BrainIcon, PlantIcon, BoltIcon, ChartIcon, IconByKey } from '@/components/icons'
+import { FramedImage } from '@/components/game/FramedImage'
 import { getStratificationLevel } from '@/lib/stratification-theme'
 import { cn } from '@/lib/utils'
 import type { RoomStatePublic, ChoiceId } from '@/types/game'
@@ -116,7 +117,7 @@ export default function PlayPage() {
 
       {/* --- Lobby --------------------------------------------------------- */}
       {state.phase === 'lobby' && (
-        <div className="min-h-screen p-4 space-y-4 max-w-sm mx-auto py-8">
+        <div className="min-h-screen p-4 space-y-4 max-w-lg mx-auto py-8">
           {roleId && playerName && (
             <RoleCard roleId={roleId} playerName={playerName} />
           )}
@@ -134,7 +135,7 @@ export default function PlayPage() {
       {/* --- Playing ------------------------------------------------------- */}
       {state.phase === 'playing' && scenario && state.scenarioStartedAt && (
         <div className={cn(
-          'min-h-screen p-4 space-y-4 max-w-sm mx-auto py-6',
+          'min-h-screen p-4 space-y-4 max-w-lg mx-auto py-6',
           stratLevel === 'danger' && 'bg-red-50',
           stratLevel === 'warning' && 'bg-amber-50/50'
         )}>
@@ -167,6 +168,12 @@ export default function PlayPage() {
 
           {submitted && (
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center space-y-3 animate-fade-in">
+              <FramedImage
+                src="/images/transition-waiting.png"
+                alt="Đang chờ..."
+                variant="banner"
+                frameClassName="h-24 mb-2"
+              />
               <div className="flex justify-center gap-1.5">
                 {[0, 1, 2].map((i) => (
                   <div
@@ -188,7 +195,7 @@ export default function PlayPage() {
       {/* --- Between ------------------------------------------------------- */}
       {state.phase === 'between' && (
         <div className={cn(
-          'min-h-screen p-4 space-y-4 max-w-sm mx-auto py-8',
+          'min-h-screen p-4 space-y-4 max-w-lg mx-auto py-8',
           stratLevel === 'danger' && 'bg-red-50',
           stratLevel === 'warning' && 'bg-amber-50/50'
         )}>
@@ -197,7 +204,13 @@ export default function PlayPage() {
             <h2 className="font-bold">Kết quả vừa cập nhật</h2>
             <p className="text-sm text-muted-foreground">
               Liên minh: <span className="text-primary font-bold">{Math.round(state.macro.alliance)}</span> ·
-              Phân hóa: <span className="text-amber-600 font-bold">{Math.round(state.macro.stratification)}</span>
+              Phân hóa: <span className="text-amber-600 font-bold">{Math.round(state.macro.stratification)}</span> ·
+              SX: <span className="text-blue-600 font-bold">{Math.round(state.macro.production)}</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Đổi mới: <span className="text-violet-600 font-bold">{Math.round(state.macro.innovation)}</span> ·
+              Phúc lợi: <span className="text-pink-500 font-bold">{Math.round(state.macro.welfare)}</span> ·
+              Dân chủ: <span className="text-cyan-600 font-bold">{Math.round(state.macro.democracy)}</span>
             </p>
             <p className="text-sm text-muted-foreground">Tình huống tiếp theo sắp bắt đầu...</p>
           </div>
@@ -216,6 +229,12 @@ export default function PlayPage() {
       {/* --- AI Generating ------------------------------------------------- */}
       {state.phase === 'ai-generating' && (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
+          <FramedImage
+            src="/images/transition-analyzing.png"
+            alt="AI đang phân tích"
+            variant="card"
+            frameClassName="w-40 h-40"
+          />
           <BrainIcon size={40} className="text-primary animate-pulse" />
           <h2 className="font-bold text-center">AI đang phân tích dữ liệu...</h2>
           <p className="text-sm text-muted-foreground text-center">
@@ -235,7 +254,7 @@ export default function PlayPage() {
 
       {/* --- Results ------------------------------------------------------- */}
       {state.phase === 'results' && (
-        <div className="min-h-screen p-4 space-y-4 max-w-sm mx-auto py-8 animate-fade-in">
+        <div className="min-h-screen p-4 space-y-4 max-w-lg mx-auto py-8 animate-fade-in">
           <div className="text-center">
             <h2 className="text-xl font-bold">Kết quả hoàn thành</h2>
             <p className="text-sm text-muted-foreground mt-1">

@@ -29,7 +29,7 @@ export function ChoiceButton({ choice, selected, disabled, submitted, onClick }:
       onClick={() => !disabled && onClick(choice.id)}
       disabled={disabled}
       className={cn(
-        'w-full text-left rounded-xl border p-4 transition-all duration-200 group',
+        'w-full text-left rounded-xl border p-5 transition-all duration-200 group hover:scale-[1.01]',
         'bg-card hover:bg-card/80 active:scale-[0.98]',
         selected ? selectedBorder[choice.id] : 'border-border hover:border-border/80',
         disabled && !selected && 'opacity-50 cursor-not-allowed',
@@ -39,13 +39,42 @@ export function ChoiceButton({ choice, selected, disabled, submitted, onClick }:
       <div className="flex items-start gap-3">
         <span
           className={cn(
-            'flex-shrink-0 w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-bold',
+            'flex-shrink-0 w-9 h-9 rounded-lg border flex items-center justify-center text-sm font-bold',
             labelColors[choice.id],
           )}
         >
           {choice.id}
         </span>
-        <span className="text-sm text-foreground/90 leading-relaxed">{choice.text}</span>
+        <div className="flex-1">
+          <span className="text-base text-foreground/90 leading-relaxed">{choice.text}</span>
+          <div className="mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5 text-xs">
+            {choice.effects.allianceDelta !== 0 && (
+              <span className={choice.effects.allianceDelta > 0 ? 'text-emerald-600' : 'text-red-500'}>
+                LM {choice.effects.allianceDelta > 0 ? '+' : ''}{choice.effects.allianceDelta}
+              </span>
+            )}
+            {choice.effects.stratificationDelta !== 0 && (
+              <span className={choice.effects.stratificationDelta < 0 ? 'text-emerald-600' : 'text-red-500'}>
+                PH {choice.effects.stratificationDelta > 0 ? '+' : ''}{choice.effects.stratificationDelta}
+              </span>
+            )}
+            {choice.effects.innovationDelta !== 0 && (
+              <span className={choice.effects.innovationDelta > 0 ? 'text-violet-600' : 'text-red-500'}>
+                ĐM {choice.effects.innovationDelta > 0 ? '+' : ''}{choice.effects.innovationDelta}
+              </span>
+            )}
+            {choice.effects.welfareDelta !== 0 && (
+              <span className={choice.effects.welfareDelta > 0 ? 'text-pink-500' : 'text-red-500'}>
+                PL {choice.effects.welfareDelta > 0 ? '+' : ''}{choice.effects.welfareDelta}
+              </span>
+            )}
+            {choice.effects.democracyDelta !== 0 && (
+              <span className={choice.effects.democracyDelta > 0 ? 'text-cyan-600' : 'text-red-500'}>
+                DC {choice.effects.democracyDelta > 0 ? '+' : ''}{choice.effects.democracyDelta}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
       {submitted && selected && (
         <div className="mt-2 ml-10 flex items-center gap-1 text-xs text-muted-foreground">

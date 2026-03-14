@@ -1,4 +1,4 @@
-import type { GameRoom, MacroState, OutcomeId, ChoiceId } from '@/types/game'
+import type { GameRoom, MacroState, MacroSnapshot, OutcomeId, ChoiceId } from '@/types/game'
 import { getCurrentScenario } from '@/lib/game-store'
 import { clamp } from '@/lib/utils'
 
@@ -11,6 +11,9 @@ export function computeScenarioEffects(
   let totalAllianceDelta = 0
   let totalStratDelta = 0
   let totalProdDelta = 0
+  let totalInnovationDelta = 0
+  let totalWelfareDelta = 0
+  let totalDemocracyDelta = 0
 
   for (const player of room.players.values()) {
     const choiceId = player.choices[scenario.id] as ChoiceId | undefined
@@ -34,21 +37,30 @@ export function computeScenarioEffects(
     totalAllianceDelta += fx.allianceDelta
     totalStratDelta += fx.stratificationDelta
     totalProdDelta += fx.productionDelta
+    totalInnovationDelta += fx.innovationDelta
+    totalWelfareDelta += fx.welfareDelta
+    totalDemocracyDelta += fx.democracyDelta
   }
 
   // Divide by total players so non-participation dampens collective gains
   const n = room.players.size || 1
 
-  const snapshot = {
+  const snapshot: MacroSnapshot = {
     alliance: room.macro.alliance,
     stratification: room.macro.stratification,
     production: room.macro.production,
+    innovation: room.macro.innovation,
+    welfare: room.macro.welfare,
+    democracy: room.macro.democracy,
   }
 
   const newMacro: MacroState = {
     alliance: clamp(room.macro.alliance + totalAllianceDelta / n),
     stratification: clamp(room.macro.stratification + totalStratDelta / n),
     production: clamp(room.macro.production + totalProdDelta / n),
+    innovation: clamp(room.macro.innovation + totalInnovationDelta / n),
+    welfare: clamp(room.macro.welfare + totalWelfareDelta / n),
+    democracy: clamp(room.macro.democracy + totalDemocracyDelta / n),
     history: [...room.macro.history, snapshot],
   }
 
@@ -56,9 +68,24 @@ export function computeScenarioEffects(
 }
 
 export function determineOutcome(macro: MacroState): OutcomeId {
-  // Factor in all three macro stats for outcome determination
-  if (macro.stratification > 70 && macro.alliance < 30) return 'dut-gay'
-  if (macro.production < 20 && macro.alliance < 40) return 'dut-gay'
-  if (macro.stratification < 50 && macro.alliance > 60 && macro.production > 40) return 'ben-vung'
+  const { alliance, stratification, production, welfare, democracy } = macro
+
+  // Collapse conditions
+  if (stratification > 70 && alliance < 30) return 'dut-gay'
+  if (production < 20 && alliance < 40) return 'dut-gay'
+  if (welfare < 20 && democracy < 25) return 'dut-gay'
+
+  // Sustainable: need multiple strengths
+  const strengths = [
+    alliance > 60,
+    stratification < 50,
+    production > 40,
+    macro.innovation > 45,
+    welfare > 45,
+    democracy > 50,
+  ].filter(Boolean).length
+
+  if (strengths >= 4 && stratification < 55) return 'ben-vung'
+
   return 'trung-tinh'
 }

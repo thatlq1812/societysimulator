@@ -85,6 +85,14 @@ const config: Config = {
           '50%': { transform: 'scale(1.1) rotate(3deg)', opacity: '1' },
           '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
         },
+        'number-change': {
+          '0%': { transform: 'translateY(-8px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
       },
       animation: {
         'pulse-ring': 'pulse-ring 2s ease-in-out infinite',
@@ -97,6 +105,8 @@ const config: Config = {
         'bar-grow': 'bar-grow 1s ease-out forwards',
         'count-up': 'count-up 0.4s ease-out',
         'celebrate': 'celebrate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'number-change': 'number-change 0.3s ease-out',
+        'shimmer': 'shimmer 2s linear infinite',
       },
     },
   },

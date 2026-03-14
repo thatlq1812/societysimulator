@@ -17,10 +17,10 @@ export function ScenarioCard({ scenario, scenarioNumber, totalScenarios = 6, cla
     <div className={cn('rounded-2xl border border-border bg-card overflow-hidden', className)}>
       {/* Scenario image */}
       {imageSrc && (
-        <FramedImage src={imageSrc} alt={scenario.title} variant="banner" frameClassName="h-32" />
+        <FramedImage src={imageSrc} alt={scenario.title} variant="banner" frameClassName="h-40" />
       )}
 
-      <div className="p-5 space-y-3">
+      <div className="p-6 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground uppercase tracking-widest">
             Tình huống {scenarioNumber}/{totalScenarios}
@@ -37,8 +37,8 @@ export function ScenarioCard({ scenario, scenarioNumber, totalScenarios = 6, cla
             ))}
           </div>
         </div>
-        <h2 className="text-lg font-bold text-foreground">{scenario.title}</h2>
-        <p className="text-sm text-foreground/80 leading-relaxed">{scenario.context}</p>
+        <h2 className="text-xl font-bold text-foreground">{scenario.title}</h2>
+        <p className="text-base text-foreground/80 leading-relaxed">{scenario.context}</p>
       </div>
     </div>
   )

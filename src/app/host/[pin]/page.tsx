@@ -7,6 +7,7 @@ import { QRDisplay } from '@/components/game/QRDisplay'
 import { PlayerRoster } from '@/components/game/PlayerRoster'
 import { CountdownTimer } from '@/components/game/CountdownTimer'
 import { BrainIcon } from '@/components/icons'
+import { MacroCharts } from '@/components/game/MacroCharts'
 import { getStratificationLevel } from '@/lib/stratification-theme'
 import { cn } from '@/lib/utils'
 import type { RoomStatePublic } from '@/types/game'
@@ -138,7 +139,7 @@ export default function HostControlPage() {
   const stratLevel = getStratificationLevel(state.macro.stratification)
 
   return (
-    <div className={cn('min-h-screen p-4 space-y-5 max-w-2xl mx-auto py-6', stratLevel === 'danger' && 'bg-red-50', stratLevel === 'warning' && 'bg-amber-50/50')}>
+    <div className={cn('min-h-screen p-4 space-y-5 max-w-4xl mx-auto py-6', stratLevel === 'danger' && 'bg-red-50', stratLevel === 'warning' && 'bg-amber-50/50')}>
       <Navbar pin={pin} />
       <div className="flex items-center justify-between">
         <div>
@@ -192,9 +193,8 @@ export default function HostControlPage() {
           )}
           {state.phase === 'between' && (
             <div className="text-sm space-y-1 pt-2 border-t border-border">
-              <p>Liên minh: <span className="text-emerald-600 font-bold">{Math.round(state.macro.alliance)}</span></p>
-              <p>Phân hóa: <span className="text-amber-600 font-bold">{Math.round(state.macro.stratification)}</span></p>
-              <p>Lực lượng SX: <span className="text-blue-600 font-bold">{Math.round(state.macro.production)}</span></p>
+              <p>Liên minh: <span className="text-emerald-600 font-bold">{Math.round(state.macro.alliance)}</span> · Phân hóa: <span className="text-amber-600 font-bold">{Math.round(state.macro.stratification)}</span> · SX: <span className="text-blue-600 font-bold">{Math.round(state.macro.production)}</span></p>
+              <p>Đổi mới: <span className="text-violet-600 font-bold">{Math.round(state.macro.innovation)}</span> · Phúc lợi: <span className="text-pink-500 font-bold">{Math.round(state.macro.welfare)}</span> · Dân chủ: <span className="text-cyan-600 font-bold">{Math.round(state.macro.democracy)}</span></p>
               {state.lastBreakdown && (
                 <p className="pt-1 text-muted-foreground">
                   A: {state.lastBreakdown.A} · B: {state.lastBreakdown.B} · C: {state.lastBreakdown.C}
@@ -258,19 +258,40 @@ export default function HostControlPage() {
         <p className="text-center text-sm text-muted-foreground">{message}</p>
       )}
 
-      {/* AI Trend — Tier 2 (host only) */}
-      {state.phase === 'between' && state.aiTrend && (
-        <div className="rounded-2xl border border-violet-300 bg-violet-50 p-4 space-y-2 animate-fade-in">
-          <div className="flex items-center gap-2">
-            <BrainIcon size={16} className="text-violet-600" />
-            <p className="text-xs text-violet-600 uppercase tracking-widest font-medium">Phân tích xu hướng AI</p>
-          </div>
-          <p className="text-sm leading-relaxed text-foreground/80">{state.aiTrend}</p>
+      {/* AI Trend — Tier 2 (host only) + AI Commentary */}
+      {state.phase === 'between' && (state.aiTrend || state.aiCommentary) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {state.aiTrend && (
+            <div className="rounded-2xl border border-violet-300 bg-violet-50 p-4 space-y-2 animate-fade-in">
+              <div className="flex items-center gap-2">
+                <BrainIcon size={16} className="text-violet-600" />
+                <p className="text-xs text-violet-600 uppercase tracking-widest font-medium">Phân tích xu hướng AI</p>
+              </div>
+              <p className="text-sm leading-relaxed text-foreground/80">{state.aiTrend}</p>
+            </div>
+          )}
+          {state.aiCommentary && (
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-2 animate-fade-in">
+              <div className="flex items-center gap-2">
+                <BrainIcon size={16} className="text-primary" />
+                <p className="text-xs text-primary uppercase tracking-widest font-medium">Bình luận AI</p>
+              </div>
+              <p className="text-sm leading-relaxed text-foreground/80">{state.aiCommentary}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Macro Charts */}
+      {state.macro.history.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Diễn biến theo tình huống</p>
+          <MacroCharts macro={state.macro} />
         </div>
       )}
 
       {/* Macro readout */}
-      <div className="rounded-2xl border border-border bg-card p-4 grid grid-cols-3 gap-4 text-center">
+      <div className="rounded-2xl border border-border bg-card p-4 grid grid-cols-3 lg:grid-cols-6 gap-4 text-center">
         <div>
           <p className="text-2xl font-bold text-emerald-600">{Math.round(state.macro.alliance)}</p>
           <p className="text-xs text-muted-foreground">Liên minh</p>
@@ -281,7 +302,19 @@ export default function HostControlPage() {
         </div>
         <div>
           <p className="text-2xl font-bold text-blue-600">{Math.round(state.macro.production)}</p>
-          <p className="text-xs text-muted-foreground">SX Quốc gia</p>
+          <p className="text-xs text-muted-foreground">Sản xuất</p>
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-violet-600">{Math.round(state.macro.innovation)}</p>
+          <p className="text-xs text-muted-foreground">Đổi mới</p>
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-pink-500">{Math.round(state.macro.welfare)}</p>
+          <p className="text-xs text-muted-foreground">Phúc lợi</p>
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-cyan-600">{Math.round(state.macro.democracy)}</p>
+          <p className="text-xs text-muted-foreground">Dân chủ</p>
         </div>
       </div>
     </div>

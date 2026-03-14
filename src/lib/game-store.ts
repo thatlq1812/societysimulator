@@ -12,6 +12,9 @@ const INITIAL_MACRO: Omit<MacroState, 'history'> = {
   alliance: 50,
   stratification: 30,
   production: 50,
+  innovation: 40,
+  welfare: 45,
+  democracy: 40,
 }
 
 function generateUniquePIN(): string {

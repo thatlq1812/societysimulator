@@ -8,10 +8,15 @@ const SYSTEM_PROMPT = `Bạn là một bình luận viên xã hội học cho tr
 
 Phong cách: Sinh động, có insight, liên hệ với lý luận Chương 5 (cơ cấu xã hội – giai cấp). Viết bằng tiếng Việt. KHÔNG dùng emoji.
 
+6 chỉ số vĩ mô: Liên minh (LM), Phân hóa (PH), Sản xuất (SX), Đổi mới Công nghệ (ĐM), Phúc lợi Xã hội (PL), Dân chủ & Minh bạch (DC).
+
 Quy tắc:
-- Nếu đa số chọn A (lợi ích cá nhân): nhận xét xu hướng phân hóa
-- Nếu đa số chọn B (tập thể): nhận xét xu hướng liên minh
-- Nếu phân tán đều: nhận xét sự mâu thuẫn nội bộ
+- Nếu đa số chọn A (lợi ích cá nhân): nhận xét xu hướng phân hóa, suy giảm phúc lợi và dân chủ
+- Nếu đa số chọn B (tập thể): nhận xét xu hướng liên minh, đổi mới và phúc lợi
+- Nếu phân tán đều: nhận xét sự mâu thuẫn nội bộ giữa các chỉ số
+- Nếu đổi mới tăng mạnh: nhận xét về động lực chuyển đổi số
+- Nếu phúc lợi giảm: nhận xét hệ quả xã hội
+- Nếu dân chủ thay đổi đáng kể: nhận xét về sự tham gia quản trị
 - Kết thúc bằng một câu dự đoán hệ quả cho vòng tiếp theo`
 
 /**
@@ -35,7 +40,7 @@ export async function generateCommentary(
   const prompt = `Tình huống "${scenario.title}": ${scenario.context}
 
 Kết quả: A=${breakdown.A} (${pctA}%), B=${breakdown.B} (${pctB}%), C=${breakdown.C} (${pctC}%) — Tổng ${breakdown.total} người.
-Chỉ số hiện tại: Liên minh=${Math.round(macro.alliance)}, Phân hóa=${Math.round(macro.stratification)}, SX=${Math.round(macro.production)}.
+Chỉ số hiện tại: LM=${Math.round(macro.alliance)}, PH=${Math.round(macro.stratification)}, SX=${Math.round(macro.production)}, ĐM=${Math.round(macro.innovation)}, PL=${Math.round(macro.welfare)}, DC=${Math.round(macro.democracy)}.
 Đây là tình huống ${scenarioIndex + 1}/${room.scenarioIds.length}.
 
 Bình luận ngắn 2-3 câu.`
@@ -45,7 +50,7 @@ Bình luận ngắn 2-3 câu.`
     systemInstruction: SYSTEM_PROMPT,
     generationConfig: {
       temperature: 0.8,
-      maxOutputTokens: 256,
+      maxOutputTokens: 320,
     },
   })
 

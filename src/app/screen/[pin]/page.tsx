@@ -12,7 +12,7 @@ import { SocialNewsBanner } from '@/components/game/SocialNewsBanner'
 import { CountdownTimer } from '@/components/game/CountdownTimer'
 import { FramedImage } from '@/components/game/FramedImage'
 import { GlobeIcon, BrainIcon, PlantIcon, BoltIcon } from '@/components/icons'
-import { SCENARIO_IMAGE_MAP, OUTCOME_IMAGE_MAP } from '@/lib/image-maps'
+import { SCENARIO_IMAGE_MAP, OUTCOME_IMAGE_MAP, LOBBY_IMAGE, TRANSITION_IMAGE_MAP } from '@/lib/image-maps'
 import { getStratificationLevel } from '@/lib/stratification-theme'
 import { cn } from '@/lib/utils'
 import type { RoomStatePublic } from '@/types/game'
@@ -124,7 +124,7 @@ export default function ScreenPage() {
       <div className="min-h-screen bg-background p-8 flex flex-col relative overflow-hidden">
         {/* Background hero image */}
         <div className="absolute inset-0 opacity-10">
-          <Image src="/images/hero-network.png" alt="" fill className="object-cover" />
+          <Image src={LOBBY_IMAGE} alt="" fill className="object-cover" />
         </div>
 
         <div className="flex-1 grid grid-cols-2 gap-12 items-center relative z-10">
@@ -228,6 +228,9 @@ export default function ScreenPage() {
             alliance={state.macro.alliance}
             stratification={state.macro.stratification}
             production={state.macro.production}
+            innovation={state.macro.innovation}
+            welfare={state.macro.welfare}
+            democracy={state.macro.democracy}
           />
         </div>
 
@@ -296,7 +299,12 @@ export default function ScreenPage() {
   // ─── AI Generating ─────────────────────────────────────────────────────────
   if (state.phase === 'ai-generating') {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-8">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-8 relative overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0 opacity-15">
+          <Image src={TRANSITION_IMAGE_MAP['analyzing']} alt="" fill className="object-cover" />
+        </div>
+        <div className="relative z-10 flex flex-col items-center space-y-8">
         <BrainIcon size={80} className="text-primary animate-pulse" />
         <div className="text-center space-y-3">
           <h2 className="projection-title">AI đang phân tích...</h2>
@@ -317,7 +325,11 @@ export default function ScreenPage() {
           alliance={state.macro.alliance}
           stratification={state.macro.stratification}
           production={state.macro.production}
+          innovation={state.macro.innovation}
+          welfare={state.macro.welfare}
+          democracy={state.macro.democracy}
         />
+        </div>
       </div>
     )
   }
@@ -358,6 +370,9 @@ export default function ScreenPage() {
               alliance={state.macro.alliance}
               stratification={state.macro.stratification}
               production={state.macro.production}
+              innovation={state.macro.innovation}
+              welfare={state.macro.welfare}
+              democracy={state.macro.democracy}
             />
           </div>
 

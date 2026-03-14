@@ -4,6 +4,9 @@ interface MacroGaugesProps {
   alliance: number
   stratification: number
   production: number
+  innovation: number
+  welfare: number
+  democracy: number
 }
 
 interface GaugeProps {
@@ -34,24 +37,39 @@ function Gauge({ label, value, color, inverse }: GaugeProps) {
   )
 }
 
-export function MacroGauges({ alliance, stratification, production }: MacroGaugesProps) {
+export function MacroGauges({ alliance, stratification, production, innovation, welfare, democracy }: MacroGaugesProps) {
   return (
-    <div className="grid grid-cols-3 gap-8">
+    <div className="grid grid-cols-3 lg:grid-cols-6 gap-6">
       <Gauge
-        label="Chỉ số Liên minh"
+        label="Liên minh"
         value={alliance}
         color="#34d399"
       />
       <Gauge
-        label="Chỉ số Phân hóa"
+        label="Phân hóa"
         value={stratification}
         color="#f59e0b"
         inverse
       />
       <Gauge
-        label="Lực lượng Sản xuất"
+        label="Sản xuất"
         value={production}
         color="#60a5fa"
+      />
+      <Gauge
+        label="Đổi mới"
+        value={innovation}
+        color="#8b5cf6"
+      />
+      <Gauge
+        label="Phúc lợi"
+        value={welfare}
+        color="#f472b6"
+      />
+      <Gauge
+        label="Dân chủ"
+        value={democracy}
+        color="#06b6d4"
       />
     </div>
   )

@@ -15,6 +15,9 @@ Các khái niệm cốt lõi bạn phải áp dụng:
 - Quan hệ sở hữu tư liệu sản xuất trong kinh tế số
 - Chỉ số phân hóa xã hội và ổn định cơ cấu
 - Vai trò lịch sử của từng giai cấp/tầng lớp trong thời kỳ quá độ
+- Đổi mới công nghệ như động lực phát triển lực lượng sản xuất
+- Phúc lợi xã hội như thước đo tiến bộ xã hội chủ nghĩa
+- Dân chủ và minh bạch trong quản trị xã hội số
 
 Phong cách viết: Chuyên nghiệp, học thuật nhưng sinh động. Viết bằng tiếng Việt. Độ dài 350-450 từ.
 
@@ -74,6 +77,9 @@ KẾT QUẢ VĨ MÔ CUỐI CỦA XÃ HỘI GIẢ LẬP:
 - Chỉ số Liên minh Công–Nông–Trí thức: ${Math.round(macro.alliance)}/100
 - Chỉ số Phân hóa Xã hội: ${Math.round(macro.stratification)}/100
 - Lực lượng Sản xuất Quốc gia: ${Math.round(macro.production)}/100
+- Chỉ số Đổi mới Công nghệ: ${Math.round(macro.innovation)}/100
+- Chỉ số Phúc lợi Xã hội: ${Math.round(macro.welfare)}/100
+- Chỉ số Dân chủ & Minh bạch: ${Math.round(macro.democracy)}/100
 - Kịch bản kết thúc: ${outcomes[outcome]}
 
 CƠ CẤU NGƯỜI CHƠI:

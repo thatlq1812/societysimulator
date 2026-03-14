@@ -29,3 +29,16 @@ export const OUTCOME_IMAGE_MAP: Record<string, string> = {
   'dut-gay': '/images/outcome-collapse.png',
   'trung-tinh': '/images/outcome-unstable.png',
 }
+
+export const TRANSITION_IMAGE_MAP: Record<string, string> = {
+  'analyzing': '/images/transition-analyzing.png',
+  'waiting': '/images/transition-waiting.png',
+}
+
+export const INDICATOR_IMAGE_MAP: Record<string, string> = {
+  'innovation': '/images/indicator-innovation.png',
+  'welfare': '/images/indicator-welfare.png',
+  'democracy': '/images/indicator-democracy.png',
+}
+
+export const LOBBY_IMAGE = '/images/lobby-gathering.png'

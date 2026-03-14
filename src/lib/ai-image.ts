@@ -167,6 +167,27 @@ export const IMAGE_PROMPTS: Record<string, string> = {
 
   'outcome-unstable.png':
     'Abstract tension: network nodes flickering between connected and disconnected states, amber/yellow caution tones. Symbolizes an unstable, uncertain society.',
+
+  // ── Transition images (new) ──
+  'transition-analyzing.png':
+    'Abstract composition: data streams from multiple colored sources (blue, green, violet, amber, pink, cyan) converging into a central glowing brain-shaped processing node. Six orbiting indicator spheres in distinctive colors. Dark background. Symbolizes AI analysis.',
+
+  'transition-waiting.png':
+    'Abstract composition: interconnected human silhouettes standing on a large circular platform, looking toward a glowing horizon with anticipation. Calming blue and cyan tones with subtle red accents. Dark background. Symbolizes collective waiting.',
+
+  // ── Indicator-specific images (new) ──
+  'indicator-innovation.png':
+    'Abstract composition: a lightbulb made of intricate circuit board patterns radiating violet light (#8b5cf6), surrounded by floating geometric shapes and data points. Violet dominant on dark background.',
+
+  'indicator-welfare.png':
+    'Abstract composition: interlinked human hands forming a safety net beneath a community of diverse silhouette figures. Warm pink (#f472b6) dominant tones on dark background. Symbolizes social welfare.',
+
+  'indicator-democracy.png':
+    'Abstract composition: transparent ballot boxes and raised hands with holographic digital voting interfaces. Multiple screens showing approval icons. Cyan (#06b6d4) dominant on dark background.',
+
+  // ── Lobby image (new) ──
+  'lobby-gathering.png':
+    'Wide abstract illustration: figures approaching from four different directions toward a central glowing hub platform. Each group has a different color aura — blue workers, green farmers, violet intellectuals, amber startup founders. Red and gold accent connection lines. Dark background.',
 }
 
 // Re-export client-safe image maps

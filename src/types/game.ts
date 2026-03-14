@@ -12,6 +12,9 @@ export interface ChoiceEffects {
   allianceDelta: number        // vĩ mô: Chỉ số Liên minh
   stratificationDelta: number  // vĩ mô: Chỉ số Phân hóa Xã hội
   productionDelta: number      // vĩ mô: Lực lượng Sản xuất Quốc gia
+  innovationDelta: number      // vĩ mô: Đổi mới Công nghệ
+  welfareDelta: number         // vĩ mô: Phúc lợi Xã hội
+  democracyDelta: number       // vĩ mô: Dân chủ & Minh bạch
 }
 
 export interface Choice {
@@ -31,6 +34,9 @@ export interface MacroSnapshot {
   alliance: number
   stratification: number
   production: number
+  innovation: number       // Đổi mới Công nghệ & Chuyển đổi số
+  welfare: number          // Phúc lợi Xã hội & Dịch vụ Công
+  democracy: number        // Dân chủ & Minh bạch
 }
 
 export interface MacroState extends MacroSnapshot {
