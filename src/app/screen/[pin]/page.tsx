@@ -622,8 +622,8 @@ function AwardsReveal({ awards }: { awards: RoomStatePublic['awards'] }) {
   // Interpolated values
   const overlayOpacity = Math.min(zoom * 1.2, 0.7)
   const blurAmount = zoom * 6
-  const cardScale = 1 + zoom * 0.35
-  const cardGap = 24 + zoom * 16 // 24px → 40px
+  const cardWidth = 160 + zoom * 40 // 160px → 200px (actual width, not scale)
+  const cardGap = 24 + zoom * 20 // 24px → 44px
 
   return (
     <>
@@ -667,16 +667,15 @@ function AwardsReveal({ awards }: { awards: RoomStatePublic['awards'] }) {
           {awards!.map((award, i) => (
             <div
               key={award.id}
-              className="flex-shrink-0 w-[160px]"
+              className="flex-shrink-0"
               style={{
-                transform: visible
-                  ? `scale(${cardScale}) translateY(0)`
-                  : 'scale(0.3) translateY(3rem)',
+                width: visible ? `${cardWidth}px` : '160px',
+                transform: visible ? 'translateY(0)' : 'translateY(3rem)',
                 opacity: visible ? 1 : 0,
                 transition: visible
-                  ? 'transform 0.15s ease-out, opacity 0.4s ease-out'
+                  ? 'width 0.15s ease-out, transform 0.15s ease-out, opacity 0.4s ease-out'
                   : `all 0.6s cubic-bezier(0.34,1.56,0.64,1) ${i * 200}ms`,
-                willChange: 'transform, opacity',
+                willChange: 'width, transform, opacity',
               }}
             >
               <AwardCard award={award} index={i} />
