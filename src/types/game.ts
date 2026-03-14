@@ -27,6 +27,7 @@ export interface Scenario {
   id: string
   title: string
   context: string
+  image?: string
   choices: [Choice, Choice, Choice]
 }
 

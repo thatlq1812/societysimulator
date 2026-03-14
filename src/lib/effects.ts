@@ -2,6 +2,19 @@ import type { GameRoom, MacroState, MacroSnapshot, OutcomeId, ChoiceId } from '@
 import { getCurrentScenario } from '@/lib/game-store'
 import { clamp } from '@/lib/utils'
 
+/**
+ * Dampening function: diminishing returns near extremes (0 and 100).
+ * At center (value=50): ~65% of raw delta applied.
+ * Near extreme (value=5 or 95): ~33% of raw delta applied.
+ * This makes hitting 0 or 100 very difficult, creating richer gameplay.
+ */
+function dampenDelta(current: number, delta: number): number {
+  if (delta === 0) return 0
+  const remaining = delta > 0 ? (100 - current) : current
+  const factor = 0.3 + 0.7 * (remaining / 100)
+  return delta * factor
+}
+
 export function computeScenarioEffects(
   room: GameRoom,
 ): { newMacro: MacroState } {
@@ -55,12 +68,12 @@ export function computeScenarioEffects(
   }
 
   const newMacro: MacroState = {
-    alliance: clamp(room.macro.alliance + totalAllianceDelta / n),
-    stratification: clamp(room.macro.stratification + totalStratDelta / n),
-    production: clamp(room.macro.production + totalProdDelta / n),
-    innovation: clamp(room.macro.innovation + totalInnovationDelta / n),
-    welfare: clamp(room.macro.welfare + totalWelfareDelta / n),
-    democracy: clamp(room.macro.democracy + totalDemocracyDelta / n),
+    alliance: clamp(room.macro.alliance + dampenDelta(room.macro.alliance, totalAllianceDelta / n)),
+    stratification: clamp(room.macro.stratification + dampenDelta(room.macro.stratification, totalStratDelta / n)),
+    production: clamp(room.macro.production + dampenDelta(room.macro.production, totalProdDelta / n)),
+    innovation: clamp(room.macro.innovation + dampenDelta(room.macro.innovation, totalInnovationDelta / n)),
+    welfare: clamp(room.macro.welfare + dampenDelta(room.macro.welfare, totalWelfareDelta / n)),
+    democracy: clamp(room.macro.democracy + dampenDelta(room.macro.democracy, totalDemocracyDelta / n)),
     history: [...room.macro.history, snapshot],
   }
 

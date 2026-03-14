@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { StarIcon, GlobeIcon, BrainIcon, ChartIcon } from '@/components/icons'
+import { StarIcon, GlobeIcon, BrainIcon, ChartIcon, GamepadIcon } from '@/components/icons'
 
 const ALBUM_PHOTOS = [
   { src: '/images/theme-youth-vietnam.png', caption: 'Thanh niên Việt Nam', rotate: 'rotate-3', delay: '0ms' },
@@ -200,6 +200,67 @@ export default function HomePage() {
                 </div>
                 <p className="font-bold text-lg">{f.title}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Game Guide Section ──────────────────────────────────────────── */}
+      <section className="bg-muted/30 px-6 py-14 border-t border-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mx-auto mb-3">
+              <GamepadIcon size={28} className="text-blue-600" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Hướng dẫn chơi</h2>
+            <p className="text-sm text-muted-foreground">Cơ chế game mô phỏng xã hội số</p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                step: '1',
+                title: 'Tham gia phòng',
+                desc: 'Host tạo phòng, chia sẻ mã PIN. Mỗi người chơi quét QR hoặc nhập mã PIN để vào game. Hệ thống tự động phân vai: Công nhân, Nông dân, Trí thức, hoặc Startup.',
+                color: 'bg-blue-500',
+              },
+              {
+                step: '2',
+                title: '10 vòng quyết định',
+                desc: 'Mỗi vòng, xã hội đối mặt một tình huống thời sự (tự động hóa, dữ liệu, bất động sản, deepfake...). Mỗi người chọn A, B hoặc C — đại diện cho lập trường giai cấp trước sự kiện vĩ mô.',
+                color: 'bg-amber-500',
+              },
+              {
+                step: '3',
+                title: '6 chỉ số vĩ mô biến động',
+                desc: 'Quyết định tập thể ảnh hưởng 6 chỉ số: Liên minh, Phân hóa, Sản xuất, Đổi mới, Phúc lợi, Dân chủ. Hệ thống có cơ chế giảm tốc — càng gần cực trị (0 hoặc 100) càng khó thay đổi.',
+                color: 'bg-emerald-500',
+              },
+              {
+                step: '4',
+                title: 'AI bình luận mỗi vòng',
+                desc: 'Sau mỗi vòng, AI (Gemini) phân tích lựa chọn của từng giai cấp, so sánh xu hướng liên minh vs phân hóa, và nhận xét tình hình xã hội. Host nhận thêm phân tích xu hướng chuyên sâu.',
+                color: 'bg-violet-500',
+              },
+              {
+                step: '5',
+                title: 'Bản tin Xã hội Số',
+                desc: 'Kết thúc game, AI tự động sinh "Bản tin Xã hội Số" — bài báo tổng kết toàn bộ hành trình xã hội, phân tích kết cục: Bền vững, Bất ổn, hay Sụp đổ. Kèm giải thưởng cho người chơi nổi bật.',
+                color: 'bg-pink-500',
+              },
+            ].map((item) => (
+              <div
+                key={item.step}
+                className="flex gap-4 items-start rounded-xl border border-border bg-card p-5 hover-lift"
+              >
+                <div className={`flex-shrink-0 w-9 h-9 rounded-full ${item.color} text-white flex items-center justify-center text-sm font-bold`}>
+                  {item.step}
+                </div>
+                <div>
+                  <p className="font-bold text-base mb-1">{item.title}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
