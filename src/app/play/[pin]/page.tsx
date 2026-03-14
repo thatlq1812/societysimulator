@@ -117,7 +117,7 @@ export default function PlayPage() {
 
       {/* --- Lobby --------------------------------------------------------- */}
       {state.phase === 'lobby' && (
-        <div className="min-h-screen p-4 space-y-4 max-w-lg mx-auto py-8">
+        <div className="min-h-screen p-4 space-y-4 max-w-2xl mx-auto py-8">
           {roleId && playerName && (
             <RoleCard roleId={roleId} playerName={playerName} />
           )}
@@ -127,7 +127,7 @@ export default function PlayPage() {
             <p className="text-sm text-muted-foreground">{state.playerCount} người đã tham gia</p>
           </div>
           {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} />
+            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
           )}
         </div>
       )}
@@ -195,33 +195,72 @@ export default function PlayPage() {
       {/* --- Between ------------------------------------------------------- */}
       {state.phase === 'between' && (
         <div className={cn(
-          'min-h-screen p-4 space-y-4 max-w-lg mx-auto py-8',
+          'min-h-screen p-4 space-y-4 max-w-2xl mx-auto py-8',
           stratLevel === 'danger' && 'bg-red-50',
           stratLevel === 'warning' && 'bg-amber-50/50'
         )}>
           <div className="rounded-2xl border border-border bg-card p-5 text-center space-y-3 animate-fade-in">
             <ChartIcon size={30} className="text-primary mx-auto" />
             <h2 className="font-bold">Kết quả vừa cập nhật</h2>
-            <p className="text-sm text-muted-foreground">
-              Liên minh: <span className="text-primary font-bold">{Math.round(state.macro.alliance)}</span> ·
-              Phân hóa: <span className="text-amber-600 font-bold">{Math.round(state.macro.stratification)}</span> ·
-              SX: <span className="text-blue-600 font-bold">{Math.round(state.macro.production)}</span>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Đổi mới: <span className="text-violet-600 font-bold">{Math.round(state.macro.innovation)}</span> ·
-              Phúc lợi: <span className="text-pink-500 font-bold">{Math.round(state.macro.welfare)}</span> ·
-              Dân chủ: <span className="text-cyan-600 font-bold">{Math.round(state.macro.democracy)}</span>
-            </p>
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <p className="text-primary font-bold tabular-nums">{Math.round(state.macro.alliance)}</p>
+                <p className="text-xs text-muted-foreground">Liên minh</p>
+              </div>
+              <div>
+                <p className="text-amber-600 font-bold tabular-nums">{Math.round(state.macro.stratification)}</p>
+                <p className="text-xs text-muted-foreground">Phân hóa</p>
+              </div>
+              <div>
+                <p className="text-blue-600 font-bold tabular-nums">{Math.round(state.macro.production)}</p>
+                <p className="text-xs text-muted-foreground">Sản xuất</p>
+              </div>
+              <div>
+                <p className="text-violet-600 font-bold tabular-nums">{Math.round(state.macro.innovation)}</p>
+                <p className="text-xs text-muted-foreground">Đổi mới</p>
+              </div>
+              <div>
+                <p className="text-pink-500 font-bold tabular-nums">{Math.round(state.macro.welfare)}</p>
+                <p className="text-xs text-muted-foreground">Phúc lợi</p>
+              </div>
+              <div>
+                <p className="text-cyan-600 font-bold tabular-nums">{Math.round(state.macro.democracy)}</p>
+                <p className="text-xs text-muted-foreground">Dân chủ</p>
+              </div>
+            </div>
+            {state.macroDelta && (
+              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs">
+                {([
+                  { key: 'alliance', label: 'LM' },
+                  { key: 'stratification', label: 'PH' },
+                  { key: 'production', label: 'SX' },
+                  { key: 'innovation', label: 'ĐM' },
+                  { key: 'welfare', label: 'PL' },
+                  { key: 'democracy', label: 'DC' },
+                ] as const).map(({ key, label }) => {
+                  const d = Math.round((state.macroDelta![key as keyof typeof state.macroDelta] ?? 0) * 10) / 10
+                  if (d === 0) return null
+                  return (
+                    <span key={key} className={d > 0 ? 'text-emerald-600' : 'text-red-500'}>
+                      {label} {d > 0 ? '+' : ''}{d.toFixed(1)}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
             <p className="text-sm text-muted-foreground">Tình huống tiếp theo sắp bắt đầu...</p>
           </div>
           {state.aiCommentary && (
             <div className="rounded-xl border border-primary/20 bg-card p-4 space-y-2 animate-fade-in">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest">Bình luận AI</p>
+              <div className="flex items-center gap-2">
+                <BrainIcon size={16} className="text-primary" />
+                <p className="text-xs text-muted-foreground uppercase tracking-widest">Bình luận AI</p>
+              </div>
               <p className="text-sm leading-relaxed">{state.aiCommentary}</p>
             </div>
           )}
           {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} />
+            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
           )}
         </div>
       )}
@@ -254,7 +293,7 @@ export default function PlayPage() {
 
       {/* --- Results ------------------------------------------------------- */}
       {state.phase === 'results' && (
-        <div className="min-h-screen p-4 space-y-4 max-w-lg mx-auto py-8 animate-fade-in">
+        <div className="min-h-screen p-4 space-y-4 max-w-2xl mx-auto py-8 animate-fade-in">
           <div className="text-center">
             <h2 className="text-xl font-bold">Kết quả hoàn thành</h2>
             <p className="text-sm text-muted-foreground mt-1">
@@ -273,7 +312,7 @@ export default function PlayPage() {
           )}
 
           {currentPlayer && roleId && (
-            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} />
+            <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
           )}
 
           {state.socialNews && (

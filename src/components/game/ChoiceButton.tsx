@@ -47,33 +47,6 @@ export function ChoiceButton({ choice, selected, disabled, submitted, onClick }:
         </span>
         <div className="flex-1">
           <span className="text-base text-foreground/90 leading-relaxed">{choice.text}</span>
-          <div className="mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5 text-xs">
-            {choice.effects.allianceDelta !== 0 && (
-              <span className={choice.effects.allianceDelta > 0 ? 'text-emerald-600' : 'text-red-500'}>
-                LM {choice.effects.allianceDelta > 0 ? '+' : ''}{choice.effects.allianceDelta}
-              </span>
-            )}
-            {choice.effects.stratificationDelta !== 0 && (
-              <span className={choice.effects.stratificationDelta < 0 ? 'text-emerald-600' : 'text-red-500'}>
-                PH {choice.effects.stratificationDelta > 0 ? '+' : ''}{choice.effects.stratificationDelta}
-              </span>
-            )}
-            {choice.effects.innovationDelta !== 0 && (
-              <span className={choice.effects.innovationDelta > 0 ? 'text-violet-600' : 'text-red-500'}>
-                ĐM {choice.effects.innovationDelta > 0 ? '+' : ''}{choice.effects.innovationDelta}
-              </span>
-            )}
-            {choice.effects.welfareDelta !== 0 && (
-              <span className={choice.effects.welfareDelta > 0 ? 'text-pink-500' : 'text-red-500'}>
-                PL {choice.effects.welfareDelta > 0 ? '+' : ''}{choice.effects.welfareDelta}
-              </span>
-            )}
-            {choice.effects.democracyDelta !== 0 && (
-              <span className={choice.effects.democracyDelta > 0 ? 'text-cyan-600' : 'text-red-500'}>
-                DC {choice.effects.democracyDelta > 0 ? '+' : ''}{choice.effects.democracyDelta}
-              </span>
-            )}
-          </div>
         </div>
       </div>
       {submitted && selected && (

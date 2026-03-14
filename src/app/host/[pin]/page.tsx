@@ -90,27 +90,6 @@ export default function HostControlPage() {
     }
   }
 
-  async function generateAI() {
-    if (!hostSecret || actionLoading) return
-    setActionLoading(true)
-    setMessage('AI đang tổng hợp...')
-    try {
-      const res = await fetch(`/api/room/${pin}/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hostSecret }),
-      })
-      if (res.ok) {
-        await fetchState()
-        setMessage('Xong!')
-      } else {
-        setMessage('AI generation thất bại')
-      }
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
   if (roomNotFound) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -196,9 +175,40 @@ export default function HostControlPage() {
               <p>Liên minh: <span className="text-emerald-600 font-bold">{Math.round(state.macro.alliance)}</span> · Phân hóa: <span className="text-amber-600 font-bold">{Math.round(state.macro.stratification)}</span> · SX: <span className="text-blue-600 font-bold">{Math.round(state.macro.production)}</span></p>
               <p>Đổi mới: <span className="text-violet-600 font-bold">{Math.round(state.macro.innovation)}</span> · Phúc lợi: <span className="text-pink-500 font-bold">{Math.round(state.macro.welfare)}</span> · Dân chủ: <span className="text-cyan-600 font-bold">{Math.round(state.macro.democracy)}</span></p>
               {state.lastBreakdown && (
-                <p className="pt-1 text-muted-foreground">
-                  A: {state.lastBreakdown.A} · B: {state.lastBreakdown.B} · C: {state.lastBreakdown.C}
-                </p>
+                <div className="pt-1 space-y-1">
+                  <p className="text-muted-foreground">
+                    A: {state.lastBreakdown.A} · B: {state.lastBreakdown.B} · C: {state.lastBreakdown.C}
+                  </p>
+                  {state.roleBreakdown && state.roleBreakdown.length > 0 && (
+                    <div className="text-xs space-y-0.5">
+                      {state.roleBreakdown.map((rb) => (
+                        <p key={rb.roleId} className="text-muted-foreground">
+                          {rb.roleName}: {rb.A > 0 && <span className="text-amber-600">A:{rb.A} </span>}{rb.B > 0 && <span className="text-emerald-600">B:{rb.B} </span>}{rb.C > 0 && <span className="text-blue-600">C:{rb.C}</span>}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  {state.macroDelta && (
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs pt-1 border-t border-border/50">
+                      {([
+                        { key: 'alliance', label: 'LM' },
+                        { key: 'stratification', label: 'PH' },
+                        { key: 'production', label: 'SX' },
+                        { key: 'innovation', label: 'ĐM' },
+                        { key: 'welfare', label: 'PL' },
+                        { key: 'democracy', label: 'DC' },
+                      ] as const).map(({ key, label }) => {
+                        const d = Math.round((state.macroDelta![key as keyof typeof state.macroDelta] ?? 0) * 10) / 10
+                        if (d === 0) return null
+                        return (
+                          <span key={key} className={d > 0 ? 'text-emerald-600' : 'text-red-500'}>
+                            {label} {d > 0 ? '+' : ''}{d.toFixed(1)}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
@@ -238,13 +248,10 @@ export default function HostControlPage() {
         )}
 
         {state.phase === 'ai-generating' && (
-          <button
-            onClick={generateAI}
-            disabled={actionLoading}
-            className="w-full rounded-xl bg-violet-600 py-4 font-bold text-white transition-all hover:bg-violet-500 disabled:opacity-50"
-          >
-            {actionLoading ? <><BrainIcon size={16} className="text-white inline-block mr-1" /> AI đang tổng hợp...</> : <><BrainIcon size={16} className="text-white inline-block mr-1" /> Tạo Bản tin AI</>}
-          </button>
+          <div className="w-full rounded-xl bg-violet-100 border border-violet-300 py-4 text-center text-violet-700 font-medium flex items-center justify-center gap-2">
+            <BrainIcon size={16} className="text-violet-600 animate-pulse" />
+            AI đang tự động tổng hợp Bản tin...
+          </div>
         )}
 
         {state.phase === 'results' && (

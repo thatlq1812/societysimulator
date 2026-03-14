@@ -92,6 +92,7 @@ export function serializeRoom(room: GameRoom) {
       wealth: p.wealth,
       control: p.control,
       allianceContribution: p.allianceContribution,
+      choiceCount: Object.keys(p.choices).length,
     })),
     macro: room.macro,
     outcome: room.outcome,
@@ -102,6 +103,8 @@ export function serializeRoom(room: GameRoom) {
     playerCount: room.players.size,
     voteCount: computeVoteCount(room),
     lastBreakdown: room.lastBreakdown,
+    roleBreakdown: room.roleBreakdown,
+    macroDelta: room.macroDelta,
   }
 }
 

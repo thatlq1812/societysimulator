@@ -5,7 +5,10 @@ import { computeScenarioEffects, determineOutcome } from '@/lib/effects'
 import { selectRandomScenarios } from '@/lib/scenarios'
 import { generateCommentary } from '@/lib/ai-commentary'
 import { generateTrend } from '@/lib/ai-trend'
-import type { ChoiceBreakdown, ChoiceId } from '@/types/game'
+import { generateSocialNews } from '@/lib/ai-news'
+import { computeAwards } from '@/lib/awards'
+import type { ChoiceBreakdown, ChoiceId, RoleBreakdown, MacroDelta, RoleId } from '@/types/game'
+import { ROLES } from '@/lib/roles'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,6 +27,26 @@ function computeBreakdown(room: ReturnType<typeof getRoom>): ChoiceBreakdown {
   }
   bd.total = bd.A + bd.B + bd.C
   return bd
+}
+
+function computeRoleBreakdown(room: ReturnType<typeof getRoom>): RoleBreakdown[] {
+  if (!room) return []
+  const scenario = getCurrentScenario(room)
+  if (!scenario) return []
+
+  const roleIds: RoleId[] = ['cong-nhan', 'nong-dan', 'tri-thuc', 'startup']
+  return roleIds.map((roleId) => {
+    const bd: RoleBreakdown = { roleId, roleName: ROLES[roleId].name, A: 0, B: 0, C: 0, total: 0 }
+    for (const player of room.players.values()) {
+      if (player.roleId !== roleId) continue
+      const choice = player.choices[scenario.id] as ChoiceId | undefined
+      if (choice === 'A') bd.A++
+      else if (choice === 'B') bd.B++
+      else if (choice === 'C') bd.C++
+    }
+    bd.total = bd.A + bd.B + bd.C
+    return bd
+  }).filter((bd) => bd.total > 0)
 }
 
 export async function POST(
@@ -72,16 +95,33 @@ export async function POST(
     }
 
     const breakdown = computeBreakdown(room)
+    const roleBreakdown = computeRoleBreakdown(room)
+    const prevMacro = room.macro
     const { newMacro } = computeScenarioEffects(room)
+
+    // Compute delta (change from this round)
+    const macroDelta: MacroDelta = {
+      alliance: newMacro.alliance - prevMacro.alliance,
+      stratification: newMacro.stratification - prevMacro.stratification,
+      production: newMacro.production - prevMacro.production,
+      innovation: newMacro.innovation - prevMacro.innovation,
+      welfare: newMacro.welfare - prevMacro.welfare,
+      democracy: newMacro.democracy - prevMacro.democracy,
+    }
+
     room.macro = newMacro
     room.phase = 'between'
     room.lastBreakdown = breakdown
+    room.roleBreakdown = roleBreakdown
+    room.macroDelta = macroDelta
     room.aiCommentary = undefined
 
     broadcast(params.pin.toUpperCase(), 'scenario-result', {
       scenarioIndex: room.currentScenarioIndex,
       macro: room.macro,
       breakdown,
+      roleBreakdown,
+      macroDelta,
     })
 
     // Fire-and-forget: Tier 1 commentary + Tier 2 trend analysis
@@ -112,6 +152,38 @@ export async function POST(
       room.outcome = determineOutcome(room.macro)
       room.phase = 'ai-generating'
       broadcast(params.pin.toUpperCase(), 'ai-generating', { outcome: room.outcome })
+
+      // Fire-and-forget: auto-generate AI news + awards, then advance to results
+      const pinUpper = params.pin.toUpperCase()
+      Promise.all([
+        generateSocialNews({ macro: room.macro, outcome: room.outcome, room }),
+        Promise.resolve(computeAwards(room)),
+      ])
+        .then(([socialNews, awards]) => {
+          room.socialNews = socialNews
+          room.awards = awards
+          room.phase = 'results'
+          broadcast(pinUpper, 'game-ended', {
+            outcome: room.outcome,
+            macro: room.macro,
+            socialNews,
+            awards,
+          })
+        })
+        .catch((err) => {
+          console.error('Auto AI generation failed:', err)
+          // Fallback: still advance to results with no news
+          room.awards = computeAwards(room)
+          room.socialNews = 'Bản tin AI không thể tạo. Vui lòng thử lại.'
+          room.phase = 'results'
+          broadcast(pinUpper, 'game-ended', {
+            outcome: room.outcome,
+            macro: room.macro,
+            socialNews: room.socialNews,
+            awards: room.awards,
+          })
+        })
+
       return NextResponse.json({ ok: true, phase: room.phase, outcome: room.outcome })
     }
 

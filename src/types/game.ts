@@ -95,6 +95,8 @@ export interface GameRoom {
   aiTrend?: string              // Tier 2: host-visible trend analysis
   awards?: Award[]
   lastBreakdown?: ChoiceBreakdown
+  roleBreakdown?: RoleBreakdown[]
+  macroDelta?: MacroDelta
   createdAt: number
 }
 
@@ -107,6 +109,7 @@ export interface PlayerPublic {
   wealth: number
   control: number
   allianceContribution: number
+  choiceCount: number
 }
 
 export interface ChoiceBreakdown {
@@ -114,6 +117,24 @@ export interface ChoiceBreakdown {
   B: number
   C: number
   total: number
+}
+
+export interface RoleBreakdown {
+  roleId: RoleId
+  roleName: string
+  A: number
+  B: number
+  C: number
+  total: number
+}
+
+export interface MacroDelta {
+  alliance: number
+  stratification: number
+  production: number
+  innovation: number
+  welfare: number
+  democracy: number
 }
 
 export interface RoomStatePublic {
@@ -133,6 +154,8 @@ export interface RoomStatePublic {
   playerCount: number
   voteCount: number                     // votes cast in current scenario
   lastBreakdown?: ChoiceBreakdown       // A/B/C distribution from last scenario
+  roleBreakdown?: RoleBreakdown[]       // per-role A/B/C breakdown
+  macroDelta?: MacroDelta               // indicator changes from last round
 }
 
 export interface JoinResponse {

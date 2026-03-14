@@ -73,7 +73,7 @@ export default function ScreenPage() {
 
     es.addEventListener('scenario-result', (e) => {
       const data = JSON.parse(e.data)
-      setState((prev) => prev ? { ...prev, phase: 'between', macro: data.macro, lastBreakdown: data.breakdown } : prev)
+      setState((prev) => prev ? { ...prev, phase: 'between', macro: data.macro, lastBreakdown: data.breakdown, roleBreakdown: data.roleBreakdown, macroDelta: data.macroDelta } : prev)
     })
 
     es.addEventListener('ai-generating', (e) => {
@@ -243,24 +243,78 @@ export default function ScreenPage() {
         )}
 
         {state.phase === 'between' && state.lastBreakdown && (
-          <div className="rounded-2xl border border-border bg-card p-5 space-y-3 animate-fade-in">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Phân bố lựa chọn</p>
-            <div className="grid grid-cols-3 gap-4">
-              {(['A', 'B', 'C'] as const).map((opt) => {
-                const count = state.lastBreakdown![opt]
-                const pct = state.lastBreakdown!.total > 0 ? Math.round((count / state.lastBreakdown!.total) * 100) : 0
-                const colors = { A: 'bg-amber-500', B: 'bg-emerald-500', C: 'bg-blue-500' }
-                const labels = { A: 'text-amber-600', B: 'text-emerald-600', C: 'text-blue-600' }
-                return (
-                  <div key={opt} className="text-center space-y-2">
-                    <p className={`text-3xl font-bold tabular-nums ${labels[opt]}`}>{count}</p>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-1000 ${colors[opt]}`} style={{ width: `${pct}%` }} />
-                    </div>
-                    <p className="text-sm text-muted-foreground">Lựa chọn {opt} · {pct}%</p>
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-5 animate-fade-in">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Overall + Per-role breakdown */}
+              <div className="space-y-4">
+                <p className="text-xs text-muted-foreground uppercase tracking-widest">Phân bố lựa chọn</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {(['A', 'B', 'C'] as const).map((opt) => {
+                    const count = state.lastBreakdown![opt]
+                    const pct = state.lastBreakdown!.total > 0 ? Math.round((count / state.lastBreakdown!.total) * 100) : 0
+                    const colors = { A: 'bg-amber-500', B: 'bg-emerald-500', C: 'bg-blue-500' }
+                    const labels = { A: 'text-amber-600', B: 'text-emerald-600', C: 'text-blue-600' }
+                    return (
+                      <div key={opt} className="text-center space-y-1.5">
+                        <p className={`text-2xl font-bold tabular-nums ${labels[opt]}`}>{count}</p>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all duration-1000 ${colors[opt]}`} style={{ width: `${pct}%` }} />
+                        </div>
+                        <p className="text-xs text-muted-foreground">Lựa chọn {opt} · {pct}%</p>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Per-role breakdown */}
+                {state.roleBreakdown && state.roleBreakdown.length > 0 && (
+                  <div className="space-y-2 pt-2 border-t border-border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Theo nhóm vai trò</p>
+                    {state.roleBreakdown.map((rb) => {
+                      const roleColors: Record<string, string> = { 'cong-nhan': 'text-blue-600', 'nong-dan': 'text-emerald-600', 'tri-thuc': 'text-violet-600', 'startup': 'text-amber-600' }
+                      return (
+                        <div key={rb.roleId} className="flex items-center gap-2 text-sm">
+                          <span className={`font-medium w-32 truncate ${roleColors[rb.roleId] ?? ''}`}>{rb.roleName}</span>
+                          <div className="flex-1 flex gap-2">
+                            {rb.A > 0 && <span className="text-amber-600 tabular-nums">A:{rb.A}</span>}
+                            {rb.B > 0 && <span className="text-emerald-600 tabular-nums">B:{rb.B}</span>}
+                            {rb.C > 0 && <span className="text-blue-600 tabular-nums">C:{rb.C}</span>}
+                          </div>
+                          <span className="text-xs text-muted-foreground">{rb.total} người</span>
+                        </div>
+                      )
+                    })}
                   </div>
-                )
-              })}
+                )}
+              </div>
+
+              {/* Right: Macro indicator changes */}
+              {state.macroDelta && (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest">Thay đổi chỉ số lượt này</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {([
+                      { key: 'alliance', label: 'Liên minh', color: 'text-emerald-600' },
+                      { key: 'stratification', label: 'Phân hóa', color: 'text-amber-600' },
+                      { key: 'production', label: 'Sản xuất', color: 'text-blue-600' },
+                      { key: 'innovation', label: 'Đổi mới', color: 'text-violet-600' },
+                      { key: 'welfare', label: 'Phúc lợi', color: 'text-pink-500' },
+                      { key: 'democracy', label: 'Dân chủ', color: 'text-cyan-600' },
+                    ] as const).map(({ key, label, color }) => {
+                      const delta = state.macroDelta![key as keyof typeof state.macroDelta]
+                      const rounded = Math.round(delta * 10) / 10
+                      return (
+                        <div key={key} className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
+                          <span className="text-xs text-muted-foreground">{label}</span>
+                          <span className={`font-bold tabular-nums text-sm ${rounded > 0 ? 'text-emerald-600' : rounded < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                            {rounded > 0 ? '+' : ''}{rounded.toFixed(1)}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             <p className="text-center text-xs text-muted-foreground">Đang chuẩn bị tình huống tiếp theo...</p>
           </div>

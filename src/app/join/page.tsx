@@ -44,8 +44,22 @@ function JoinForm() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-sm space-y-8 animate-slide-up">
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          {/* Left: Decorative image (desktop only) */}
+          <div className="hidden lg:block">
+            <div className="relative w-full aspect-square max-w-sm mx-auto rounded-2xl overflow-hidden border-2 border-primary/10 shadow-lg">
+              <img src="/images/lobby-gathering.png" alt="" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-white/20" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <p className="text-lg font-bold text-foreground">Tham gia xã hội giả lập</p>
+                <p className="text-sm text-muted-foreground mt-1">Quét QR hoặc nhập mã PIN để bắt đầu</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Form */}
+          <div className="w-full max-w-md mx-auto space-y-8 animate-slide-up">
         {/* Header */}
         <div className="text-center space-y-2">
           <GlobeIcon size={40} className="text-accent mx-auto mb-3" />
@@ -101,6 +115,7 @@ function JoinForm() {
         <p className="text-center text-xs text-muted-foreground">
           Vai trò sẽ được phân bổ ngẫu nhiên sau khi tham gia
         </p>
+      </div>
       </div>
       </div>
     </div>

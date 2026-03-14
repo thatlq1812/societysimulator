@@ -34,6 +34,7 @@ export async function POST(
     players: [...room.players.values()].map((p) => ({
       id: p.id, name: p.name, roleId: p.roleId,
       wealth: p.wealth, control: p.control, allianceContribution: p.allianceContribution,
+      choiceCount: Object.keys(p.choices).length,
     })),
   })
 
@@ -43,6 +44,7 @@ export async function POST(
     player: {
       id: player.id, name: player.name, roleId: player.roleId,
       wealth: player.wealth, control: player.control, allianceContribution: player.allianceContribution,
+      choiceCount: 0,
     },
     macro: room.macro,
   }
