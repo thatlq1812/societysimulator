@@ -13,15 +13,15 @@ interface ChoiceButtonProps {
 
 export function ChoiceButton({ choice, selected, disabled, submitted, onClick }: ChoiceButtonProps) {
   const labelColors: Record<ChoiceId, string> = {
-    A: 'text-amber-400 border-amber-500/40 bg-amber-950/30',
-    B: 'text-emerald-400 border-emerald-500/40 bg-emerald-950/30',
-    C: 'text-blue-400 border-blue-500/40 bg-blue-950/30',
+    A: 'text-amber-700 border-amber-300 bg-amber-50',
+    B: 'text-emerald-700 border-emerald-300 bg-emerald-50',
+    C: 'text-blue-700 border-blue-300 bg-blue-50',
   }
 
   const selectedBorder: Record<ChoiceId, string> = {
-    A: 'border-amber-400 ring-2 ring-amber-400/30',
-    B: 'border-emerald-400 ring-2 ring-emerald-400/30',
-    C: 'border-blue-400 ring-2 ring-blue-400/30',
+    A: 'border-amber-500 ring-2 ring-amber-200',
+    B: 'border-emerald-500 ring-2 ring-emerald-200',
+    C: 'border-blue-500 ring-2 ring-blue-200',
   }
 
   return (

@@ -9,9 +9,9 @@ interface AwardCardProps {
 }
 
 const AWARD_STYLES: Record<string, { border: string; bg: string; text: string }> = {
-  'ngon-co': { border: 'border-yellow-500/50', bg: 'bg-yellow-950/30', text: 'text-yellow-400' },
-  'ke-sinh-ton': { border: 'border-emerald-500/50', bg: 'bg-emerald-950/30', text: 'text-emerald-400' },
-  'mat-xich': { border: 'border-orange-500/50', bg: 'bg-orange-950/30', text: 'text-orange-400' },
+  'ngon-co': { border: 'border-yellow-300', bg: 'bg-yellow-50', text: 'text-yellow-700' },
+  'ke-sinh-ton': { border: 'border-emerald-300', bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  'mat-xich': { border: 'border-orange-300', bg: 'bg-orange-50', text: 'text-orange-700' },
 }
 
 export function AwardCard({ award, className }: AwardCardProps) {

@@ -19,7 +19,3 @@ export function broadcast(pin: string, event: string, data: unknown): void {
   const msg = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
   clients.get(pin)?.forEach((cb) => cb(msg))
 }
-
-export function getClientCount(pin: string): number {
-  return clients.get(pin)?.size ?? 0
-}

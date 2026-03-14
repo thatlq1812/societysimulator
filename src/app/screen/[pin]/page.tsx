@@ -9,8 +9,12 @@ import { PlayerRoster } from '@/components/game/PlayerRoster'
 import { QRDisplay } from '@/components/game/QRDisplay'
 import { AwardCard } from '@/components/game/AwardCard'
 import { SocialNewsBanner } from '@/components/game/SocialNewsBanner'
+import { CountdownTimer } from '@/components/game/CountdownTimer'
+import { FramedImage } from '@/components/game/FramedImage'
 import { GlobeIcon, BrainIcon, PlantIcon, BoltIcon } from '@/components/icons'
 import { SCENARIO_IMAGE_MAP, OUTCOME_IMAGE_MAP } from '@/lib/image-maps'
+import { getStratificationLevel } from '@/lib/stratification-theme'
+import { cn } from '@/lib/utils'
 import type { RoomStatePublic } from '@/types/game'
 
 export default function ScreenPage() {
@@ -33,7 +37,7 @@ export default function ScreenPage() {
         const dataUrl = await QRCode.toDataURL(url, {
           width: 300,
           margin: 2,
-          color: { dark: '#ffffff', light: '#0d0d0d' },
+          color: { dark: '#000000', light: '#ffffff' },
         })
         setQrDataUrl(dataUrl)
       } catch { /* ignore */ }
@@ -162,8 +166,14 @@ export default function ScreenPage() {
 
   // ─── Playing + Between — macro dashboard ──────────────────────────────────
   if (state.phase === 'playing' || state.phase === 'between') {
+    const stratLevel = getStratificationLevel(state.macro.stratification)
+
     return (
-      <div key={`game-${state.currentScenarioIndex}-${state.phase}`} className="min-h-screen bg-background p-8 space-y-8 animate-phase-enter">
+      <div key={`game-${state.currentScenarioIndex}-${state.phase}`} className={cn(
+        'min-h-screen bg-background p-8 space-y-8 animate-phase-enter',
+        stratLevel === 'warning' && 'bg-amber-50/50',
+        stratLevel === 'danger' && 'bg-red-50',
+      )}>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -176,14 +186,19 @@ export default function ScreenPage() {
               </h2>
             )}
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Người chơi</p>
-            <p className="text-3xl font-bold text-primary">{state.playerCount}</p>
-            {state.phase === 'playing' && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Đã vote: <span className="font-bold text-emerald-400">{state.voteCount ?? 0}</span>/{state.playerCount}
-              </p>
+          <div className="flex items-center gap-6">
+            {state.phase === 'playing' && state.scenarioStartedAt && (
+              <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} className="scale-125" />
             )}
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Người chơi</p>
+              <p className="text-3xl font-bold text-primary">{state.playerCount}</p>
+              {state.phase === 'playing' && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  Đã vote: <span className="font-bold text-emerald-600">{state.voteCount ?? 0}</span>/{state.playerCount}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -191,15 +206,12 @@ export default function ScreenPage() {
         {scenario && state.phase === 'playing' && (
           <div className="rounded-2xl border border-primary/20 bg-primary/5 overflow-hidden animate-fade-in">
             {SCENARIO_IMAGE_MAP[scenario.id] && (
-              <div className="relative w-full h-40 overflow-hidden">
-                <Image
-                  src={SCENARIO_IMAGE_MAP[scenario.id]}
-                  alt={scenario.title}
-                  fill
-                  className="object-cover opacity-50"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[hsl(var(--primary)/0.05)]" />
-              </div>
+              <FramedImage
+                src={SCENARIO_IMAGE_MAP[scenario.id]}
+                alt={scenario.title}
+                variant="banner"
+                frameClassName="h-40"
+              />
             )}
             <div className="p-5">
               <p className="text-base leading-relaxed text-foreground/90">{scenario.context}</p>
@@ -235,7 +247,7 @@ export default function ScreenPage() {
                 const count = state.lastBreakdown![opt]
                 const pct = state.lastBreakdown!.total > 0 ? Math.round((count / state.lastBreakdown!.total) * 100) : 0
                 const colors = { A: 'bg-amber-500', B: 'bg-emerald-500', C: 'bg-blue-500' }
-                const labels = { A: 'text-amber-400', B: 'text-emerald-400', C: 'text-blue-400' }
+                const labels = { A: 'text-amber-600', B: 'text-emerald-600', C: 'text-blue-600' }
                 return (
                   <div key={opt} className="text-center space-y-2">
                     <p className={`text-3xl font-bold tabular-nums ${labels[opt]}`}>{count}</p>
@@ -264,6 +276,17 @@ export default function ScreenPage() {
               <p className="text-xs text-muted-foreground uppercase tracking-widest">Bình luận AI</p>
             </div>
             <p className="text-sm leading-relaxed text-foreground/90">{state.aiCommentary}</p>
+          </div>
+        )}
+
+        {/* AI Trend — Tier 2 */}
+        {state.phase === 'between' && state.aiTrend && (
+          <div className="rounded-2xl border border-violet-200 bg-card/80 backdrop-blur-sm p-5 space-y-3 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <BrainIcon size={18} className="text-violet-600" />
+              <p className="text-xs text-muted-foreground uppercase tracking-widest">Phân tích Xu hướng</p>
+            </div>
+            <p className="text-sm leading-relaxed text-foreground/90">{state.aiTrend}</p>
           </div>
         )}
       </div>
@@ -308,18 +331,16 @@ export default function ScreenPage() {
         {/* Outcome header with image */}
         <div className="text-center space-y-3">
           {outcomeImage && (
-            <div className="relative w-48 h-48 mx-auto mb-4 animate-celebrate">
-              <Image
-                src={outcomeImage}
-                alt="Outcome"
-                fill
-                className="object-contain rounded-2xl"
-              />
-            </div>
+            <FramedImage
+              src={outcomeImage}
+              alt="Outcome"
+              variant="card"
+              frameClassName="w-48 h-48 mx-auto mb-4 animate-celebrate"
+            />
           )}
           {!outcomeImage && (
             <div className="flex justify-center animate-celebrate">
-              {state.outcome === 'ben-vung' ? <PlantIcon size={56} className="text-emerald-400" /> : state.outcome === 'dut-gay' ? <BoltIcon size={56} className="text-red-400" /> : <BoltIcon size={56} className="text-amber-400" />}
+              {state.outcome === 'ben-vung' ? <PlantIcon size={56} className="text-emerald-600" /> : state.outcome === 'dut-gay' ? <BoltIcon size={56} className="text-red-600" /> : <BoltIcon size={56} className="text-amber-600" />}
             </div>
           )}
           <h1 className="projection-title">

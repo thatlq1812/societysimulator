@@ -2,10 +2,14 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
+import { Navbar } from '@/components/Navbar'
 import { QRDisplay } from '@/components/game/QRDisplay'
 import { PlayerRoster } from '@/components/game/PlayerRoster'
+import { CountdownTimer } from '@/components/game/CountdownTimer'
 import { BrainIcon } from '@/components/icons'
-import type { RoomStatePublic, CreateRoomResponse } from '@/types/game'
+import { getStratificationLevel } from '@/lib/stratification-theme'
+import { cn } from '@/lib/utils'
+import type { RoomStatePublic } from '@/types/game'
 
 export default function HostControlPage() {
   const params = useParams()
@@ -17,6 +21,7 @@ export default function HostControlPage() {
   const [hostSecret, setHostSecret] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [roomNotFound, setRoomNotFound] = useState(false)
 
   // Get host secret from sessionStorage
   useEffect(() => {
@@ -36,7 +41,7 @@ export default function HostControlPage() {
         const dataUrl = await QRCode.toDataURL(url, {
           width: 300,
           margin: 2,
-          color: { dark: '#ffffff', light: '#0d0d0d' },
+          color: { dark: '#000000', light: '#ffffff' },
         })
         setQrDataUrl(dataUrl)
       } catch {
@@ -49,6 +54,10 @@ export default function HostControlPage() {
   const fetchState = useCallback(async () => {
     try {
       const res = await fetch(`/api/room/${pin}/state`)
+      if (res.status === 404) {
+        setRoomNotFound(true)
+        return
+      }
       if (res.ok) setState(await res.json())
     } catch { /* ignore */ }
   }, [pin])
@@ -101,6 +110,21 @@ export default function HostControlPage() {
     }
   }
 
+  if (roomNotFound) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <BrainIcon size={40} className="text-destructive" />
+          <h2 className="text-lg font-bold">Phòng không tồn tại</h2>
+          <p className="text-sm text-muted-foreground">Mã PIN <span className="font-bold text-primary">{pin}</span> không hợp lệ hoặc đã hết hạn.</p>
+          <a href="/host" className="inline-block rounded-xl bg-primary px-6 py-2 text-sm font-bold text-primary-foreground">
+            Tạo phòng mới
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   if (!state) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -111,14 +135,16 @@ export default function HostControlPage() {
 
   const scenario = state.currentScenario ?? null
   const isLastScenario = state.currentScenarioIndex >= (state.totalScenarios ?? 6) - 1
+  const stratLevel = getStratificationLevel(state.macro.stratification)
 
   return (
-    <div className="min-h-screen p-4 space-y-5 max-w-2xl mx-auto py-6">
+    <div className={cn('min-h-screen p-4 space-y-5 max-w-2xl mx-auto py-6', stratLevel === 'danger' && 'bg-red-50', stratLevel === 'warning' && 'bg-amber-50/50')}>
+      <Navbar pin={pin} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Host Control</h1>
           <p className="text-sm text-muted-foreground">
-            PIN: <span className="font-bold text-primary">{pin}</span> · Phase: <span className="text-amber-400">{state.phase}</span>
+            PIN: <span className="font-bold text-primary">{pin}</span> · Phase: <span className="text-amber-600">{state.phase}</span>
           </p>
         </div>
         <a
@@ -151,7 +177,7 @@ export default function HostControlPage() {
             <div className="pt-2 border-t border-border">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">Đã vote</p>
-                <p className="font-bold text-emerald-400">{state.voteCount ?? 0}/{state.playerCount}</p>
+                <p className="font-bold text-emerald-600">{state.voteCount ?? 0}/{state.playerCount}</p>
               </div>
               <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
                 <div
@@ -159,13 +185,16 @@ export default function HostControlPage() {
                   style={{ width: state.playerCount > 0 ? `${((state.voteCount ?? 0) / state.playerCount) * 100}%` : '0%' }}
                 />
               </div>
+              {state.scenarioStartedAt && (
+                <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} />
+              )}
             </div>
           )}
           {state.phase === 'between' && (
             <div className="text-sm space-y-1 pt-2 border-t border-border">
-              <p>Liên minh: <span className="text-emerald-400 font-bold">{Math.round(state.macro.alliance)}</span></p>
-              <p>Phân hóa: <span className="text-amber-400 font-bold">{Math.round(state.macro.stratification)}</span></p>
-              <p>Lực lượng SX: <span className="text-blue-400 font-bold">{Math.round(state.macro.production)}</span></p>
+              <p>Liên minh: <span className="text-emerald-600 font-bold">{Math.round(state.macro.alliance)}</span></p>
+              <p>Phân hóa: <span className="text-amber-600 font-bold">{Math.round(state.macro.stratification)}</span></p>
+              <p>Lực lượng SX: <span className="text-blue-600 font-bold">{Math.round(state.macro.production)}</span></p>
               {state.lastBreakdown && (
                 <p className="pt-1 text-muted-foreground">
                   A: {state.lastBreakdown.A} · B: {state.lastBreakdown.B} · C: {state.lastBreakdown.C}
@@ -219,7 +248,7 @@ export default function HostControlPage() {
         )}
 
         {state.phase === 'results' && (
-          <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-4 text-center text-emerald-400 font-medium">
+          <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-center text-emerald-600 font-medium">
             ✓ Game hoàn thành — Xem kết quả trên màn hình chiếu
           </div>
         )}
@@ -231,10 +260,10 @@ export default function HostControlPage() {
 
       {/* AI Trend — Tier 2 (host only) */}
       {state.phase === 'between' && state.aiTrend && (
-        <div className="rounded-2xl border border-violet-500/30 bg-violet-950/20 p-4 space-y-2 animate-fade-in">
+        <div className="rounded-2xl border border-violet-300 bg-violet-50 p-4 space-y-2 animate-fade-in">
           <div className="flex items-center gap-2">
-            <BrainIcon size={16} className="text-violet-400" />
-            <p className="text-xs text-violet-400 uppercase tracking-widest font-medium">Phân tích xu hướng AI</p>
+            <BrainIcon size={16} className="text-violet-600" />
+            <p className="text-xs text-violet-600 uppercase tracking-widest font-medium">Phân tích xu hướng AI</p>
           </div>
           <p className="text-sm leading-relaxed text-foreground/80">{state.aiTrend}</p>
         </div>
@@ -243,15 +272,15 @@ export default function HostControlPage() {
       {/* Macro readout */}
       <div className="rounded-2xl border border-border bg-card p-4 grid grid-cols-3 gap-4 text-center">
         <div>
-          <p className="text-2xl font-bold text-emerald-400">{Math.round(state.macro.alliance)}</p>
+          <p className="text-2xl font-bold text-emerald-600">{Math.round(state.macro.alliance)}</p>
           <p className="text-xs text-muted-foreground">Liên minh</p>
         </div>
         <div>
-          <p className="text-2xl font-bold text-amber-400">{Math.round(state.macro.stratification)}</p>
+          <p className="text-2xl font-bold text-amber-600">{Math.round(state.macro.stratification)}</p>
           <p className="text-xs text-muted-foreground">Phân hóa</p>
         </div>
         <div>
-          <p className="text-2xl font-bold text-blue-400">{Math.round(state.macro.production)}</p>
+          <p className="text-2xl font-bold text-blue-600">{Math.round(state.macro.production)}</p>
           <p className="text-xs text-muted-foreground">SX Quốc gia</p>
         </div>
       </div>

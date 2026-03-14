@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { GamepadIcon, ArrowLeftIcon } from '@/components/icons'
+import { GamepadIcon } from '@/components/icons'
+import { Navbar } from '@/components/Navbar'
 import type { CreateRoomResponse } from '@/types/game'
 
 export default function HostPage() {
@@ -29,10 +29,9 @@ export default function HostPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
-      <Link href="/" className="absolute top-6 left-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ArrowLeftIcon size={16} /> Trang chủ
-      </Link>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md space-y-8 text-center animate-slide-up">
         <div>
           <GamepadIcon size={48} className="text-primary mx-auto mb-4" />
@@ -64,6 +63,7 @@ export default function HostPage() {
         >
           {loading ? 'Đang tạo phòng...' : '+ Tạo phòng mới'}
         </button>
+      </div>
       </div>
     </div>
   )

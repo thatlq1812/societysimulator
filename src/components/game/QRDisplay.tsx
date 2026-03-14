@@ -7,7 +7,7 @@ interface QRDisplayProps {
 export function QRDisplay({ qrDataUrl, joinUrl, pin }: QRDisplayProps) {
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="rounded-2xl overflow-hidden border border-border p-2 bg-[#0d0d0d]">
+      <div className="rounded-2xl overflow-hidden border border-border p-2 bg-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={qrDataUrl} alt="QR Code" className="w-48 h-48" />
       </div>

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { GlobeIcon, ArrowLeftIcon } from '@/components/icons'
+import { GlobeIcon } from '@/components/icons'
+import { Navbar } from '@/components/Navbar'
 import { usePlayerStore } from '@/stores/player-store'
 import type { JoinResponse } from '@/types/game'
 
@@ -42,10 +42,9 @@ function JoinForm() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative">
-      <Link href="/" className="absolute top-6 left-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ArrowLeftIcon size={16} /> Trang chủ
-      </Link>
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-8 animate-slide-up">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -102,6 +101,7 @@ function JoinForm() {
         <p className="text-center text-xs text-muted-foreground">
           Vai trò sẽ được phân bổ ngẫu nhiên sau khi tham gia
         </p>
+      </div>
       </div>
     </div>
   )

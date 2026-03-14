@@ -1,7 +1,7 @@
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { ROLES } from '@/lib/roles'
 import { IconByKey } from '@/components/icons'
+import { FramedImage } from '@/components/game/FramedImage'
 import { ROLE_IMAGE_MAP } from '@/lib/image-maps'
 import type { RoleId } from '@/types/game'
 
@@ -19,15 +19,7 @@ export function RoleCard({ roleId, playerName, className }: RoleCardProps) {
     <div className={cn('rounded-2xl border overflow-hidden animate-slide-up', role.bgClass, role.borderClass, className)}>
       {/* Role image banner */}
       {imageSrc && (
-        <div className="relative w-full h-28 overflow-hidden">
-          <Image
-            src={imageSrc}
-            alt={role.name}
-            fill
-            className="object-cover opacity-50"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-card" />
-        </div>
+        <FramedImage src={imageSrc} alt={role.name} variant="banner" frameClassName="h-28" />
       )}
 
       <div className="p-6 space-y-4">

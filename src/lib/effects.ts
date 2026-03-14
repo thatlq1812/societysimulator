@@ -56,7 +56,9 @@ export function computeScenarioEffects(
 }
 
 export function determineOutcome(macro: MacroState): OutcomeId {
+  // Factor in all three macro stats for outcome determination
   if (macro.stratification > 70 && macro.alliance < 30) return 'dut-gay'
-  if (macro.stratification < 50 && macro.alliance > 60) return 'ben-vung'
+  if (macro.production < 20 && macro.alliance < 40) return 'dut-gay'
+  if (macro.stratification < 50 && macro.alliance > 60 && macro.production > 40) return 'ben-vung'
   return 'trung-tinh'
 }

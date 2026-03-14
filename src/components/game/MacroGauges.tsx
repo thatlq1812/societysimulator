@@ -20,7 +20,7 @@ function Gauge({ label, value, color, inverse }: GaugeProps) {
 
   return (
     <div className="space-y-3 text-center">
-      <div className={cn('projection-value transition-colors duration-700', danger ? 'text-red-400' : warning ? 'text-amber-400' : 'text-emerald-400')}>
+      <div className={cn('projection-value transition-colors duration-700', danger ? 'text-red-600' : warning ? 'text-amber-600' : 'text-emerald-600')}>
         {pct}
       </div>
       <div className="relative w-full h-4 bg-muted rounded-full overflow-hidden">

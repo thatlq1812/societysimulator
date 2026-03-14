@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 type AdvanceAction = 'start-game' | 'end-scenario' | 'next-scenario'
 
-function computeBreakdown(room: ReturnType<typeof getRoom>, scenarioIndex: number): ChoiceBreakdown {
+function computeBreakdown(room: ReturnType<typeof getRoom>): ChoiceBreakdown {
   const bd: ChoiceBreakdown = { A: 0, B: 0, C: 0, total: 0 }
   if (!room) return bd
   const scenario = getCurrentScenario(room)
@@ -71,7 +71,7 @@ export async function POST(
       return NextResponse.json({ error: 'No active scenario' }, { status: 400 })
     }
 
-    const breakdown = computeBreakdown(room, room.currentScenarioIndex)
+    const breakdown = computeBreakdown(room)
     const { newMacro } = computeScenarioEffects(room)
     room.macro = newMacro
     room.phase = 'between'

@@ -16,6 +16,7 @@ export async function GET(
 
   const encoder = new TextEncoder()
   let unsubscribe: (() => void) | null = null
+  let keepAliveId: ReturnType<typeof setInterval> | null = null
 
   const stream = new ReadableStream({
     start(controller) {
@@ -33,16 +34,17 @@ export async function GET(
       })
 
       // Keepalive every 25s to prevent Cloud Run timeout
-      const keepAlive = setInterval(() => {
+      keepAliveId = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(': keepalive\n\n'))
         } catch {
-          clearInterval(keepAlive)
+          if (keepAliveId) clearInterval(keepAliveId)
         }
       }, 25000)
     },
     cancel() {
       unsubscribe?.()
+      if (keepAliveId) clearInterval(keepAliveId)
     },
   })
 

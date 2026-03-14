@@ -39,7 +39,7 @@ export function CountdownTimer({ startedAt, duration = 30, onExpire, className }
         <svg viewBox="0 0 120 120" className="w-24 h-24">
           <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
           <circle cx="60" cy="60" r="54" fill="none"
-            stroke={urgent ? '#f87171' : warning ? '#fbbf24' : 'hsl(var(--primary))'}
+            stroke={urgent ? '#dc2626' : warning ? '#d97706' : 'hsl(var(--primary))'}
             strokeWidth="6" strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={circumference * (1 - pct)}
@@ -47,7 +47,7 @@ export function CountdownTimer({ startedAt, duration = 30, onExpire, className }
             className="transition-all duration-500" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={cn('text-3xl font-bold tabular-nums', urgent ? 'text-red-400 animate-pulse' : warning ? 'text-amber-400' : 'text-primary')}>
+          <span className={cn('text-3xl font-bold tabular-nums', urgent ? 'text-red-600 animate-pulse' : warning ? 'text-amber-600' : 'text-primary')}>
             {remaining}
           </span>
         </div>

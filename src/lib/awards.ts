@@ -1,4 +1,4 @@
-import type { GameRoom, Award, AwardId, RoleId } from '@/types/game'
+import type { GameRoom, Award } from '@/types/game'
 import { ROLES } from '@/lib/roles'
 
 export function computeAwards(room: GameRoom): Award[] {
@@ -6,6 +6,7 @@ export function computeAwards(room: GameRoom): Award[] {
   if (players.length === 0) return []
 
   const awards: Award[] = []
+  const awardedPlayerIds = new Set<string>()
 
   // ─── Award 1: Ngọn cờ Liên minh ──────────────────────────────────────────
   const byAlliance = [...players].sort((a, b) => b.allianceContribution - a.allianceContribution)
@@ -22,13 +23,14 @@ export function computeAwards(room: GameRoom): Award[] {
       playerRoleId: allianceWinner.roleId,
       reason: `Tổng đóng góp Liên minh: +${Math.round(allianceWinner.allianceContribution)} điểm`,
     })
+    awardedPlayerIds.add(allianceWinner.id)
   }
 
   // ─── Award 2: Kẻ sinh tồn Tối ưu ────────────────────────────────────────
-  // Highest wealth among players who NEVER hurt alliance
-  const eligible = players.filter((p) => p.neverHurtAlliance)
-  const survivorPool = eligible.length > 0 ? eligible : [...players].filter((p) => p.allianceContribution >= 0)
-  const finalPool = survivorPool.length > 0 ? survivorPool : players
+  // Highest wealth among players who NEVER hurt alliance (excluding already awarded)
+  const eligible = players.filter((p) => !awardedPlayerIds.has(p.id) && p.neverHurtAlliance)
+  const survivorPool = eligible.length > 0 ? eligible : players.filter((p) => !awardedPlayerIds.has(p.id) && p.allianceContribution >= 0)
+  const finalPool = survivorPool.length > 0 ? survivorPool : players.filter((p) => !awardedPlayerIds.has(p.id))
   const survivalWinner = [...finalPool].sort((a, b) => b.wealth - a.wealth)[0]
 
   if (survivalWinner) {
@@ -43,13 +45,17 @@ export function computeAwards(room: GameRoom): Award[] {
       playerId: survivalWinner.id,
       playerName: survivalWinner.name,
       playerRoleId: survivalWinner.roleId,
-      reason: `Tích lũy cuối: ${Math.round(survivalWinner.wealth)} (+${gained} từ khởi điểm), không làm hại Liên minh`,
+      reason: eligible.length > 0
+        ? `Tích lũy cuối: ${Math.round(survivalWinner.wealth)} (+${gained} từ khởi điểm), không làm hại Liên minh`
+        : `Tích lũy cuối: ${Math.round(survivalWinner.wealth)} (+${gained} từ khởi điểm)`,
     })
+    awardedPlayerIds.add(survivalWinner.id)
   }
 
   // ─── Award 3: Mắt xích Rủi ro ────────────────────────────────────────────
-  // Most imbalanced: high wealth gain relative to alliance contribution
-  const withRiskScore = players.map((p) => ({
+  // Most imbalanced: high wealth gain relative to alliance contribution (excluding already awarded)
+  const remainingPlayers = players.filter((p) => !awardedPlayerIds.has(p.id))
+  const withRiskScore = remainingPlayers.map((p) => ({
     player: p,
     riskScore: (p.wealth - ROLES[p.roleId].startWealth) - p.allianceContribution,
   }))

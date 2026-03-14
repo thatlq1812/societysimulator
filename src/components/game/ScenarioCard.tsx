@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { FramedImage } from '@/components/game/FramedImage'
 import { SCENARIO_IMAGE_MAP } from '@/lib/image-maps'
 import type { Scenario } from '@/types/game'
 
@@ -17,15 +17,7 @@ export function ScenarioCard({ scenario, scenarioNumber, totalScenarios = 6, cla
     <div className={cn('rounded-2xl border border-border bg-card overflow-hidden', className)}>
       {/* Scenario image */}
       {imageSrc && (
-        <div className="relative w-full h-32 overflow-hidden">
-          <Image
-            src={imageSrc}
-            alt={scenario.title}
-            fill
-            className="object-cover opacity-60"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-card" />
-        </div>
+        <FramedImage src={imageSrc} alt={scenario.title} variant="banner" frameClassName="h-32" />
       )}
 
       <div className="p-5 space-y-3">

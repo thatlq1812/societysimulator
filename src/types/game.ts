@@ -146,7 +146,9 @@ export interface CreateRoomResponse {
 // ─── SSE Event payloads ────────────────────────────────────────────────────────
 
 export type SSEEventType =
+  | 'init'
   | 'player-joined'
+  | 'vote-update'
   | 'scenario-start'
   | 'scenario-result'
   | 'game-ended'
@@ -159,6 +161,10 @@ export interface SSEPlayerJoined {
   players: PlayerPublic[]
 }
 
+export interface SSEVoteUpdate {
+  voteCount: number
+}
+
 export interface SSEScenarioStart {
   scenarioIndex: number
   scenario: Scenario
@@ -169,6 +175,18 @@ export interface SSEScenarioResult {
   scenarioIndex: number
   macro: MacroState
   breakdown: ChoiceBreakdown
+}
+
+export interface SSEAiGenerating {
+  outcome: OutcomeId
+}
+
+export interface SSEAiCommentary {
+  commentary: string
+}
+
+export interface SSEAiTrend {
+  trend: string
 }
 
 export interface SSEGameEnded {
