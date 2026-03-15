@@ -173,17 +173,17 @@ export default function HostControlPage() {
         <div className="absolute bottom-4 right-4 w-14 h-14 border-r border-b border-primary/8 rounded-br-lg" />
       </div>
 
-      <div className="relative z-10 flex flex-col h-full overflow-y-auto px-6 py-3 w-full space-y-3">
+      <div className="relative z-10 flex flex-col h-full overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 w-full space-y-3">
         <Navbar pin={pin} />
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2">
+              <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <BrainIcon size={16} className="text-primary" />
               </span>
               Host Control
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
               PIN: <span className="font-bold text-primary">{pin}</span> · <span className="text-amber-600 font-medium">{
                 ({ lobby: 'Phòng chờ', playing: 'Đang chơi', between: 'Giữa tình huống', 'ai-generating': 'AI đang tổng hợp', results: 'Kết quả' } as Record<string, string>)[state.phase] ?? state.phase
               }</span>
@@ -201,7 +201,7 @@ export default function HostControlPage() {
 
         {/* QR + players */}
         {state.phase === 'lobby' && (
-          <div className="grid grid-cols-[auto_1fr] gap-5 items-start animate-fade-in">
+          <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-4 sm:gap-5 items-start animate-fade-in">
             {qrDataUrl && <QRDisplay qrDataUrl={qrDataUrl} joinUrl={joinUrl} pin={pin} />}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -217,7 +217,8 @@ export default function HostControlPage() {
 
         {/* Scenario info — side-by-side with image */}
         {scenario && (state.phase === 'playing' || state.phase === 'between') && (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-4 animate-fade-in">
+          <>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_180px] xl:grid-cols-[1fr_220px] gap-4 animate-fade-in">
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
               {/* Scenario header bar */}
               <div className="bg-gradient-to-r from-primary/5 via-blue-500/5 to-violet-500/5 px-4 py-2.5 border-b border-border/50 flex items-center justify-between">
@@ -347,12 +348,45 @@ export default function HostControlPage() {
               </button>
             )}
           </div>
-        </div>
+          </div>
+          </>
+        )}
+
+        {/* Mobile action buttons — visible only below lg */}
+        {scenario && (state.phase === 'playing' || state.phase === 'between') && (
+          <div className="lg:hidden space-y-2">
+            {state.phase === 'playing' && (
+              <button
+                onClick={() => advance('end-scenario')}
+                disabled={actionLoading}
+                className="w-full rounded-xl bg-amber-600 py-3 text-sm font-bold text-white transition-all hover:bg-amber-500 disabled:opacity-50 shadow-lg shadow-amber-600/20 active:scale-[0.98]"
+              >
+                {actionLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </span>
+                ) : '⏹ Kết thúc tình huống'}
+              </button>
+            )}
+            {state.phase === 'between' && (
+              <button
+                onClick={() => advance('next-scenario')}
+                disabled={actionLoading}
+                className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-lg shadow-primary/20 active:scale-[0.98]"
+              >
+                {actionLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  </span>
+                ) : isLastScenario ? '→ Kết thúc Game' : '→ Tình huống tiếp theo'}
+              </button>
+            )}
+          </div>
         )}
 
         {/* AI-generating / Results — reuses scenario card slot */}
         {(state.phase === 'ai-generating' || state.phase === 'results') && (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-4 animate-fade-in relative">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_180px] xl:grid-cols-[1fr_220px] gap-4 animate-fade-in relative">
             {/* Subtle glow behind card */}
             <div className="absolute -inset-3 rounded-3xl bg-gradient-to-r from-violet-500/5 via-primary/5 to-violet-500/5 blur-xl pointer-events-none animate-pulse-soft" />
 
@@ -410,7 +444,7 @@ export default function HostControlPage() {
             <button
               onClick={() => advance('start-game')}
               disabled={actionLoading || state.playerCount === 0}
-              className="w-full rounded-xl bg-emerald-600 py-4 font-bold text-white transition-all hover:bg-emerald-500 disabled:opacity-50 hover-lift shadow-lg shadow-emerald-600/20 active:scale-[0.98]"
+              className="w-full rounded-xl bg-emerald-600 py-3 sm:py-4 font-bold text-white transition-all hover:bg-emerald-500 disabled:opacity-50 hover-lift shadow-lg shadow-emerald-600/20 active:scale-[0.98]"
             >
               {actionLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -428,7 +462,7 @@ export default function HostControlPage() {
 
         {/* AI Trend + Commentary — between phase */}
         {state.phase === 'between' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
             {state.aiTrend ? (
               <div className="rounded-2xl border border-violet-300 bg-violet-50 p-4 space-y-2 animate-fade-in hover-lift">
                 <div className="flex items-center gap-2">
@@ -472,7 +506,7 @@ export default function HostControlPage() {
         {state.phase === 'results' && state.macro.history.length > 0 && (
           <div className="rounded-2xl border border-border bg-card p-4 hover-lift">
             <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3 font-medium">Diễn biến theo tình huống</p>
-            <div className="h-[280px]">
+            <div className="h-[220px] xl:h-[280px]">
               <MacroCharts macro={state.macro} />
             </div>
           </div>

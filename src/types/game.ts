@@ -109,6 +109,7 @@ export interface GameRoom {
   lastBreakdown?: ChoiceBreakdown
   roleBreakdown?: RoleBreakdown[]
   macroDelta?: MacroDelta
+  __aiEpoch?: number            // Guards against stale AI streaming callbacks
   createdAt: number
 }
 

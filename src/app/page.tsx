@@ -127,10 +127,18 @@ export default function HomePage() {
 
         {/* Right half: Title + CTA */}
         <div className="flex flex-col justify-center pr-[8%] pl-8 space-y-6 text-center lg:text-left animate-slide-in-right">
-          <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white leading-[1.08] text-shadow-blue whitespace-nowrap">
-            Digital Society{' '}
-            <span className="gradient-text">Simulator</span>
-          </h1>
+          <div className="space-y-2">
+            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.08]">
+              <span className="title-glow inline-block text-white text-shadow-blue">
+                Digital Society
+              </span>
+            </h1>
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.08]">
+              <span className="gradient-text-animated inline-block">
+                Simulator
+              </span>
+            </h1>
+          </div>
 
           <div className="decorative-line max-w-sm mx-auto lg:mx-0" />
 

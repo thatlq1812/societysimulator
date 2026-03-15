@@ -243,7 +243,7 @@ export default function ScreenPage() {
           {/* Left column: Scenario + Macro */}
           <div className="flex flex-col gap-3 overflow-y-auto">
             {scenario && (
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-3 animate-fade-in">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_180px] xl:grid-cols-[1fr_200px] gap-3 animate-fade-in">
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col justify-center">
                   <p className="text-sm leading-relaxed text-foreground/90">{scenario.context}</p>
                 </div>
@@ -278,7 +278,7 @@ export default function ScreenPage() {
             {state.macro.history.length > 0 && (
               <div className="rounded-xl border border-border bg-card p-4">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Diễn biến</p>
-                <div className="h-[280px]">
+                <div className="h-[220px] xl:h-[280px]">
                   <MacroCharts macro={state.macro} />
                 </div>
               </div>
@@ -510,7 +510,7 @@ export default function ScreenPage() {
           <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 flex items-center gap-5">
             {outcomeImage ? (
               <div className="w-32 h-32 flex-shrink-0 rounded-xl overflow-hidden border-2 border-white/25 shadow-xl shadow-blue-500/10 animate-celebrate">
-                <img src={outcomeImage} alt="Outcome" className="w-full h-full object-cover" />
+                <Image src={outcomeImage} alt="Outcome" className="w-full h-full object-cover" width={128} height={128} />
               </div>
             ) : (
               <div className="w-32 h-32 flex-shrink-0 rounded-xl border-2 border-white/25 bg-slate-800 flex items-center justify-center animate-celebrate">

@@ -235,7 +235,7 @@ export default function PlayPage() {
 
       {/* --- Lobby --------------------------------------------------------- */}
       {state.phase === 'lobby' && (
-        <div className="h-screen p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col">
+        <div className="h-screen p-3 sm:p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col">
           {/* Decorative background */}
           <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-b-3xl" />
           {/* Floating dots */}
@@ -248,7 +248,7 @@ export default function PlayPage() {
           <div className="absolute top-3 left-3 w-14 h-14 border-l border-t border-primary/8 rounded-tl-xl pointer-events-none" />
           <div className="absolute bottom-3 right-3 w-14 h-14 border-r border-b border-primary/8 rounded-br-xl pointer-events-none" />
 
-          <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-start overflow-y-auto">
+          <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-3 sm:gap-4 items-start overflow-y-auto">
             {/* Left: Role card */}
             <div className="space-y-5">
               {roleId && playerName && (
@@ -300,7 +300,7 @@ export default function PlayPage() {
 
               {/* Waiting card */}
               <div className="rounded-2xl border border-border bg-card overflow-hidden animate-fade-in">
-                <div className="relative h-40 overflow-hidden">
+                <div className="relative h-28 sm:h-40 overflow-hidden">
                   <img src="/images/lobby-gathering.png" alt="" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
                   <div className="absolute bottom-3 left-0 right-0 text-center">
@@ -328,7 +328,7 @@ export default function PlayPage() {
       {/* --- Playing ------------------------------------------------------- */}
       {state.phase === 'playing' && scenario && state.scenarioStartedAt && (
         <div className={cn(
-          'h-screen p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col',
+          'h-screen p-3 sm:p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col',
           stratLevel === 'danger' && 'bg-red-50',
           stratLevel === 'warning' && 'bg-amber-50/50'
         )}>
@@ -341,7 +341,7 @@ export default function PlayPage() {
             )}
           </div>
 
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 overflow-y-auto">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-3 sm:gap-4 overflow-y-auto">
             {/* Left: Scenario */}
             <ScenarioCard
               scenario={scenario}
@@ -395,7 +395,7 @@ export default function PlayPage() {
       {/* --- Between ------------------------------------------------------- */}
       {state.phase === 'between' && (
         <div className={cn(
-          'h-screen p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col',
+          'h-screen p-3 sm:p-4 lg:px-12 lg:py-4 w-full relative overflow-hidden flex flex-col',
           stratLevel === 'danger' && 'bg-red-50',
           stratLevel === 'warning' && 'bg-amber-50/50'
         )}>
@@ -403,10 +403,10 @@ export default function PlayPage() {
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-b-3xl" />
 
           <div className="relative z-10 flex-1 flex flex-col gap-3 overflow-y-auto">
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-3 sm:gap-4">
               {/* Left: Macro indicators */}
               <div className="rounded-2xl border border-border bg-card overflow-hidden animate-fade-in">
-                <div className="relative h-20 overflow-hidden bg-gradient-to-r from-primary/10 via-blue-500/10 to-violet-500/10">
+                <div className="relative h-14 sm:h-20 overflow-hidden bg-gradient-to-r from-primary/10 via-blue-500/10 to-violet-500/10">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ChartIcon size={32} className="text-primary/30" />
                   </div>
@@ -437,7 +437,7 @@ export default function PlayPage() {
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground">{label}</p>
-                          <p className="text-[9px] text-muted-foreground/50">{desc}</p>
+                          <p className="text-[10px] text-muted-foreground/50">{desc}</p>
                         </div>
                       )
                     })}
@@ -482,13 +482,13 @@ export default function PlayPage() {
 
       {/* --- AI Generating ------------------------------------------------- */}
       {state.phase === 'ai-generating' && (
-        <div className="h-screen flex flex-col items-center justify-center p-4 gap-4 relative overflow-hidden">
+        <div className="h-screen flex flex-col items-center justify-center p-3 sm:p-4 gap-4 relative overflow-hidden">
           {/* Background pulse effect */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-violet-500/3 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
           </div>
-          <div className="relative z-10 flex flex-col items-center gap-4 w-full max-w-2xl px-4">            <FramedImage
+          <div className="relative z-10 flex flex-col items-center gap-4 w-full max-w-2xl px-2 sm:px-4">            <FramedImage
               src="/images/transition-analyzing.png"
               alt="AI đang phân tích"
               variant="card"
@@ -579,7 +579,7 @@ function PlayerResultsView({
       ))}
 
       <div className={cn(
-        'relative z-10 flex flex-col gap-4 px-4 lg:px-12 py-4 transition-all duration-700',
+        'relative z-10 flex flex-col gap-3 sm:gap-4 px-3 sm:px-4 lg:px-12 py-4 transition-all duration-700',
         entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
       )}>
         <div className="text-center space-y-2">
@@ -598,10 +598,10 @@ function PlayerResultsView({
           </div>
         )}
 
-        {/* Award card + Social News — side by side */}
-        <div className="flex gap-4 items-stretch">
+        {/* Award card + Social News — side by side on desktop, stacked on mobile */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch">
           {myAward && (
-            <div className="flex-shrink-0 w-[160px] animate-slide-up">
+            <div className="flex-shrink-0 w-[140px] sm:w-[160px] mx-auto sm:mx-0 animate-slide-up">
               <AwardCard award={myAward} index={0} />
             </div>
           )}

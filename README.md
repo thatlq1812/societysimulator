@@ -504,6 +504,47 @@ node scripts/gen-award-images.mjs
 node scripts/fix-balance.mjs
 ```
 
+### Import / Export bộ câu hỏi (CSV)
+
+Hỗ trợ nhập xuất bộ tình huống dưới dạng CSV tiếng Việt — tiện chỉnh sửa bằng Excel hoặc Google Sheets.
+
+```bash
+# Export scenarios.json → CSV
+node scripts/export-scenarios-csv.mjs [output.csv]
+# Mặc định: data/scenarios.csv
+
+# Import CSV → scenarios.json (preview trước)
+node scripts/import-scenarios-csv.mjs data/scenarios.csv --dry-run
+
+# Import thật + tự tạo ảnh AI cho tình huống chưa có ảnh
+node scripts/import-scenarios-csv.mjs data/scenarios.csv --gen-images
+```
+
+**Cấu trúc CSV** — mỗi hàng = 1 lựa chọn (12 hàng/tình huống, 240 hàng tổng):
+
+| Cột | Mô tả |
+|-----|-------|
+| `id` | ID tình huống (chỉ điền ở hàng đầu, các hàng sau để trống) |
+| `title` | Tiêu đề tình huống |
+| `image` | Tên file ảnh (vd: `scenario-automation.png`) |
+| `context` | Bối cảnh tình huống |
+| `role` | Vai trò: `cong-nhan` / `nong-dan` / `tri-thuc` / `startup` |
+| `choice` | Lựa chọn: `A` / `B` / `C` |
+| `text` | Nội dung lựa chọn |
+| `wealth`...`democracy` | 10 cột điểm ảnh hưởng (±15) |
+
+Ví dụ trong Excel:
+
+| id | title | image | context | role | choice | text | wealth | ... |
+|----|-------|-------|---------|------|--------|------|--------|-----|
+| tu-dong-hoa | Cú sốc Tự động hóa | scenario-automation.png | Năm 2026... | cong-nhan | A | Chấp nhận sa thải... | 15 | ... |
+| | | | | cong-nhan | B | Tổ chức đình công... | -5 | ... |
+| | | | | cong-nhan | C | Thành lập hợp tác xã... | 3 | ... |
+| | | | | nong-dan | A | Mua máy nông nghiệp... | 15 | ... |
+| ... | | | | | | | | |
+
+> **Lưu ý:** CSV xuất ra có UTF-8 BOM → mở đúng tiếng Việt trong Excel. Import tự fill-down metadata, tự clamp delta ±15, và tự cập nhật `image-maps.ts`.
+
 ---
 
 ## Team
