@@ -367,20 +367,6 @@ export default function ScreenPage() {
               <>
                 <div className={cn(
                   'rounded-xl border p-4 space-y-2 animate-fade-in',
-                  state.aiCommentary ? 'border-primary/20 bg-card/80 backdrop-blur-sm' : 'border-primary/10 bg-primary/5',
-                )}>
-                  <div className="flex items-center gap-2">
-                    <BrainIcon size={14} className={state.aiCommentary ? 'text-primary' : 'text-primary/40 animate-pulse'} />
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Bình luận</p>
-                  </div>
-                  {state.aiCommentary ? (
-                    <StreamingText text={state.aiCommentary} streaming={commentaryStreaming} />
-                  ) : (
-                    <p className="text-xs text-muted-foreground/50">AI đang soạn bình luận...</p>
-                  )}
-                </div>
-                <div className={cn(
-                  'rounded-xl border p-4 space-y-2 animate-fade-in',
                   state.aiTrend ? 'border-violet-200 bg-card/80 backdrop-blur-sm' : 'border-violet-100 bg-violet-50/50',
                 )}>
                   <div className="flex items-center gap-2">
@@ -391,6 +377,20 @@ export default function ScreenPage() {
                     <StreamingText text={state.aiTrend} streaming={trendStreaming} className="text-foreground/90" />
                   ) : (
                     <p className="text-xs text-muted-foreground/50">AI đang phân tích xu hướng...</p>
+                  )}
+                </div>
+                <div className={cn(
+                  'rounded-xl border p-4 space-y-2 animate-fade-in',
+                  state.aiCommentary ? 'border-primary/20 bg-card/80 backdrop-blur-sm' : 'border-primary/10 bg-primary/5',
+                )}>
+                  <div className="flex items-center gap-2">
+                    <BrainIcon size={14} className={state.aiCommentary ? 'text-primary' : 'text-primary/40 animate-pulse'} />
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Bình luận</p>
+                  </div>
+                  {state.aiCommentary ? (
+                    <StreamingText text={state.aiCommentary} streaming={commentaryStreaming} />
+                  ) : (
+                    <p className="text-xs text-muted-foreground/50">AI đang soạn bình luận...</p>
                   )}
                 </div>
               </>

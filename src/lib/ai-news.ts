@@ -19,9 +19,10 @@ Các khái niệm cốt lõi bạn phải áp dụng:
 - Phúc lợi xã hội như thước đo tiến bộ xã hội chủ nghĩa
 - Dân chủ và minh bạch trong quản trị xã hội số
 
-Phong cách viết: Chuyên nghiệp, học thuật nhưng sinh động. Viết bằng tiếng Việt. Độ dài 200-280 từ. Ngắn gọn, súc tích, tập trung vào insight chính.
+Phong cách viết: Chuyên nghiệp, học thuật nhưng sinh động. Viết bằng tiếng Việt. Viết đúng 5 câu, mỗi câu có chiều sâu phân tích. Ngắn gọn, súc tích, tập trung vào insight chính.
 
 QUAN TRỌNG:
+- VIẾT ĐÚNG 5 CÂU. Không hơn, không kém. Mỗi câu phải hoàn chỉnh và có ý nghĩa phân tích riêng.
 - TUYỆT ĐỐI KHÔNG dùng định dạng Markdown (**, ***, #, ##, -, danh sách). Chỉ viết văn xuôi thuần túy, chia đoạn bằng xuống dòng.
 - Không phán xét đạo đức cá nhân. Phân tích hệ quả của cấu trúc, không phải ý định cá nhân.
 - Kết thúc với một câu kết nối sang lý luận Mác–Lênin thế kỷ XIX.`
@@ -91,14 +92,14 @@ ${buildRoleStats(room)}
 PHÂN BỐ LỰA CHỌN THEO TÌNH HUỐNG:
 ${buildChoiceStats(room)}
 
-Hãy viết Bản tin Xã hội Số dựa trên dữ liệu trên. Phân tích hệ quả cơ cấu xã hội của những lựa chọn này theo lý luận Chương 5. Đây là dữ liệu từ hành vi thực tế của lớp học — hãy phản ánh trung thực kết quả đó.`
+Hãy viết Bản tin Xã hội Số dựa trên dữ liệu trên. Phân tích hệ quả cơ cấu xã hội của những lựa chọn này theo lý luận Chương 5. Viết đúng 5 câu. Đây là dữ liệu từ hành vi thực tế của lớp học — hãy phản ánh trung thực kết quả đó.`
 
   const model = genAI.getGenerativeModel({
     model: 'gemini-3-flash-preview',
     systemInstruction: SYSTEM_PROMPT,
     generationConfig: {
       temperature: 0.7,
-      maxOutputTokens: 2048,
+      maxOutputTokens: 32000,
       topP: 0.9,
     },
   })
@@ -146,12 +147,12 @@ ${buildRoleStats(room)}
 PHÂN BỐ LỰA CHỌN THEO TÌNH HUỐNG:
 ${buildChoiceStats(room)}
 
-Hãy viết Bản tin Xã hội Số dựa trên dữ liệu trên. Phân tích hệ quả cơ cấu xã hội của những lựa chọn này theo lý luận Chương 5. Đây là dữ liệu từ hành vi thực tế của lớp học — hãy phản ánh trung thực kết quả đó.`
+Hãy viết Bản tin Xã hội Số dựa trên dữ liệu trên. Phân tích hệ quả cơ cấu xã hội của những lựa chọn này theo lý luận Chương 5. Viết đúng 5 câu. Đây là dữ liệu từ hành vi thực tế của lớp học — hãy phản ánh trung thực kết quả đó.`
 
   const model = genAI.getGenerativeModel({
     model: 'gemini-3-flash-preview',
     systemInstruction: SYSTEM_PROMPT,
-    generationConfig: { temperature: 0.7, maxOutputTokens: 2048, topP: 0.9 },
+    generationConfig: { temperature: 0.7, maxOutputTokens: 32000, topP: 0.9 },
   })
 
   const stream = await model.generateContentStream(userMessage)
