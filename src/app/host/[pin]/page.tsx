@@ -256,6 +256,9 @@ export default function HostControlPage() {
                       { label: 'Liên minh', value: state.macro.alliance, color: 'text-emerald-600' },
                       { label: 'Phân hóa', value: state.macro.stratification, color: 'text-amber-600' },
                       { label: 'Sản xuất', value: state.macro.production, color: 'text-blue-600' },
+                      { label: 'Đổi mới', value: state.macro.innovation, color: 'text-violet-600' },
+                      { label: 'Phúc lợi', value: state.macro.welfare, color: 'text-pink-600' },
+                      { label: 'Dân chủ', value: state.macro.democracy, color: 'text-cyan-600' },
                     ].map(({ label, value, color }) => (
                       <div key={label} className="text-center rounded-lg bg-muted/50 p-1.5">
                         <p className={cn(color, 'font-bold tabular-nums')}>{Math.round(value)}</p>
@@ -434,7 +437,9 @@ export default function HostControlPage() {
                   </div>
                   <p className="text-xs text-violet-600 uppercase tracking-widest font-medium">Phân tích xu hướng</p>
                 </div>
-                <p className="text-sm leading-relaxed text-foreground/80">{state.aiTrend}</p>
+                <div className="max-h-[180px] overflow-y-auto">
+                  <p className="text-sm leading-relaxed text-foreground/80">{state.aiTrend}</p>
+                </div>
               </div>
             ) : (
               <div className="rounded-2xl border border-violet-200 bg-violet-50/50 p-4 flex items-center gap-3 animate-pulse">
@@ -450,7 +455,9 @@ export default function HostControlPage() {
                   </div>
                   <p className="text-xs text-primary uppercase tracking-widest font-medium">Bình luận</p>
                 </div>
-                <p className="text-sm leading-relaxed text-foreground/80">{state.aiCommentary}</p>
+                <div className="max-h-[180px] overflow-y-auto">
+                  <p className="text-sm leading-relaxed text-foreground/80">{state.aiCommentary}</p>
+                </div>
               </div>
             ) : (
               <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4 flex items-center gap-3 animate-pulse">
@@ -465,7 +472,9 @@ export default function HostControlPage() {
         {state.phase === 'results' && state.macro.history.length > 0 && (
           <div className="rounded-2xl border border-border bg-card p-4 hover-lift">
             <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3 font-medium">Diễn biến theo tình huống</p>
-            <MacroCharts macro={state.macro} />
+            <div className="h-[280px]">
+              <MacroCharts macro={state.macro} />
+            </div>
           </div>
         )}
       </div>

@@ -7,12 +7,9 @@ const SYSTEM_PROMPT = `Bạn là nhà phân tích xu hướng xã hội cho trò
 
 6 chỉ số: Liên minh (LM), Phân hóa (PH), Sản xuất (SX), Đổi mới (ĐM), Phúc lợi (PL), Dân chủ (DC).
 
-Viết 3-5 câu bằng tiếng Việt. KHÔNG dùng emoji. KHÔNG dùng Markdown (**, ***, #, ##). Viết văn xuôi thuần túy. Phong cách: Phân tích dữ liệu, nhận diện pattern.
-
-Nội dung cần có:
-1. Xu hướng chính (tăng/giảm/ổn định) của 6 chỉ số
-2. Mối tương quan giữa các cặp chỉ số (LM–DC, SX–ĐM, PL–PH)
-3. Dự báo kịch bản kết thúc nếu xu hướng tiếp tục`
+Viết ĐÚNG 2-3 câu ngắn gọn bằng tiếng Việt. KHÔNG dùng emoji. KHÔNG dùng Markdown. Viết văn xuôi thuần túy.
+Tập trung vào: xu hướng nổi bật nhất, mối tương quan đáng chú ý, và dự báo ngắn gọn.
+TUYỆT ĐỐI KHÔNG viết quá 3 câu.`
 
 /**
  * Tier 2: Trend analysis for host using gemini-3-flash-preview
@@ -40,7 +37,7 @@ Phân tích xu hướng và dự báo.`
     systemInstruction: SYSTEM_PROMPT,
     generationConfig: {
       temperature: 0.6,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 32000,
     },
   })
 
@@ -74,14 +71,22 @@ Phân tích xu hướng và dự báo.`
   const model = genAI.getGenerativeModel({
     model: 'gemini-3-flash-preview',
     systemInstruction: SYSTEM_PROMPT,
-    generationConfig: { temperature: 0.6, maxOutputTokens: 1200 },
+    generationConfig: { temperature: 0.6, maxOutputTokens: 32000 },
   })
 
-  const stream = await model.generateContentStream(prompt)
-  let accumulated = ''
-  for await (const chunk of stream.stream) {
-    accumulated += chunk.text()
-    onChunk(accumulated)
+  try {
+    const stream = await model.generateContentStream(prompt)
+    let accumulated = ''
+    for await (const chunk of stream.stream) {
+      const text = chunk.text()
+      if (text) {
+        accumulated += text
+        onChunk(accumulated)
+      }
+    }
+    return accumulated
+  } catch (err) {
+    console.error('Trend stream error:', err)
+    return ''
   }
-  return accumulated
 }

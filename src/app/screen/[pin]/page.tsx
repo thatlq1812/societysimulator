@@ -24,6 +24,8 @@ export default function ScreenPage() {
   const [state, setState] = useState<RoomStatePublic | null>(null)
   const [joinUrl, setJoinUrl] = useState('')
   const [qrDataUrl, setQrDataUrl] = useState('')
+  const [commentaryStreaming, setCommentaryStreaming] = useState(false)
+  const [trendStreaming, setTrendStreaming] = useState(false)
   const eventSourceRef = useRef<EventSource | null>(null)
 
   useEffect(() => {
@@ -63,8 +65,10 @@ export default function ScreenPage() {
     es.addEventListener('scenario-start', (e) => {
       const data = JSON.parse(e.data)
       playSound('scenario-start')
+      setCommentaryStreaming(false)
+      setTrendStreaming(false)
       setState((prev) =>
-        prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, voteCount: 0, lastBreakdown: undefined, aiCommentary: undefined } : prev,
+        prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, totalScenarios: data.totalScenarios ?? prev.totalScenarios, voteCount: 0, lastBreakdown: undefined, aiCommentary: undefined, aiTrend: undefined } : prev,
       )
     })
 
@@ -100,11 +104,13 @@ export default function ScreenPage() {
     es.addEventListener('ai-commentary', (e) => {
       const data = JSON.parse(e.data)
       setState((prev) => prev ? { ...prev, aiCommentary: data.commentary } : prev)
+      setCommentaryStreaming(data.streaming === true)
     })
 
     es.addEventListener('ai-trend', (e) => {
       const data = JSON.parse(e.data)
       setState((prev) => prev ? { ...prev, aiTrend: data.trend } : prev)
+      setTrendStreaming(data.streaming === true)
     })
 
     es.onerror = () => {
@@ -272,7 +278,9 @@ export default function ScreenPage() {
             {state.macro.history.length > 0 && (
               <div className="rounded-xl border border-border bg-card p-4">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Diễn biến</p>
-                <MacroCharts macro={state.macro} />
+                <div className="h-[280px]">
+                  <MacroCharts macro={state.macro} />
+                </div>
               </div>
             )}
           </div>
@@ -306,8 +314,8 @@ export default function ScreenPage() {
                     {state.roleBreakdown.map((rb) => {
                       const roleColors: Record<string, string> = { 'cong-nhan': 'text-blue-600', 'nong-dan': 'text-emerald-600', 'tri-thuc': 'text-violet-600', 'startup': 'text-amber-600' }
                       return (
-                        <div key={rb.roleId} className="flex items-center gap-2 text-xs">
-                          <span className={`font-medium w-24 truncate ${roleColors[rb.roleId] ?? ''}`}>{rb.roleName}</span>
+                        <div key={rb.roleId} className="flex items-center gap-3 text-xs">
+                          <span className={`font-medium min-w-[140px] ${roleColors[rb.roleId] ?? ''}`}>{rb.roleName}</span>
                           <div className="flex-1 flex gap-1.5">
                             {rb.A > 0 && <span className="text-amber-600 tabular-nums">A:{rb.A}</span>}
                             {rb.B > 0 && <span className="text-emerald-600 tabular-nums">B:{rb.B}</span>}
@@ -363,10 +371,10 @@ export default function ScreenPage() {
                 )}>
                   <div className="flex items-center gap-2">
                     <BrainIcon size={14} className={state.aiCommentary ? 'text-primary' : 'text-primary/40 animate-pulse'} />
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Bình luận AI</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Bình luận</p>
                   </div>
                   {state.aiCommentary ? (
-                    <p className="text-sm leading-relaxed text-foreground/90">{state.aiCommentary}</p>
+                    <StreamingText text={state.aiCommentary} streaming={commentaryStreaming} />
                   ) : (
                     <p className="text-xs text-muted-foreground/50">AI đang soạn bình luận...</p>
                   )}
@@ -380,7 +388,7 @@ export default function ScreenPage() {
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Phân tích Xu hướng</p>
                   </div>
                   {state.aiTrend ? (
-                    <p className="text-sm leading-relaxed text-foreground/90">{state.aiTrend}</p>
+                    <StreamingText text={state.aiTrend} streaming={trendStreaming} className="text-foreground/90" />
                   ) : (
                     <p className="text-xs text-muted-foreground/50">AI đang phân tích xu hướng...</p>
                   )}
@@ -455,7 +463,7 @@ export default function ScreenPage() {
     const outcomeImage = state.outcome ? OUTCOME_IMAGE_MAP[state.outcome] : undefined
 
     return (
-      <div className="h-screen results-galaxy p-5 flex flex-col gap-3 animate-phase-enter overflow-hidden relative">
+       <div className="h-screen results-galaxy p-5 flex flex-col gap-3 animate-phase-enter overflow-y-auto overflow-x-hidden relative">
         {/* Galaxy glow orbs */}
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-400/15 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-300/15 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: '1.5s' }} />
@@ -483,10 +491,9 @@ export default function ScreenPage() {
           />
         ))}
 
-        {/* 2×2 Grid: top row = macro + outcome, bottom row = chart + news */}
-        <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-2 grid-rows-[auto_minmax(0,1fr)] gap-3 min-h-0">
-
-          {/* Top-left: Macro gauges */}
+        {/* 3×2 grid: Row1=[Macro, Outcome], Row2=[Chart, News(spans 2 rows)], Row3=[Awards, ...] */}
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-[auto_1fr_auto] gap-3 flex-1 min-h-0">
+          {/* 1: Macro gauges */}
           <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 space-y-2">
             <p className="text-sm font-semibold text-blue-100 uppercase tracking-widest">Kết quả Vĩ mô</p>
             <MacroGauges
@@ -499,7 +506,7 @@ export default function ScreenPage() {
             />
           </div>
 
-          {/* Top-right: Outcome card */}
+          {/* 2: Outcome card */}
           <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 flex items-center gap-5">
             {outcomeImage ? (
               <div className="w-32 h-32 flex-shrink-0 rounded-xl overflow-hidden border-2 border-white/25 shadow-xl shadow-blue-500/10 animate-celebrate">
@@ -526,9 +533,9 @@ export default function ScreenPage() {
             </a>
           </div>
 
-          {/* Bottom-left: Chart */}
+          {/* 3: Chart (left, row 2) */}
           {state.macro.history.length > 0 && (
-            <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 min-h-0 flex flex-col">
+            <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 flex flex-col" style={{ minHeight: '260px' }}>
               <p className="text-sm font-semibold text-blue-100 uppercase tracking-widest mb-2 flex-shrink-0">Diễn biến</p>
               <div className="flex-1 min-h-0">
                 <MacroCharts macro={state.macro} />
@@ -536,8 +543,8 @@ export default function ScreenPage() {
             </div>
           )}
 
-          {/* Bottom-right: Social News — fixed header, scrollable content */}
-          <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm flex flex-col overflow-hidden">
+          {/* 4+6: Social News (right, spans row 2+3) */}
+          <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm flex flex-col overflow-hidden lg:row-span-2">
             {state.socialNews ? (
               <>
                 <div className="flex-shrink-0 bg-blue-600/80 px-4 py-1.5 flex items-center gap-2 border-b border-white/10">
@@ -559,12 +566,30 @@ export default function ScreenPage() {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Bottom: Awards — scroll-triggered zoom, centered */}
-        {state.awards && state.awards.length > 0 && (
-          <AwardsReveal awards={state.awards} />
-        )}
+          {/* 5: Awards (left, row 3) */}
+          {state.awards && state.awards.length > 0 && (
+            <div className="rounded-xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4 flex flex-col">
+              <p className="text-sm font-semibold text-blue-100 uppercase tracking-widest mb-3 flex-shrink-0">Danh hiệu</p>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="flex items-center justify-center gap-2 w-full">
+                  {state.awards.map((award, i) => (
+                    <div
+                      key={award.id}
+                      className="flex-1 min-w-0 max-w-[140px] animate-card-reveal"
+                      style={{
+                        animationDelay: `${i * 200}ms`,
+                        animationFillMode: 'backwards',
+                      }}
+                    >
+                      <AwardCard award={award} index={i} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     )
   }
@@ -572,124 +597,25 @@ export default function ScreenPage() {
   return null
 }
 
-/** Scroll-triggered award zoom — smooth progressive scale driven by scroll amount */
-function AwardsReveal({ awards }: { awards: RoomStatePublic['awards'] }) {
+/** Streaming text with auto-scroll and blinking cursor */
+function StreamingText({ text, streaming, className }: { text: string; streaming: boolean; className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
-  // zoom: 0 = resting, 1 = fully expanded
-  const [zoom, setZoom] = useState(0)
-  const zoomRef = useRef(0)
-  const soundPlayed = useRef(false)
 
-  // Initial reveal when scrolled into view
+  // Auto-scroll to bottom while streaming
   useEffect(() => {
-    if (!containerRef.current) return
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
-      { threshold: 0.2 },
-    )
-    observer.observe(containerRef.current)
-    return () => observer.disconnect()
-  }, [])
-
-  // Smooth scroll-driven zoom
-  useEffect(() => {
-    const parent = containerRef.current?.closest('.h-screen')
-    if (!parent) return
-    const onWheel = (e: Event) => {
-      if (!visible) return
-      const we = e as WheelEvent
-      const delta = we.deltaY * 0.003 // small increments per scroll tick
-      const next = Math.max(0, Math.min(1, zoomRef.current + delta))
-      zoomRef.current = next
-      setZoom(next)
-      // Sound triggers
-      if (next > 0.5 && !soundPlayed.current) {
-        soundPlayed.current = true
-        playSound('reveal')
-        setTimeout(() => playSound('award'), 400)
-      }
-      if (next < 0.3 && soundPlayed.current) {
-        soundPlayed.current = false
-        playSound('whoosh')
-      }
+    if (streaming && containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
-    parent.addEventListener('wheel', onWheel, { passive: true })
-    return () => parent.removeEventListener('wheel', onWheel)
-  }, [visible])
-
-  const expanded = zoom > 0.5
-  // Interpolated values
-  const overlayOpacity = Math.min(zoom * 1.2, 0.7)
-  const blurAmount = zoom * 6
-  const cardWidth = 160 + zoom * 40 // 160px → 200px (actual width, not scale)
-  const cardGap = 24 + zoom * 20 // 24px → 44px
+  }, [text, streaming])
 
   return (
-    <>
-      {/* Blur overlay behind awards when zoomed */}
-      {zoom > 0.01 && (
-        <div
-          className="fixed inset-0 z-40 pointer-events-none"
-          style={{
-            backgroundColor: `rgba(0,0,0,${overlayOpacity})`,
-            backdropFilter: `blur(${blurAmount}px)`,
-          }}
-        />
-      )}
-
-      <div
-        ref={containerRef}
-        className={cn(
-          expanded
-            ? 'fixed inset-0 z-50 flex items-center justify-center'
-            : 'relative flex-shrink-0 pb-2',
-        )}
-        onClick={() => {
-          if (expanded) {
-            zoomRef.current = 0
-            setZoom(0)
-            soundPlayed.current = false
-            playSound('whoosh')
-          }
-        }}
-      >
-        {/* Glow haze behind awards */}
-        <div
-          className="absolute rounded-3xl blur-3xl pointer-events-none inset-0 -inset-x-16 -bottom-4 bg-gradient-to-t from-blue-500/15 via-violet-500/10 to-transparent"
-          style={{ opacity: 0.3 + zoom * 0.5 }}
-        />
-
-        <div
-          className="relative z-10 flex items-center justify-center"
-          style={{ gap: `${cardGap}px` }}
-        >
-          {awards!.map((award, i) => (
-            <div
-              key={award.id}
-              className="flex-shrink-0"
-              style={{
-                width: visible ? `${cardWidth}px` : '160px',
-                transform: visible ? 'translateY(0)' : 'translateY(3rem)',
-                opacity: visible ? 1 : 0,
-                transition: visible
-                  ? 'width 0.15s ease-out, transform 0.15s ease-out, opacity 0.4s ease-out'
-                  : `all 0.6s cubic-bezier(0.34,1.56,0.64,1) ${i * 200}ms`,
-                willChange: 'width, transform, opacity',
-              }}
-            >
-              <AwardCard award={award} index={i} />
-            </div>
-          ))}
-        </div>
-
-        {/* Hint text */}
-        {visible && zoom < 0.1 && (
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] text-blue-200/40 animate-pulse-soft tracking-wider uppercase">
-            ↓ Cuộn xuống để phóng to
-          </div>
-        )}
-      </div>
-    </>
+    <div ref={containerRef} className="max-h-[200px] overflow-y-auto">
+      <p className={cn('text-sm leading-relaxed text-foreground/90', className)}>
+        {text}
+        {streaming && <span className="inline-block w-[2px] h-[14px] bg-current ml-0.5 align-middle animate-pulse" />}
+      </p>
+    </div>
   )
 }
+
+

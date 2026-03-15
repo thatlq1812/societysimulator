@@ -7,22 +7,19 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
 const SYSTEM_PROMPT = `Bạn là nhà phân tích xã hội học bình luận trò chơi mô phỏng cơ cấu xã hội số.
 
-NHIỆM VỤ: Sau mỗi tình huống, viết 3-4 câu INSIGHT sắc bén. KHÔNG mô tả lại dữ liệu. KHÔNG nói "nhóm X đã chọn phương án A/B/C".
+NHIỆM VỤ: Sau mỗi tình huống, viết ĐÚNG 2 câu INSIGHT sắc bén, ngắn gọn. KHÔNG mô tả lại dữ liệu. KHÔNG nói "nhóm X đã chọn phương án A/B/C".
 
 PHONG CÁCH BẮT BUỘC:
 - Phân tích HỆ QUẢ của lựa chọn, không liệt kê lựa chọn
 - Dùng ngôn ngữ phân tích xã hội học: "mâu thuẫn giai cấp", "phân hóa cơ cấu", "liên minh bị xói mòn", "lực lượng sản xuất"
 - Liên hệ lý luận Chương 5: mâu thuẫn cá nhân vs. tập thể, vai trò liên minh công–nông–trí thức
-- Mỗi câu phải có insight mới, không lặp ý
 
-VÍ DỤ TỐT:
-"Sự phân tách lợi ích giữa nhóm nắm tư liệu sản xuất số và người lao động nền tảng đang đẩy chỉ số phân hóa lên ngưỡng cảnh báo. Khi Startup chọn tối đa hóa lợi nhuận trong khi Công nhân đấu tranh tập thể, xã hội đang tái hiện chính xác mâu thuẫn giai cấp mà Marx đã chỉ ra — nhưng trong bối cảnh thuật toán và dữ liệu. Đáng chú ý, nhóm Trí thức đang đứng giữa hai chiến tuyến, và lựa chọn của họ ở vòng tới sẽ quyết định liên minh nghiêng về phía nào."
+VÍ DỤ TỐT (2 câu):
+"Sự phân tách lợi ích giữa nhóm nắm tư liệu sản xuất số và người lao động nền tảng đang đẩy chỉ số phân hóa lên ngưỡng cảnh báo. Nhóm Trí thức đứng giữa hai chiến tuyến, và lựa chọn của họ ở vòng tới sẽ quyết định liên minh nghiêng về phía nào."
 
-VÍ DỤ XẤU (TUYỆT ĐỐI KHÔNG VIẾT KIỂU NÀY):
-"Nhóm Trí thức Công nghệ đã lựa chọn phương án A. Nhóm Công nhân đã chọn B. Chỉ số Liên minh tăng 5 điểm."
-
+TUYỆT ĐỐI CHỈ VIẾT 2 CÂU. Không viết 3 câu trở lên.
 6 chỉ số vĩ mô: Liên minh (LM), Phân hóa (PH), Sản xuất (SX), Đổi mới (ĐM), Phúc lợi (PL), Dân chủ (DC).
-Viết bằng tiếng Việt. KHÔNG dùng emoji. KHÔNG dùng ký hiệu A/B/C. KHÔNG dùng Markdown (**, ***, #, ##). Viết văn xuôi thuần túy.`
+Viết bằng tiếng Việt. KHÔNG dùng emoji. KHÔNG dùng ký hiệu A/B/C. KHÔNG dùng Markdown. Viết văn xuôi thuần túy.`
 
 /**
  * Tier 1: Enhanced per-round commentary using gemini-2.0-flash
@@ -43,7 +40,7 @@ export async function generateCommentary(
     systemInstruction: SYSTEM_PROMPT,
     generationConfig: {
       temperature: 0.8,
-      maxOutputTokens: 800,
+      maxOutputTokens: 400,
     },
   })
 
@@ -148,14 +145,23 @@ export async function streamCommentary(
   const model = genAI.getGenerativeModel({
     model: 'gemini-3-flash-preview',
     systemInstruction: SYSTEM_PROMPT,
-    generationConfig: { temperature: 0.8, maxOutputTokens: 800 },
+    generationConfig: { temperature: 0.8, maxOutputTokens: 32000 },
   })
 
-  const stream = await model.generateContentStream(prompt)
-  let accumulated = ''
-  for await (const chunk of stream.stream) {
-    accumulated += chunk.text()
-    onChunk(accumulated)
+  try {
+    const stream = await model.generateContentStream(prompt)
+    let accumulated = ''
+    for await (const chunk of stream.stream) {
+      const text = chunk.text()
+      if (text) {
+        accumulated += text
+        onChunk(accumulated)
+      }
+    }
+    return accumulated
+  } catch (err) {
+    console.error('Commentary stream error:', err)
+    // If we have partial text, return it
+    return ''
   }
-  return accumulated
 }

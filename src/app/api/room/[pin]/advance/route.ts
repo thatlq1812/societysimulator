@@ -83,6 +83,7 @@ export async function POST(
       scenarioIndex: 0,
       scenario,
       scenarioStartedAt: room.scenarioStartedAt,
+      totalScenarios: room.scenarioIds.length,
     })
 
     return NextResponse.json({ ok: true, phase: room.phase, scenarioIndex: room.currentScenarioIndex })
@@ -124,12 +125,17 @@ export async function POST(
       macroDelta,
     })
 
+    // Track generation epoch to prevent stale streaming callbacks
+    const genEpoch = Date.now()
+    ;(room as Record<string, unknown>).__aiEpoch = genEpoch
+
     // Fire-and-forget: Tier 1 commentary + Tier 2 trend analysis (streaming)
     const pinUpper = params.pin.toUpperCase()
     Promise.all([
       streamCommentary(
         room, room.currentScenarioIndex, breakdown,
         (text) => {
+          if ((room as Record<string, unknown>).__aiEpoch !== genEpoch) return
           room.aiCommentary = text
           broadcast(pinUpper, 'ai-commentary', { commentary: text, streaming: true })
         },
@@ -138,12 +144,14 @@ export async function POST(
       streamTrend(
         room,
         (text) => {
+          if ((room as Record<string, unknown>).__aiEpoch !== genEpoch) return
           room.aiTrend = text
           broadcast(pinUpper, 'ai-trend', { trend: text, streaming: true })
         },
       ),
     ])
       .then(([commentary, trend]) => {
+        if ((room as Record<string, unknown>).__aiEpoch !== genEpoch) return
         room.aiCommentary = commentary
         room.aiTrend = trend
         broadcast(pinUpper, 'ai-commentary', { commentary, streaming: false })
@@ -208,6 +216,8 @@ export async function POST(
     room.phase = 'playing'
     room.scenarioStartedAt = Date.now()
     room.aiCommentary = undefined
+    room.aiTrend = undefined
+    ;(room as Record<string, unknown>).__aiEpoch = Date.now() // Invalidate any stale streaming
 
     const scenario = getCurrentScenario(room)
 
@@ -215,6 +225,7 @@ export async function POST(
       scenarioIndex: room.currentScenarioIndex,
       scenario,
       scenarioStartedAt: room.scenarioStartedAt,
+      totalScenarios: room.scenarioIds.length,
     })
 
     return NextResponse.json({

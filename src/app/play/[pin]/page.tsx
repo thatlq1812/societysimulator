@@ -101,7 +101,7 @@ export default function PlayPage() {
       setSubmitted(false)
       playSound('scenario-start')
       setState((prev) =>
-        prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, voteCount: 0, aiCommentary: undefined } : prev,
+        prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, totalScenarios: data.totalScenarios ?? prev.totalScenarios, voteCount: 0, aiCommentary: undefined } : prev,
       )
     })
 
@@ -453,15 +453,18 @@ export default function PlayPage() {
                 </div>
               </div>
 
-              {/* Right: AI + Stats */}
+              {/* Right: Stats + AI */}
               <div className="space-y-4">
+                {currentPlayer && roleId && (
+                  <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+                )}
                 {state.aiCommentary ? (
                   <div className="rounded-xl border border-primary/20 bg-card p-4 space-y-2 animate-fade-in">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
                         <BrainIcon size={14} className="text-primary" />
                       </div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">Bình luận AI</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">Bình luận</p>
                     </div>
                     <p className="text-sm leading-relaxed">{state.aiCommentary}</p>
                   </div>
@@ -470,9 +473,6 @@ export default function PlayPage() {
                     <BrainIcon size={16} className="text-primary/30" />
                     <p className="text-sm text-muted-foreground/50">AI đang soạn bình luận...</p>
                   </div>
-                )}
-                {currentPlayer && roleId && (
-                  <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
                 )}
               </div>
             </div>
@@ -540,7 +540,7 @@ export default function PlayPage() {
   )
 }
 
-/** Player results with dramatic award reveal animation */
+/** Player results with award card below stats */
 function PlayerResultsView({
   state,
   myAward,
@@ -552,34 +552,18 @@ function PlayerResultsView({
   currentPlayer: RoomStatePublic['players'][number] | undefined
   roleId: RoleId | null
 }) {
-  const [phase, setPhase] = useState<'darken' | 'card-zoom' | 'settle' | 'done'>('darken')
+  const [entered, setEntered] = useState(false)
 
   useEffect(() => {
-    // Phase 1: darken (0ms), Phase 2: card zoom in (600ms), Phase 3: settle (2200ms), Phase 4: done (3000ms)
-    const t1 = setTimeout(() => { setPhase('card-zoom'); playSound('reveal') }, 600)
-    const t2 = setTimeout(() => { setPhase('settle'); playSound('whoosh') }, 2200)
-    const t3 = setTimeout(() => setPhase('done'), 3000)
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+    playSound('reveal')
+    const t = setTimeout(() => setEntered(true), 300)
+    return () => clearTimeout(t)
   }, [])
 
-  const showCard = phase !== 'darken'
-  const isOverlay = phase === 'card-zoom'
-  const settled = phase === 'settle' || phase === 'done'
-  const galaxyBg = phase === 'settle' || phase === 'done'
-
   return (
-    <div className={cn(
-      'h-screen w-full relative overflow-hidden flex flex-col transition-colors duration-1000',
-      galaxyBg ? 'results-galaxy' : 'bg-background',
-    )}>
-      {/* Dark overlay during darken/card-zoom phase */}
-      <div className={cn(
-        'absolute inset-0 z-30 transition-all duration-700 pointer-events-none',
-        phase === 'darken' ? 'bg-black/80' : phase === 'card-zoom' ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent',
-      )} />
-
-      {/* Star particles (visible after settle) */}
-      {galaxyBg && Array.from({ length: 30 }, (_, i) => (
+    <div className="h-screen w-full relative overflow-y-auto flex flex-col results-galaxy">
+      {/* Star particles */}
+      {Array.from({ length: 30 }, (_, i) => (
         <div
           key={`star-${i}`}
           className={cn(
@@ -594,54 +578,42 @@ function PlayerResultsView({
         />
       ))}
 
-      {/* Award card overlay — zooms in center then settles into position */}
-      {showCard && myAward && (
-        <div className={cn(
-          'transition-all duration-800 ease-out',
-          isOverlay
-            ? 'fixed inset-0 z-50 flex items-center justify-center'
-            : 'relative z-10 flex-shrink-0 flex items-center justify-center pt-4 pb-2',
-        )}>
-          <div className={cn(
-            'transition-all duration-700 ease-out',
-            isOverlay ? 'w-[220px]' : 'w-[160px]',
-          )}>
-            <AwardCard award={myAward} index={0} />
-          </div>
-        </div>
-      )}
-
-      {/* Main content (appears after settle) */}
       <div className={cn(
-        'relative z-10 flex-1 flex flex-col gap-4 overflow-y-auto px-4 lg:px-12 transition-all duration-700',
-        settled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+        'relative z-10 flex flex-col gap-4 px-4 lg:px-12 py-4 transition-all duration-700',
+        entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
       )}>
-        <div className="text-center space-y-2 pt-2">
-          <h2 className={cn('text-xl font-bold', galaxyBg ? 'text-white' : 'text-foreground')}>Kết quả hoàn thành</h2>
-          <p className={cn('text-sm', galaxyBg ? 'text-blue-100/80' : 'text-muted-foreground')}>
+        <div className="text-center space-y-2">
+          <h2 className="text-xl font-bold text-white">Kết quả hoàn thành</h2>
+          <p className="text-sm text-blue-100/80">
             {state.outcome === 'ben-vung' && <><PlantIcon size={18} className="text-emerald-300 inline-block mr-1" /> Chuyển đổi số Bền vững</>}
             {state.outcome === 'dut-gay' && <><BoltIcon size={18} className="text-red-300 inline-block mr-1" /> Đứt gãy Cơ cấu</>}
             {state.outcome === 'trung-tinh' && <><BoltIcon size={18} className="text-amber-300 inline-block mr-1" /> Trạng thái Bất ổn</>}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
-          {/* Stats */}
-          {currentPlayer && roleId && (
-            <div className={cn('rounded-2xl border p-4', galaxyBg ? 'border-white/15 bg-slate-900/70 backdrop-blur-sm' : 'border-border bg-card')}>
-              <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+        {/* Stats */}
+        {currentPlayer && roleId && (
+          <div className="rounded-2xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4">
+            <MicroStats darkMode roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+          </div>
+        )}
+
+        {/* Award card + Social News — side by side */}
+        <div className="flex gap-4 items-stretch">
+          {myAward && (
+            <div className="flex-shrink-0 w-[160px] animate-slide-up">
+              <AwardCard award={myAward} index={0} />
             </div>
           )}
 
-          {/* Social News */}
           {state.socialNews && (
-            <div className={cn('rounded-2xl border overflow-hidden', galaxyBg ? 'border-white/15 bg-slate-900/70 backdrop-blur-sm' : 'border-border bg-card')}>
-              <div className={cn('px-4 py-2.5 border-b flex items-center gap-2', galaxyBg ? 'bg-blue-600/60 border-white/10' : 'bg-gradient-to-r from-primary/5 via-blue-500/5 to-violet-500/5 border-border/50')}>
-                <BrainIcon size={14} className={galaxyBg ? 'text-blue-200' : 'text-primary'} />
-                <span className={cn('font-bold text-xs uppercase tracking-widest', galaxyBg ? 'text-white' : 'text-muted-foreground')}>Bản tin Xã hội Số</span>
+            <div className="flex-1 min-w-0 rounded-2xl border border-white/15 bg-slate-900/70 backdrop-blur-sm overflow-hidden">
+              <div className="px-4 py-2.5 border-b bg-blue-600/60 border-white/10 flex items-center gap-2">
+                <BrainIcon size={14} className="text-blue-200" />
+                <span className="font-bold text-xs uppercase tracking-widest text-white">Bản tin Xã hội Số</span>
               </div>
               <div className="p-4">
-                <p className={cn('text-sm leading-relaxed whitespace-pre-wrap', galaxyBg ? 'text-blue-50/90' : '')}>{stripMarkdown(state.socialNews)}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap text-blue-50/90">{stripMarkdown(state.socialNews)}</p>
               </div>
             </div>
           )}
