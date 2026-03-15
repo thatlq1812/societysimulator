@@ -440,7 +440,7 @@
         },
         {
           "id": "B",
-          "text": "Yêu cầu công khai thuật toán để công đoàn giám sát, đảm bảo AI không ép KPI vô lý và phân phối đều đơn hàng cho mọi tài xế.",
+          "text": "Yêu cầu công khai thuật toán để công đoàn giám sát, đảm bảo AI không ép KPI vô lý và phân phối đều việc làm cho mọi tài xế.",
           "effects": {
             "wealthDelta": -2,
             "controlDelta": 15,
@@ -2499,12 +2499,12 @@
     "id": "khung-hoang-thuat-toan",
     "title": "Khủng hoảng Thuật toán",
     "image": "scenario-algorithm.png",
-    "context": "Thuật toán của nền tảng việc làm tự do tự động phân phối việc làm theo điểm uy tín — lao động mới, người cao tuổi và vùng ngoại ô liên tục không nhận được đơn hàng. Xã hội yêu cầu can thiệp vào cách thuật toán vận hành.",
+    "context": "Thuật toán của nền tảng việc làm tự do tự động phân phối việc làm theo điểm uy tín — lao động mới, người cao tuổi và vùng ngoại ô liên tục không nhận được việc làm. Xã hội yêu cầu can thiệp vào cách thuật toán vận hành.",
     "roleSpecificChoices": {
       "cong-nhan": [
         {
           "id": "A",
-          "text": "Sử dụng phần mềm thứ ba để tự động giành giật đơn hàng tốt, bỏ mặc những lao động mới và người già không thể cạnh tranh.",
+          "text": "Sử dụng phần mềm thứ ba để tự động giành giật việc làm tốt, bỏ mặc những lao động mới và người già không thể cạnh tranh.",
           "effects": {
             "wealthDelta": 15,
             "controlDelta": 0,
@@ -2520,7 +2520,7 @@
         },
         {
           "id": "B",
-          "text": "Tổ chức đình công tập thể, yêu cầu nền tảng minh bạch mã nguồn thuật toán và phân bổ lượng đơn hàng cơ bản đồng đều cho mọi người.",
+          "text": "Tổ chức đình công tập thể, yêu cầu nền tảng minh bạch mã nguồn thuật toán và phân bổ lượng việc làm cơ bản đồng đều cho mọi người.",
           "effects": {
             "wealthDelta": -5,
             "controlDelta": 15,
