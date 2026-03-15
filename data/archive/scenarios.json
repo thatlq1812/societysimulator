@@ -627,7 +627,7 @@
     "id": "dinh-cong-gig",
     "title": "Cuộc đình công Gig",
     "image": "scenario-strike.png",
-    "context": "Chính phủ đề xuất luật mới: các nền tảng việc làm tự do phải đóng bảo hiểm xã hội cho tài xế và shipper. Phong trào vận động đang lan rộng trên toàn quốc. Bạn sẽ phản ứng thế nào trước sự kiện này?",
+    "context": "Chính phủ đề xuất luật mới: các nền tảng gig phải đóng bảo hiểm xã hội cho tài xế và shipper. Phong trào vận động đang lan rộng trên toàn quốc. Bạn sẽ phản ứng thế nào trước sự kiện này?",
     "roleSpecificChoices": {
       "cong-nhan": [
         {
@@ -2083,12 +2083,12 @@
     "id": "blockchain-tu-quan",
     "title": "Blockchain Tự quản",
     "image": "scenario-blockchain.png",
-    "context": "Một nhóm lập trình viên đề xuất hệ thống quản lý số phi tập trung để quản lý quỹ phúc lợi địa phương, thay thế cơ quan hành chính. Công nghệ minh bạch nhưng loại bỏ nhiều vị trí công chức.",
+    "context": "Một nhóm lập trình viên đề xuất hệ thống DAO (Tổ chức Tự trị Phi tập trung) để quản lý quỹ phúc lợi địa phương, thay thế cơ quan hành chính. Công nghệ minh bạch nhưng loại bỏ nhiều vị trí công chức.",
     "roleSpecificChoices": {
       "cong-nhan": [
         {
           "id": "A",
-          "text": "Mua gom token quản trị của hệ thống để tự quyết định phần phúc lợi nhiều hơn cho bản thân, mặc kệ những công nhân không rành công nghệ bị gạt ra rìa.",
+          "text": "Mua gom token quản trị của DAO để tự quyết định phần phúc lợi nhiều hơn cho bản thân, mặc kệ những công nhân không rành công nghệ bị gạt ra rìa.",
           "effects": {
             "wealthDelta": 15,
             "controlDelta": 5,
@@ -2104,7 +2104,7 @@
         },
         {
           "id": "B",
-          "text": "Kêu gọi thành lập công đoàn số để hướng dẫn toàn bộ công nhân tham gia hệ thống, đảm bảo phân phối phúc lợi công bằng và bảo vệ những người yếu thế.",
+          "text": "Kêu gọi thành lập công đoàn số để hướng dẫn toàn bộ công nhân tham gia DAO, đảm bảo phân phối phúc lợi công bằng và bảo vệ những người yếu thế.",
           "effects": {
             "wealthDelta": -5,
             "controlDelta": 12,
@@ -2120,7 +2120,7 @@
         },
         {
           "id": "C",
-          "text": "Đề xuất giữ lại một phần nhân viên hành chính để hỗ trợ giải quyết các khiếu nại song song với hệ thống tự động.",
+          "text": "Đề xuất giữ lại một phần nhân viên hành chính để hỗ trợ giải quyết các khiếu nại song song với hệ thống DAO tự động.",
           "effects": {
             "wealthDelta": 2,
             "controlDelta": 2,
@@ -2138,7 +2138,7 @@
       "nong-dan": [
         {
           "id": "A",
-          "text": "Tận dụng vốn lớn để thao túng biểu quyết trong hệ thống, ưu tiên giải ngân quỹ phúc lợi xây dựng hạ tầng riêng cho trang trại quy mô lớn của mình.",
+          "text": "Tận dụng vốn lớn để thao túng biểu quyết trong DAO, ưu tiên giải ngân quỹ phúc lợi xây dựng hạ tầng riêng cho trang trại quy mô lớn của mình.",
           "effects": {
             "wealthDelta": 15,
             "controlDelta": 10,
@@ -2154,7 +2154,7 @@
         },
         {
           "id": "B",
-          "text": "Liên kết các hợp tác xã nông nghiệp thành một khối thống nhất trong hệ thống, biểu quyết dùng quỹ để hỗ trợ vốn và bảo hiểm mùa màng cho toàn bộ nông dân.",
+          "text": "Liên kết các hợp tác xã nông nghiệp thành một khối thống nhất trong DAO, biểu quyết dùng quỹ để hỗ trợ vốn và bảo hiểm mùa màng cho toàn bộ nông dân.",
           "effects": {
             "wealthDelta": -3,
             "controlDelta": 15,
@@ -2170,7 +2170,7 @@
         },
         {
           "id": "C",
-          "text": "Yêu cầu hệ thống phân bổ ngân sách theo tỷ lệ cố định hàng năm cho nông thôn để tránh rủi ro biến động do biểu quyết của số đông thành thị.",
+          "text": "Yêu cầu hệ thống DAO phân bổ ngân sách theo tỷ lệ cố định hàng năm cho nông thôn để tránh rủi ro biến động do biểu quyết của số đông thành thị.",
           "effects": {
             "wealthDelta": 4,
             "controlDelta": 0,
@@ -2188,7 +2188,7 @@
       "tri-thuc": [
         {
           "id": "A",
-          "text": "Đăng ký bản quyền độc quyền các lõi hợp đồng thông minh của hệ thống và thu phí giao dịch từ mỗi lần giải ngân quỹ phúc lợi.",
+          "text": "Đăng ký bản quyền độc quyền các lõi hợp đồng thông minh của DAO và thu phí giao dịch từ mỗi lần giải ngân quỹ phúc lợi.",
           "effects": {
             "wealthDelta": 15,
             "controlDelta": 15,
@@ -2204,7 +2204,7 @@
         },
         {
           "id": "B",
-          "text": "Mở mã nguồn hệ thống và tổ chức các lớp bình dân học vụ số để mọi tầng lớp đều có thể kiểm toán, giám sát thuật toán phân bổ quỹ.",
+          "text": "Mở mã nguồn hệ thống DAO và tổ chức các lớp bình dân học vụ số để mọi tầng lớp đều có thể kiểm toán, giám sát thuật toán phân bổ quỹ.",
           "effects": {
             "wealthDelta": -8,
             "controlDelta": 15,
@@ -2220,7 +2220,7 @@
         },
         {
           "id": "C",
-          "text": "Đề nghị chính quyền thuê đội ngũ chuyên gia công nghệ làm bên thứ ba độc lập để kiểm duyệt và đánh giá rủi ro của hệ thống trước khi áp dụng rộng rãi.",
+          "text": "Đề nghị chính quyền thuê đội ngũ chuyên gia công nghệ làm bên thứ ba độc lập để kiểm duyệt và đánh giá rủi ro của DAO trước khi áp dụng rộng rãi.",
           "effects": {
             "wealthDelta": 5,
             "controlDelta": 5,
@@ -2254,7 +2254,7 @@
         },
         {
           "id": "B",
-          "text": "Phát triển nền tảng định danh phi tập trung miễn phí giúp người nghèo dễ dàng tiếp cận quỹ phúc lợi trên hệ thống mà không bị rào cản kỹ thuật.",
+          "text": "Phát triển nền tảng định danh phi tập trung miễn phí giúp người nghèo dễ dàng tiếp cận quỹ phúc lợi trên DAO mà không bị rào cản kỹ thuật.",
           "effects": {
             "wealthDelta": -10,
             "controlDelta": 8,
@@ -2270,7 +2270,7 @@
         },
         {
           "id": "C",
-          "text": "Cung cấp dịch vụ chuyển đổi số trả phí hợp lý để giúp các cơ quan hành chính cũ từng bước tích hợp vào hệ thống mới.",
+          "text": "Cung cấp dịch vụ chuyển đổi số trả phí hợp lý để giúp các cơ quan hành chính cũ từng bước tích hợp vào hệ thống DAO mới.",
           "effects": {
             "wealthDelta": 12,
             "controlDelta": 4,
@@ -2291,7 +2291,7 @@
     "id": "ubi",
     "title": "Thu nhập Cơ bản Phổ quát",
     "image": "scenario-ubi.png",
-    "context": "Trước làn sóng thất nghiệp do tự động hóa, chính phủ thí điểm UBI (Trợ cấp sinh hoạt vô điều kiện) — mỗi công dân nhận 5 triệu đồng/tháng vô điều kiện. Nguồn tài trợ: thuế lợi nhuận doanh nghiệp công nghệ.",
+    "context": "Trước làn sóng thất nghiệp do tự động hóa, chính phủ thí điểm UBI (Thu nhập Cơ bản Phổ quát) — mỗi công dân nhận 5 triệu đồng/tháng vô điều kiện. Nguồn tài trợ: thuế lợi nhuận doanh nghiệp công nghệ.",
     "roleSpecificChoices": {
       "cong-nhan": [
         {
@@ -2499,7 +2499,7 @@
     "id": "khung-hoang-thuat-toan",
     "title": "Khủng hoảng Thuật toán",
     "image": "scenario-algorithm.png",
-    "context": "Thuật toán của nền tảng việc làm tự do tự động phân phối việc làm theo điểm uy tín — lao động mới, người cao tuổi và vùng ngoại ô liên tục không nhận được đơn hàng. Xã hội yêu cầu can thiệp vào cách thuật toán vận hành.",
+    "context": "Thuật toán của nền tảng gig tự động phân phối việc làm theo điểm uy tín — lao động mới, người cao tuổi và vùng ngoại ô liên tục không nhận được đơn hàng. Xã hội yêu cầu can thiệp vào cách thuật toán vận hành.",
     "roleSpecificChoices": {
       "cong-nhan": [
         {
@@ -3123,7 +3123,7 @@
     "id": "lien-doan-lao-dong-so",
     "title": "Liên đoàn Lao động Số",
     "image": "scenario-digital-union.png",
-    "context": "Nhóm 500 lao động tự do trên khắp cả nước muốn thành lập liên đoàn lao động số đầu tiên để đàm phán điều khoản làm việc, mức phí tối thiểu và bảo hiểm. Nền tảng lớn đe dọa khóa tài khoản những người tham gia.",
+    "context": "Nhóm 500 gig worker trên khắp cả nước muốn thành lập liên đoàn lao động số đầu tiên để đàm phán điều khoản làm việc, mức phí tối thiểu và bảo hiểm. Nền tảng lớn đe dọa khóa tài khoản những người tham gia.",
     "roleSpecificChoices": {
       "cong-nhan": [
         {
@@ -3260,7 +3260,7 @@
         },
         {
           "id": "C",
-          "text": "Viết bài nghiên cứu chính sách, đề xuất khung pháp lý mới công nhận quyền lợi của lao động tự do nhưng không làm khó doanh nghiệp.",
+          "text": "Viết bài nghiên cứu chính sách, đề xuất khung pháp lý mới công nhận quyền lợi của lao động gig nhưng không làm khó doanh nghiệp.",
           "effects": {
             "wealthDelta": 10,
             "controlDelta": 5,
@@ -3747,12 +3747,12 @@
     "id": "bat-dong-san-ao",
     "title": "Bong bóng Bất động sản Ảo",
     "image": "scenario-metaverse.png",
-    "context": "Các nền tảng thế giới ảo đang bùng nổ. Đất ảo được mua đi bán lại với giá hàng trăm triệu đồng trong khi hạ tầng số thực tế cho người nghèo thiếu đầu tư trầm trọng.",
+    "context": "Các nền tảng metaverse đang bùng nổ. Đất ảo được mua đi bán lại với giá hàng trăm triệu đồng trong khi hạ tầng số thực tế cho người nghèo thiếu đầu tư trầm trọng.",
     "roleSpecificChoices": {
       "cong-nhan": [
         {
           "id": "A",
-          "text": "Nhận làm thêm giờ cày tiền ảo và xây dựng hạ tầng thế giới ảo cho giới nhà giàu để kiếm thu nhập cao, mặc kệ điều kiện sống thực tế ngày càng tồi tệ.",
+          "text": "Nhận làm thêm giờ cày tiền ảo và xây dựng hạ tầng metaverse cho giới nhà giàu để kiếm thu nhập cao, mặc kệ điều kiện sống thực tế ngày càng tồi tệ.",
           "effects": {
             "wealthDelta": 15,
             "controlDelta": -10,
@@ -3834,7 +3834,7 @@
         },
         {
           "id": "C",
-          "text": "Bán một phần nông sản trên thế giới ảo để thu hút vốn, dùng tiền đó tự lắp đặt hệ thống tưới tiêu tự động và internet cho trang trại của mình.",
+          "text": "Bán một phần nông sản trên metaverse để thu hút vốn, dùng tiền đó tự lắp đặt hệ thống tưới tiêu tự động và internet cho trang trại của mình.",
           "effects": {
             "wealthDelta": 8,
             "controlDelta": 4,
@@ -3884,7 +3884,7 @@
         },
         {
           "id": "C",
-          "text": "Vẫn làm việc cho dự án thế giới ảo nhưng đề xuất và thiết kế thêm các không gian giáo dục công cộng miễn phí vào trong thế giới ảo đó.",
+          "text": "Vẫn làm việc cho dự án metaverse nhưng đề xuất và thiết kế thêm các không gian giáo dục công cộng miễn phí vào trong thế giới ảo đó.",
           "effects": {
             "wealthDelta": 10,
             "controlDelta": 5,
@@ -3902,7 +3902,7 @@
       "startup": [
         {
           "id": "A",
-          "text": "Bơm tiền chạy chiến dịch marketing thổi phồng giá trị thế giới ảo, lùa gà nhà đầu tư nhỏ lẻ để chốt lời rồi rút vốn.",
+          "text": "Bơm tiền chạy chiến dịch marketing thổi phồng giá trị metaverse, lùa gà nhà đầu tư nhỏ lẻ để chốt lời rồi rút vốn.",
           "effects": {
             "wealthDelta": 15,
             "controlDelta": 10,
