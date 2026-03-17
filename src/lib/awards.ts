@@ -14,11 +14,18 @@ export function computeAwards(room: GameRoom): Award[] {
   // Fall back to all players if nobody participated
   const players = participated.length > 0 ? participated : allPlayers
 
+  // For POSITIVE awards: must have answered ≥50% of scenarios to be eligible
+  const totalScenarios = room.scenarioIds.length
+  const minForPositive = Math.max(1, Math.ceil(totalScenarios * 0.5))
+  const activeEligible = players.filter((p) => Object.keys(p.choices).length >= minForPositive)
+  // Fallback: if nobody meets threshold (e.g. game ended early), use all participated
+  const positivePool = activeEligible.length > 0 ? activeEligible : players
+
   // ─── Award 1: Ngọn cờ Liên minh ──────────────────────────────────────────
-  const byAlliance = [...players].sort((a, b) => b.allianceContribution - a.allianceContribution)
+  const byAlliance = [...positivePool].sort((a, b) => b.allianceContribution - a.allianceContribution)
   const allianceWinner = byAlliance[0]
-  // Only award if the winner made a net positive alliance contribution
-  if (allianceWinner && allianceWinner.allianceContribution > 0) {
+  if (allianceWinner) {
+    const contrib = Math.round(allianceWinner.allianceContribution)
     awards.push({
       id: 'ngon-co',
       name: 'Ngọn cờ Liên minh',
@@ -28,16 +35,16 @@ export function computeAwards(room: GameRoom): Award[] {
       playerId: allianceWinner.id,
       playerName: allianceWinner.name,
       playerRoleId: allianceWinner.roleId,
-      reason: `Tổng đóng góp Liên minh: +${Math.round(allianceWinner.allianceContribution)} điểm`,
+      reason: contrib > 0 ? `Tổng đóng góp Liên minh: +${contrib} điểm` : `Đóng góp Liên minh cao nhất trong nhóm`,
     })
     awardedPlayerIds.add(allianceWinner.id)
   }
 
   // ─── Award 2: Kẻ sinh tồn Tối ưu ────────────────────────────────────────
-  // Highest WEALTH GROWTH (wealth - startWealth) — removes starting advantage of richer roles
-  const eligible = players.filter((p) => !awardedPlayerIds.has(p.id) && p.neverHurtAlliance)
-  const survivorPool = eligible.length > 0 ? eligible : players.filter((p) => !awardedPlayerIds.has(p.id) && p.allianceContribution >= 0)
-  const finalPool = survivorPool.length > 0 ? survivorPool : players.filter((p) => !awardedPlayerIds.has(p.id))
+  // Highest WEALTH GROWTH — from positivePool only (must have answered ≥50% rounds)
+  const eligible = positivePool.filter((p) => !awardedPlayerIds.has(p.id) && p.neverHurtAlliance)
+  const survivorPool = eligible.length > 0 ? eligible : positivePool.filter((p) => !awardedPlayerIds.has(p.id) && p.allianceContribution >= 0)
+  const finalPool = survivorPool.length > 0 ? survivorPool : positivePool.filter((p) => !awardedPlayerIds.has(p.id))
   const survivalWinner = [...finalPool].sort((a, b) => {
     const gainA = a.wealth - ROLES[a.roleId].startWealth
     const gainB = b.wealth - ROLES[b.roleId].startWealth
@@ -70,8 +77,8 @@ export function computeAwards(room: GameRoom): Award[] {
   }))
   const riskWinner = [...withRiskScore].sort((a, b) => b.riskScore - a.riskScore)[0]
 
-  // Only give this "negative" award if the imbalance is actually meaningful (score > 15)
-  if (riskWinner && riskWinner.riskScore > 15) {
+  // Only give this "negative" award if there's actually someone imbalanced (score > 5)
+  if (riskWinner && riskWinner.riskScore > 5) {
     const startWealth = ROLES[riskWinner.player.roleId].startWealth
     const gained = Math.round(riskWinner.player.wealth - startWealth)
     awards.push({
@@ -89,11 +96,11 @@ export function computeAwards(room: GameRoom): Award[] {
   }
 
   // ─── Award 4: Nhà Cách tân ────────────────────────────────────────────────
-  // Highest influence — the political voice / thought leader of the society
-  const influencePool = players.filter((p) => !awardedPlayerIds.has(p.id))
+  // Highest influence — from positivePool only
+  const influencePool = positivePool.filter((p) => !awardedPlayerIds.has(p.id))
   const influenceWinner = [...influencePool].sort((a, b) => b.influence - a.influence)[0]
 
-  if (influenceWinner && influenceWinner.influence > 40) {
+  if (influenceWinner) {
     awards.push({
       id: 'nha-cach-tan',
       name: 'Nhà Cách tân',
@@ -109,11 +116,11 @@ export function computeAwards(room: GameRoom): Award[] {
   }
 
   // ─── Award 5: Lá chắn Xã hội ─────────────────────────────────────────────
-  // Highest resilience — survived all crises with strong social safety net
-  const resiliencePool = players.filter((p) => !awardedPlayerIds.has(p.id))
+  // Highest resilience — from positivePool only
+  const resiliencePool = positivePool.filter((p) => !awardedPlayerIds.has(p.id))
   const resilienceWinner = [...resiliencePool].sort((a, b) => b.resilience - a.resilience)[0]
 
-  if (resilienceWinner && resilienceWinner.resilience > 54) {
+  if (resilienceWinner) {
     awards.push({
       id: 'la-chan-xa-hoi',
       name: 'Lá chắn Xã hội',
