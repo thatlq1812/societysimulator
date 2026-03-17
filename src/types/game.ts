@@ -125,6 +125,7 @@ export interface PlayerPublic {
   resilience: number
   allianceContribution: number
   choiceCount: number
+  totalScore: number  // composite score: net gains across all micro stats + alliance contribution
 }
 
 export interface ChoiceBreakdown {

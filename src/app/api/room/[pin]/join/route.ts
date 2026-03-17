@@ -47,6 +47,7 @@ export async function POST(
       influence: player.influence, resilience: player.resilience,
       allianceContribution: player.allianceContribution,
       choiceCount: 0,
+      totalScore: 0,
     },
     macro: room.macro,
   }

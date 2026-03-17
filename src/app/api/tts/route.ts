@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleAuth } from 'google-auth-library'
 import path from 'path'
+import fs from 'fs'
 
 const KEY_FILE = path.join(process.cwd(), 'gcp-github-key.json')
 const TTS_ENDPOINT = 'https://texttospeech.googleapis.com/v1/text:synthesize'
@@ -12,10 +13,12 @@ let tokenExpiry = 0
 async function getAccessToken(): Promise<string> {
   if (cachedToken && Date.now() < tokenExpiry) return cachedToken
 
-  const auth = new GoogleAuth({
-    keyFile: KEY_FILE,
-    scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-  })
+  // Use key file if present (local dev), otherwise use ADC (Cloud Run metadata server)
+  const authOptions = fs.existsSync(KEY_FILE)
+    ? { keyFile: KEY_FILE, scopes: ['https://www.googleapis.com/auth/cloud-platform'] }
+    : { scopes: ['https://www.googleapis.com/auth/cloud-platform'] }
+
+  const auth = new GoogleAuth(authOptions)
   const client = await auth.getClient()
   const tokenResponse = await client.getAccessToken()
   const token = tokenResponse.token
@@ -50,7 +53,7 @@ export async function POST(req: NextRequest) {
         voice: { languageCode: 'vi-VN', ...voice },
         audioConfig: {
           audioEncoding: 'MP3',
-          speakingRate: 0.9,
+          speakingRate: 1.25,
           pitch: 0,
         },
       }

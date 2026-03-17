@@ -534,6 +534,7 @@ export default function PlayPage() {
           myAward={myAward}
           currentPlayer={currentPlayer}
           roleId={roleId}
+          playerId={playerId}
         />
       )}
     </>
@@ -546,11 +547,13 @@ function PlayerResultsView({
   myAward,
   currentPlayer,
   roleId,
+  playerId,
 }: {
   state: RoomStatePublic
   myAward: Award | undefined
   currentPlayer: RoomStatePublic['players'][number] | undefined
   roleId: RoleId | null
+  playerId: string | null
 }) {
   const [entered, setEntered] = useState(false)
 
@@ -595,6 +598,27 @@ function PlayerResultsView({
         {currentPlayer && roleId && (
           <div className="rounded-2xl border border-white/15 bg-slate-900/70 backdrop-blur-sm p-4">
             <MicroStats darkMode roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} allianceContribution={currentPlayer.allianceContribution} choiceCount={currentPlayer.choiceCount} />
+          </div>
+        )}
+
+        {/* Leaderboard: top 5 by totalScore */}
+        {state.players && state.players.length > 1 && (
+          <div className="rounded-2xl border border-white/15 bg-slate-900/70 backdrop-blur-sm overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-white/10 flex items-center gap-2 bg-amber-600/40">
+              <span className="font-bold text-xs uppercase tracking-widest text-amber-200">🏆 Bảng xếp hạng</span>
+            </div>
+            <div className="divide-y divide-white/10">
+              {[...state.players]
+                .sort((a, b) => b.totalScore - a.totalScore)
+                .slice(0, 5)
+                .map((p, i) => (
+                  <div key={p.id} className={`flex items-center gap-3 px-4 py-2 ${p.id === playerId ? 'bg-white/10' : ''}`}>
+                    <span className={`text-sm font-bold tabular-nums w-5 text-center ${i === 0 ? 'text-amber-300' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-orange-400' : 'text-white/50'}`}>{i + 1}</span>
+                    <span className="flex-1 text-sm text-white/90 truncate">{p.name}{p.id === playerId ? ' (bạn)' : ''}</span>
+                    <span className="tabular-nums text-sm font-bold text-emerald-300">{p.totalScore > 0 ? '+' : ''}{p.totalScore}</span>
+                  </div>
+                ))}
+            </div>
           </div>
         )}
 

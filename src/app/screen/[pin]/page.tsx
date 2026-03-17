@@ -189,6 +189,16 @@ export default function ScreenPage() {
       setState((prev) =>
         prev ? { ...prev, phase: 'results', outcome: data.outcome, macro: data.macro, socialNews: data.socialNews, awards: data.awards } : prev,
       )
+      // TTS: read the social news bulletin (first 3 paragraphs, skip AI disclaimer)
+      if (data.socialNews) {
+        const paragraphs = stripMarkdown(data.socialNews)
+          .split(/\n{2,}/)
+          .map((p: string) => p.replace(/\n/g, ' ').trim())
+          .filter((p: string) => p.length > 0 && !/tổng hợp bởi AI|phục vụ mục đích học thuật/i.test(p))
+          .slice(0, 3)
+        const text = paragraphs.join(' ')
+        if (text) speakText(text)
+      }
     })
 
     es.addEventListener('ai-commentary', (e) => {

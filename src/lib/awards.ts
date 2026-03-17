@@ -34,11 +34,15 @@ export function computeAwards(room: GameRoom): Award[] {
   }
 
   // ─── Award 2: Kẻ sinh tồn Tối ưu ────────────────────────────────────────
-  // Highest wealth among players who NEVER hurt alliance (excluding already awarded)
+  // Highest WEALTH GROWTH (wealth - startWealth) — removes starting advantage of richer roles
   const eligible = players.filter((p) => !awardedPlayerIds.has(p.id) && p.neverHurtAlliance)
   const survivorPool = eligible.length > 0 ? eligible : players.filter((p) => !awardedPlayerIds.has(p.id) && p.allianceContribution >= 0)
   const finalPool = survivorPool.length > 0 ? survivorPool : players.filter((p) => !awardedPlayerIds.has(p.id))
-  const survivalWinner = [...finalPool].sort((a, b) => b.wealth - a.wealth)[0]
+  const survivalWinner = [...finalPool].sort((a, b) => {
+    const gainA = a.wealth - ROLES[a.roleId].startWealth
+    const gainB = b.wealth - ROLES[b.roleId].startWealth
+    return gainB - gainA
+  })[0]
 
   if (survivalWinner) {
     const startWealth = ROLES[survivalWinner.roleId].startWealth
@@ -52,9 +56,7 @@ export function computeAwards(room: GameRoom): Award[] {
       playerId: survivalWinner.id,
       playerName: survivalWinner.name,
       playerRoleId: survivalWinner.roleId,
-      reason: eligible.length > 0
-        ? `Tích lũy cuối: ${Math.round(survivalWinner.wealth)} (+${gained} từ khởi điểm), không làm hại Liên minh`
-        : `Tích lũy cuối: ${Math.round(survivalWinner.wealth)} (+${gained} từ khởi điểm)`,
+      reason: `Tăng trưởng tích lũy: +${gained} từ khởi điểm (tổng: ${Math.round(survivalWinner.wealth)})`,
     })
     awardedPlayerIds.add(survivalWinner.id)
   }
@@ -68,8 +70,8 @@ export function computeAwards(room: GameRoom): Award[] {
   }))
   const riskWinner = [...withRiskScore].sort((a, b) => b.riskScore - a.riskScore)[0]
 
-  // Only give this "negative" award if the imbalance is actually meaningful (score > 5)
-  if (riskWinner && riskWinner.riskScore > 5) {
+  // Only give this "negative" award if the imbalance is actually meaningful (score > 15)
+  if (riskWinner && riskWinner.riskScore > 15) {
     const startWealth = ROLES[riskWinner.player.roleId].startWealth
     const gained = Math.round(riskWinner.player.wealth - startWealth)
     awards.push({
@@ -91,7 +93,7 @@ export function computeAwards(room: GameRoom): Award[] {
   const influencePool = players.filter((p) => !awardedPlayerIds.has(p.id))
   const influenceWinner = [...influencePool].sort((a, b) => b.influence - a.influence)[0]
 
-  if (influenceWinner && influenceWinner.influence > 30) {
+  if (influenceWinner && influenceWinner.influence > 40) {
     awards.push({
       id: 'nha-cach-tan',
       name: 'Nhà Cách tân',
@@ -111,7 +113,7 @@ export function computeAwards(room: GameRoom): Award[] {
   const resiliencePool = players.filter((p) => !awardedPlayerIds.has(p.id))
   const resilienceWinner = [...resiliencePool].sort((a, b) => b.resilience - a.resilience)[0]
 
-  if (resilienceWinner && resilienceWinner.resilience > 40) {
+  if (resilienceWinner && resilienceWinner.resilience > 54) {
     awards.push({
       id: 'la-chan-xa-hoi',
       name: 'Lá chắn Xã hội',

@@ -87,17 +87,30 @@ export function serializeRoom(room: GameRoom) {
     totalScenarios: room.scenarioIds.length,
     currentScenario: getCurrentScenario(room),
     scenarioStartedAt: room.scenarioStartedAt,
-    players: [...room.players.values()].map((p) => ({
-      id: p.id,
-      name: p.name,
-      roleId: p.roleId,
-      wealth: p.wealth,
-      control: p.control,
-      influence: p.influence,
-      resilience: p.resilience,
-      allianceContribution: p.allianceContribution,
-      choiceCount: Object.keys(p.choices).length,
-    })),
+    players: [...room.players.values()].map((p) => {
+      const role = ROLES[p.roleId]
+      // totalScore = net gain from starting position across all 4 micro stats + alliance bonus
+      // Weights: wealth/control at 1.0 (economic), influence/resilience at 0.8 (social), alliance at 0.5 (collective)
+      const totalScore = Math.round(
+        (p.wealth - role.startWealth) * 1.0 +
+        (p.control - role.startControl) * 1.0 +
+        (p.influence - 30) * 0.8 +
+        (p.resilience - 50) * 0.8 +
+        p.allianceContribution * 0.5
+      )
+      return {
+        id: p.id,
+        name: p.name,
+        roleId: p.roleId,
+        wealth: p.wealth,
+        control: p.control,
+        influence: p.influence,
+        resilience: p.resilience,
+        allianceContribution: p.allianceContribution,
+        choiceCount: Object.keys(p.choices).length,
+        totalScore,
+      }
+    }),
     macro: room.macro,
     outcome: room.outcome,
     socialNews: room.socialNews,
