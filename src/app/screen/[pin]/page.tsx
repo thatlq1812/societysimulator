@@ -369,7 +369,7 @@ export default function ScreenPage() {
             {scenario && (
               <div className="grid grid-cols-1 lg:grid-cols-[1fr_180px] xl:grid-cols-[1fr_200px] gap-3 animate-fade-in">
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col justify-center">
-                  <p className="text-sm leading-relaxed text-foreground/90">{scenario.context}</p>
+                  <p className="text-xl leading-relaxed text-foreground/90">{scenario.context}</p>
                 </div>
                 {SCENARIO_IMAGE_MAP[scenario.id] && (
                   <div className="rounded-xl overflow-hidden border border-border shadow-md hidden lg:block relative">
