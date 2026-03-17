@@ -9,9 +9,10 @@ interface CountdownTimerProps {
   duration?: number  // seconds, default 30
   onExpire?: () => void
   className?: string
+  muted?: boolean  // suppress all countdown sounds
 }
 
-export function CountdownTimer({ startedAt, duration = 30, onExpire, className }: CountdownTimerProps) {
+export function CountdownTimer({ startedAt, duration = 30, onExpire, className, muted = false }: CountdownTimerProps) {
   const [remaining, setRemaining] = useState(duration)
   const onExpireRef = useRef(onExpire)
   onExpireRef.current = onExpire
@@ -24,9 +25,9 @@ export function CountdownTimer({ startedAt, duration = 30, onExpire, className }
       setRemaining(left)
 
       // Sound on last 5 seconds
-      if (left !== lastTickRef.current && left <= 5 && left > 0) {
+      if (!muted && left !== lastTickRef.current && left <= 5 && left > 0) {
         playSound('countdown-urgent')
-      } else if (left !== lastTickRef.current && left <= 10 && left > 5) {
+      } else if (!muted && left !== lastTickRef.current && left <= 10 && left > 5) {
         playSound('countdown-tick')
       }
       lastTickRef.current = left

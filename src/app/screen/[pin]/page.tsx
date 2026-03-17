@@ -27,9 +27,95 @@ export default function ScreenPage() {
   const [commentaryStreaming, setCommentaryStreaming] = useState(false)
   const [trendStreaming, setTrendStreaming] = useState(false)
   const eventSourceRef = useRef<EventSource | null>(null)
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null)
+  const ttsAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  /** Call /api/tts, play the returned MP3 audio */
+  const BG_VOLUME_NORMAL = 0.25
+  const BG_VOLUME_DUCK = 0.05
+  const DUCK_FADE_MS = 400
+
+  function duckBgMusic(targetVolume: number) {
+    const bg = bgMusicRef.current
+    if (!bg) return
+    const start = bg.volume
+    const diff = targetVolume - start
+    const steps = 20
+    let step = 0
+    const interval = setInterval(() => {
+      step++
+      bg.volume = Math.max(0, Math.min(1, start + diff * (step / steps)))
+      if (step >= steps) clearInterval(interval)
+    }, DUCK_FADE_MS / steps)
+  }
+
+  async function speakText(text: string) {
+    try {
+      // Stop any currently playing TTS
+      if (ttsAudioRef.current) {
+        ttsAudioRef.current.pause()
+        ttsAudioRef.current = null
+      }
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      })
+      if (!res.ok) return
+      const { audioContent } = await res.json()
+      if (!audioContent) return
+      const audio = new Audio(`data:audio/mp3;base64,${audioContent}`)
+      audio.volume = 0.9
+      ttsAudioRef.current = audio
+
+      // Duck background music before playing
+      duckBgMusic(BG_VOLUME_DUCK)
+
+      audio.addEventListener('ended', () => {
+        ttsAudioRef.current = null
+        // Restore background music volume after TTS finishes
+        duckBgMusic(BG_VOLUME_NORMAL)
+      }, { once: true })
+
+      audio.play().catch(() => {
+        // If playback fails, restore bg volume
+        duckBgMusic(BG_VOLUME_NORMAL)
+      })
+    } catch { /* ignore */ }
+  }
+
+  // Background music — plays /background.mp3 if the file exists
+  useEffect(() => {
+    const audio = new Audio('/background.mp3')
+    audio.loop = true
+    audio.volume = 0.25
+    bgMusicRef.current = audio
+
+    const tryPlay = () => {
+      audio.play().catch(() => {})
+    }
+
+    audio.addEventListener('error', () => {
+      // File doesn't exist or can't be loaded — silently skip
+      bgMusicRef.current = null
+    })
+
+    // Try autoplay; if blocked, play on first user interaction
+    audio.play().catch(() => {
+      document.addEventListener('click', tryPlay, { once: true })
+      document.addEventListener('keydown', tryPlay, { once: true })
+    })
+
+    return () => {
+      audio.pause()
+      document.removeEventListener('click', tryPlay)
+      document.removeEventListener('keydown', tryPlay)
+      bgMusicRef.current = null
+    }
+  }, [])
 
   useEffect(() => {
-    // Generate QR
+    // Generate QR (larger for projection screen)
     async function fetchQR() {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
       const url = `${appUrl}/join?pin=${pin}`
@@ -37,7 +123,7 @@ export default function ScreenPage() {
       try {
         const QRCode = (await import('qrcode')).default
         const dataUrl = await QRCode.toDataURL(url, {
-          width: 300,
+          width: 500,
           margin: 2,
           color: { dark: '#000000', light: '#ffffff' },
         })
@@ -70,6 +156,10 @@ export default function ScreenPage() {
       setState((prev) =>
         prev ? { ...prev, phase: 'playing', currentScenarioIndex: data.scenarioIndex, currentScenario: data.scenario, scenarioStartedAt: data.scenarioStartedAt, totalScenarios: data.totalScenarios ?? prev.totalScenarios, voteCount: 0, lastBreakdown: undefined, aiCommentary: undefined, aiTrend: undefined } : prev,
       )
+      // TTS: call Google TTS API to read scenario context aloud
+      if (data.scenario?.context) {
+        speakText(data.scenario.context)
+      }
     })
 
     es.addEventListener('vote-update', (e) => {
@@ -117,7 +207,13 @@ export default function ScreenPage() {
       // Reconnect automatically (browser handles this for SSE)
     }
 
-    return () => es.close()
+    return () => {
+      es.close()
+      if (ttsAudioRef.current) {
+        ttsAudioRef.current.pause()
+        ttsAudioRef.current = null
+      }
+    }
   }, [pin])
 
   if (!state) {
@@ -176,7 +272,7 @@ export default function ScreenPage() {
           </div>
 
           <div className="flex flex-col items-center justify-center space-y-6">
-            {qrDataUrl && <QRDisplay qrDataUrl={qrDataUrl} joinUrl={joinUrl} pin={pin} />}
+            {qrDataUrl && <QRDisplay qrDataUrl={qrDataUrl} joinUrl={joinUrl} pin={pin} size="large" />}
             <p className="text-muted-foreground text-center text-sm">
               Quét QR hoặc truy cập URL · Nhập tên để bắt đầu
             </p>
@@ -224,7 +320,7 @@ export default function ScreenPage() {
           </div>
           <div className="flex items-center gap-6">
             {state.phase === 'playing' && state.scenarioStartedAt && (
-              <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} className="scale-110" />
+              <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} className="scale-110" muted />
             )}
             <div className="text-right">
               <p className="text-xs text-muted-foreground">Người chơi</p>
@@ -237,6 +333,24 @@ export default function ScreenPage() {
             </div>
           </div>
         </div>
+
+        {/* Vote progress bar — visible during playing phase */}
+        {state.phase === 'playing' && state.playerCount > 0 && (
+          <div className="flex-shrink-0 space-y-1 animate-fade-in">
+            <div className="flex items-center justify-between text-xs text-muted-foreground mb-0.5">
+              <span>Tiến độ bỏ phiếu</span>
+              <span className="font-medium text-emerald-600 tabular-nums">
+                {state.voteCount ?? 0}/{state.playerCount} ({Math.round(((state.voteCount ?? 0) / state.playerCount) * 100)}%)
+              </span>
+            </div>
+            <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${((state.voteCount ?? 0) / state.playerCount) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Main content — 2 column layout */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 overflow-hidden">

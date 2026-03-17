@@ -22,15 +22,15 @@ export function PlayerRoster({ players, className }: PlayerRosterProps) {
         const role = ROLES[rid]
         const rolePlayers = byRole[rid]
         return (
-          <div key={rid} className={cn('rounded-xl border p-2.5', role.bgClass, role.borderClass)}>
+          <div key={rid} className={cn('rounded-xl border p-2.5 min-w-0 overflow-hidden', role.bgClass, role.borderClass)}>
             <div className="flex items-center gap-1.5 mb-1.5">
               <IconByKey name={role.icon} size={16} className={role.colorClass} />
-              <span className={cn('text-xs font-semibold', role.colorClass)}>{role.name}</span>
-              <span className="ml-auto text-xs text-muted-foreground tabular-nums">{rolePlayers.length}</span>
+              <span className={cn('text-xs font-semibold truncate', role.colorClass)}>{role.name}</span>
+              <span className="ml-auto text-xs text-muted-foreground tabular-nums flex-shrink-0">{rolePlayers.length}</span>
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1 w-full">
               {rolePlayers.map((p) => (
-                <span key={p.id} className="text-[11px] bg-background/40 rounded px-1.5 py-0.5">
+                <span key={p.id} className="text-[11px] bg-background/40 rounded px-1.5 py-0.5 break-all min-w-0 max-w-full">
                   {p.name}
                 </span>
               ))}

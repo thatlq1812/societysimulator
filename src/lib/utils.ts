@@ -9,6 +9,11 @@ export function clamp(value: number, min = 0, max = 100): number {
   return Math.min(max, Math.max(min, value))
 }
 
+/** Clamp with only a lower bound — player micro stats have no upper ceiling */
+export function clampMin(value: number, min = 0): number {
+  return Math.max(min, value)
+}
+
 /** Strip markdown formatting (bold, italic, headers) from AI-generated text */
 export function stripMarkdown(text: string): string {
   return text

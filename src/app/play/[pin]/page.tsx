@@ -335,7 +335,7 @@ export default function PlayPage() {
           {/* Subtle top gradient */}
           <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-primary/3 to-transparent pointer-events-none rounded-b-3xl" />
           <div className="flex items-center justify-between mb-2">
-            <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} />
+            <CountdownTimer startedAt={state.scenarioStartedAt} duration={30} muted />
             {currentPlayer && roleId && (
               <MicroStats roleId={roleId} wealth={currentPlayer.wealth} control={currentPlayer.control} influence={currentPlayer.influence} resilience={currentPlayer.resilience} className="text-right" />
             )}
@@ -429,15 +429,15 @@ export default function PlayPage() {
                       return (
                         <div key={key} className={cn('rounded-lg p-2', bg)}>
                           <div className="flex items-center justify-center gap-1">
-                            <p className={cn(color, 'font-bold tabular-nums')}>{Math.round(value)}</p>
+                            <p className={cn(color, 'font-bold tabular-nums text-base')}>{Math.round(value)}</p>
                             {delta !== 0 && (
-                              <span className={cn('text-[10px] font-bold tabular-nums', delta > 0 ? 'text-emerald-500' : 'text-red-500')}>
+                              <span className={cn('text-xs font-bold tabular-nums', delta > 0 ? 'text-emerald-500' : 'text-red-500')}>
                                 {delta > 0 ? '+' : ''}{delta}
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground">{label}</p>
-                          <p className="text-[10px] text-muted-foreground/50">{desc}</p>
+                          <p className="text-sm font-medium text-foreground/80">{label}</p>
+                          <p className="text-[10px] text-muted-foreground/60">{desc}</p>
                         </div>
                       )
                     })}

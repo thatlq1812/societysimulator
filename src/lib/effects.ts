@@ -1,7 +1,7 @@
 import type { GameRoom, MacroState, MacroSnapshot, OutcomeId, ChoiceId, ChoiceEffects } from '@/types/game'
 import { getChoicesForRole } from '@/types/game'
 import { getCurrentScenario } from '@/lib/game-store'
-import { clamp } from '@/lib/utils'
+import { clamp, clampMin } from '@/lib/utils'
 
 /**
  * Dampening function: diminishing returns near extremes (0 and 100).
@@ -94,8 +94,19 @@ export function computeScenarioEffects(
   let totalDemocracyDelta = 0
 
   for (const player of room.players.values()) {
+    // Baseline cost of living every round — economic pressure means stats don't always rise
+    player.wealth = clampMin(player.wealth - 2)
+    player.resilience = clampMin(player.resilience - 1)
+
     const choiceId = player.choices[scenario.id] as ChoiceId | undefined
-    if (!choiceId) continue
+    if (!choiceId) {
+      // Heavy non-participation penalty: absent from social decisions, lose ground fast
+      player.wealth = clampMin(player.wealth - 8)
+      player.control = clampMin(player.control - 3)
+      player.influence = clampMin(player.influence - 6)
+      player.resilience = clampMin(player.resilience - 4)
+      continue
+    }
 
     // Look up the role-specific choices for this player
     const roleChoices = scenario.roleSpecificChoices[player.roleId]
@@ -105,11 +116,11 @@ export function computeScenarioEffects(
     // Apply dynamic scoring based on current macro state
     const fx = dynamicScore(choice.effects, room.macro)
 
-    // Update player micro stats
-    player.wealth = clamp(player.wealth + fx.wealthDelta)
-    player.control = clamp(player.control + fx.controlDelta)
-    player.influence = clamp(player.influence + (fx.influenceDelta || 0))
-    player.resilience = clamp(player.resilience + (fx.resilienceDelta || 0))
+    // Update player micro stats — no upper ceiling, only lower bound of 0
+    player.wealth = clampMin(player.wealth + fx.wealthDelta)
+    player.control = clampMin(player.control + fx.controlDelta)
+    player.influence = clampMin(player.influence + (fx.influenceDelta || 0))
+    player.resilience = clampMin(player.resilience + (fx.resilienceDelta || 0))
     player.allianceContribution += fx.allianceDelta
 
     if (fx.allianceDelta < 0) {

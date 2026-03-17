@@ -2,16 +2,23 @@ import type { GameRoom, Award } from '@/types/game'
 import { ROLES } from '@/lib/roles'
 
 export function computeAwards(room: GameRoom): Award[] {
-  const players = [...room.players.values()]
-  if (players.length === 0) return []
+  const allPlayers = [...room.players.values()]
+  if (allPlayers.length === 0) return []
 
   const awards: Award[] = []
   const awardedPlayerIds = new Set<string>()
 
+  // Only players who participated (voted at least once) are eligible for awards
+  const minChoices = 1
+  const participated = allPlayers.filter((p) => Object.keys(p.choices).length >= minChoices)
+  // Fall back to all players if nobody participated
+  const players = participated.length > 0 ? participated : allPlayers
+
   // ─── Award 1: Ngọn cờ Liên minh ──────────────────────────────────────────
   const byAlliance = [...players].sort((a, b) => b.allianceContribution - a.allianceContribution)
   const allianceWinner = byAlliance[0]
-  if (allianceWinner) {
+  // Only award if the winner made a net positive alliance contribution
+  if (allianceWinner && allianceWinner.allianceContribution > 0) {
     awards.push({
       id: 'ngon-co',
       name: 'Ngọn cờ Liên minh',
@@ -61,7 +68,8 @@ export function computeAwards(room: GameRoom): Award[] {
   }))
   const riskWinner = [...withRiskScore].sort((a, b) => b.riskScore - a.riskScore)[0]
 
-  if (riskWinner) {
+  // Only give this "negative" award if the imbalance is actually meaningful (score > 5)
+  if (riskWinner && riskWinner.riskScore > 5) {
     const startWealth = ROLES[riskWinner.player.roleId].startWealth
     const gained = Math.round(riskWinner.player.wealth - startWealth)
     awards.push({

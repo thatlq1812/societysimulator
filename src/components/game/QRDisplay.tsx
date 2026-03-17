@@ -2,14 +2,16 @@ interface QRDisplayProps {
   qrDataUrl: string
   joinUrl: string
   pin: string
+  size?: 'normal' | 'large'
 }
 
-export function QRDisplay({ qrDataUrl, joinUrl, pin }: QRDisplayProps) {
+export function QRDisplay({ qrDataUrl, joinUrl, pin, size = 'normal' }: QRDisplayProps) {
+  const imgClass = size === 'large' ? 'w-96 h-96' : 'w-64 h-64'
   return (
     <div className="flex flex-col items-center gap-5">
       <div className="rounded-2xl overflow-hidden border-2 border-primary/20 p-3 bg-white shadow-lg">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
+        <img src={qrDataUrl} alt="QR Code" className={imgClass} />
       </div>
       <div className="text-center space-y-1.5">
         <p className="text-5xl font-bold tracking-[0.3em] text-accent">{pin}</p>
