@@ -94,9 +94,10 @@ export function computeScenarioEffects(
   let totalDemocracyDelta = 0
 
   for (const player of room.players.values()) {
-    // Baseline cost of living every round — economic pressure means stats don't always rise
-    player.wealth = clampMin(player.wealth - 2)
+    // Baseline cost of living every round — wealth, resilience, AND control erode without active effort
+    player.wealth = clampMin(player.wealth - 1)
     player.resilience = clampMin(player.resilience - 1)
+    player.control = clampMin(player.control - 1)  // power erodes if not exercised
 
     const choiceId = player.choices[scenario.id] as ChoiceId | undefined
     if (!choiceId) {
@@ -116,6 +117,16 @@ export function computeScenarioEffects(
     // Apply dynamic scoring based on current macro state
     const fx = dynamicScore(choice.effects, room.macro)
 
+    // Player-level control modifier: control represents negotiating/political power
+    // Low control → reduced ability to convert choices into wealth gains
+    if (player.control < 15 && fx.wealthDelta > 0) {
+      fx.wealthDelta = Math.round(fx.wealthDelta * 0.7)
+    }
+    // High control → translates into social stability bonus
+    if (player.control > 45) {
+      fx.resilienceDelta = (fx.resilienceDelta || 0) + 1
+    }
+
     // Update player micro stats — no upper ceiling, only lower bound of 0
     player.wealth = clampMin(player.wealth + fx.wealthDelta)
     player.control = clampMin(player.control + fx.controlDelta)
@@ -127,8 +138,8 @@ export function computeScenarioEffects(
       player.neverHurtAlliance = false
     }
 
-    // Accumulate macro deltas (weighted by player influence)
-    const influenceWeight = 0.7 + 0.3 * (player.influence / 100)
+    // Accumulate macro deltas (weighted by player influence, capped to prevent runaway)
+    const influenceWeight = Math.min(1.5, 0.7 + 0.3 * (player.influence / 100))
     totalAllianceDelta += fx.allianceDelta * influenceWeight
     totalStratDelta += fx.stratificationDelta * influenceWeight
     totalProdDelta += fx.productionDelta * influenceWeight

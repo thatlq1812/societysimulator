@@ -13,8 +13,8 @@ export const ROLES: Record<RoleId, Role> = {
     colorClass: 'text-blue-600',
     bgClass: 'bg-blue-50',
     borderClass: 'border-blue-200',
-    startWealth: 5,
-    startControl: 8,
+    startWealth: 18,
+    startControl: 10,
   },
   'nong-dan': {
     id: 'nong-dan',
@@ -28,8 +28,8 @@ export const ROLES: Record<RoleId, Role> = {
     colorClass: 'text-emerald-600',
     bgClass: 'bg-emerald-50',
     borderClass: 'border-emerald-200',
-    startWealth: 8,
-    startControl: 12,
+    startWealth: 22,
+    startControl: 14,
   },
   'tri-thuc': {
     id: 'tri-thuc',
@@ -43,8 +43,8 @@ export const ROLES: Record<RoleId, Role> = {
     colorClass: 'text-violet-600',
     bgClass: 'bg-violet-50',
     borderClass: 'border-violet-200',
-    startWealth: 12,
-    startControl: 20,
+    startWealth: 28,
+    startControl: 22,
   },
   'startup': {
     id: 'startup',
@@ -58,8 +58,8 @@ export const ROLES: Record<RoleId, Role> = {
     colorClass: 'text-amber-600',
     bgClass: 'bg-amber-50',
     borderClass: 'border-amber-200',
-    startWealth: 20,
-    startControl: 25,
+    startWealth: 38,
+    startControl: 28,
   },
 }
 
